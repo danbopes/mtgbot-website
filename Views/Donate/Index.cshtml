@@ -1,0 +1,98 @@
+﻿@model IEnumerable<MvcMtgBot.Models.Donation>
+
+@{
+    ViewBag.Title = "Donate";
+    ViewBag.Description = "Help the developer and send your donations via PayPal";
+}
+
+<div class="flat_area grid_16">
+    <p>A lot of hard work has gone into developing MTGBot. MTGBot originally started off with only a few features for <a href="http://twitch.tv/mtgradio">MTGRadio</a> a channel on <a href="http://twitch.tv">twitch.tv</a>, to help with all the cards that can be seen in EDH. From there, it's grown and expanded to being in over 30 active Magic: The Gathering channels, having a multitude of new commands, and getting it's own dedicated server along with this website front end. I only have one problem though: <strong>I need your help!</strong> In order to keep MTGBot going, I need <strong>your</strong> support to help pay for server costs. Any and all donations are greatly appreciated, and helps me out tremendously. By donating, you can gain special perks, like a command that will only respond to you, or if you are a broadcaster, a custom command for your channel.</p>
+    <h4>Some examples of past custom commands:</h4>
+    <ul>
+        <li><a href="http://twitch.tv/strausticles1" target="_blank">strausticles1</a>: !bobquote - Shows a random bob ross quote.</li>
+        <li><a href="http://twitch.tv/edthetinker" target="_blank">edthetinker</a>: !kylequote - Shows a random "Kyle" quote. (Kyle is edthetinker.)</li>
+        <li><a href="http://twitch.tv/dunksauceduck" target="_blank">dunksauceduck</a>: !quack - A personal command, that only he can use.</li>
+    </ul>
+</div>
+
+<div class="box grid_12">
+    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+        <input type="hidden" name="cmd" value="_donations" />
+        <input type="hidden" name="business" value="2RMB6ALU5BGCW" />
+        <input type="hidden" name="lc" value="US" />
+        <input type="hidden" name="item_name" value="MTGBot Donation" />
+        <input type="hidden" name="no_note" value="1" />
+        <input type="hidden" name="no_shipping" value="1" />
+        <input type="hidden" name="rm" value="1" />
+        <input type="hidden" name="return" value="http://mtgbot.tv/Donate/Success" />
+        <input type="hidden" name="notify_url" value="http://mtgbot.tv/Donate/Notify" />
+        <input type="hidden" name="currency_code" value="USD" />
+        <input type="hidden" name="bn" value="PP-DonationsBF:btn_donateCC_LG.gif:NonHosted" />
+        <h2 class="box_head">Donate</h2>
+        <div class="controls">
+            <a href="#" class="toggle"></a>
+        </div>
+        <div class="toggle_container">
+            <div class="block">
+                <fieldset class="label_side top">
+                    <label>Amount</label>
+                    <div class="clearfix">
+                        <input name="amount" type="text" class="required number text">
+                        <div class="required_tag tooltip hover left" title="This field is required"></div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="label_side top">
+                    <label>Twitch TV Username<span></span></label>
+                    <div class="clearfix">
+                        <input name="custom" type="text" class="tooltip right text" value="@Session["user_name"]" title="Leave blank if you wish to remain anonymous.">
+                    </div>
+                </fieldset>
+
+                <div class="button_bar clearfix">
+                    <button class="green dark img_icon send_right has_text">
+                        <img src="~/Images/icons/small/white/paypal_2.png" alt="" />
+                        <span>Donate</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="box grid_4">
+    <h2 class="box_head">Top Donations</h2>
+	<div class="controls">
+        <a href="#" class="toggle"></a>
+	</div>
+	<div class="toggle_container">
+	    <div class="block">
+	        <div class="section">
+	            <table class="static">
+	                <thead>
+	                    <tr>
+	                        <th>Username</th>
+	                        <th>Amount</th>
+	                    </tr>
+	                </thead>
+                    <tbody>
+	                @foreach (var item in Model) {
+	                    <tr>
+	                        <td>
+	                            @if (string.IsNullOrEmpty(item.Username)) {
+                                 @: Anonymous
+	                            } else {
+	                                <a href="http://twitch.tv/@item.Username" target="_blank">@item.Username</a>
+                                 }
+	                        </td>
+	                        <td>
+	                            $@item.Amount.ToString("0.00")
+	                        </td>
+	                    </tr>
+	                }
+                    </tbody>
+	            </table>
+	        </div>
+	    </div>
+	</div>
+</div>

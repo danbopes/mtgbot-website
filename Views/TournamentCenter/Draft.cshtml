@@ -1,0 +1,541 @@
+﻿@using MvcMtgBot.Models
+@model Draft
+@{
+    ViewBag.Title = "Draft Viewer";
+    ViewBag.Description = "Vote on drafts currently in progress on twitch.tv";
+}
+
+<style type="text/css">
+    /*#picks .card {
+    float: left;
+    display: block;
+    width: 20%;
+}
+#picks .card .img_holder {
+    border: none;
+    margin: 5px;
+}
+#picks .card img {
+    border: none;
+    width: 100%;
+    cursor: pointer;
+}*/
+#picks .gallery li a.voted
+{
+    background-color: #1C5EA0;
+    border-color: #064792;
+}
+#votes h3 {
+    height: 30px;
+    margin: 0px !important;
+    padding: 0px;
+}
+
+#picks .previous_pick_overlay {
+    background: #eb0c0a url(/Images/ui-bg_diagonals-thick_40_eb0c0a_40x40.png) 50% 50% repeat;
+    opacity: .5;
+    filter: Alpha(Opacity=50);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#picks .previous_pick_overlay.picked {
+    background: #0a2feb url(/Images/ui-bg_diagonals-thick_40_0a2feb_40x40.png) 50% 50% repeat;
+}
+
+#votes .ui-progressbar-value {
+    margin: -31px -1px -1px -1px;
+}
+
+#votes .ui-progressbar-value.green {
+    background-color: #5eb95e;
+    background-image: -moz-linear-gradient(top, #62c462, #57a957);
+    background-image: -ms-linear-gradient(top, #62c462, #57a957);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#62c462), to(#57a957));
+    background-image: -webkit-linear-gradient(top, #62c462, #57a957);
+    background-image: -o-linear-gradient(top, #62c462, #57a957);
+    background-image: linear-gradient(top, #62c462, #57a957);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#62c462', endColorstr='#57a957', GradientType=0);
+}
+
+#votes .ui-progressbar-value.yellow {
+    background-color: #faa732;
+    background-image: -moz-linear-gradient(top, #fbb450, #f89406);
+    background-image: -ms-linear-gradient(top, #fbb450, #f89406);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fbb450), to(#f89406));
+    background-image: -webkit-linear-gradient(top, #fbb450, #f89406);
+    background-image: -o-linear-gradient(top, #fbb450, #f89406);
+    background-image: linear-gradient(top, #fbb450, #f89406);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fbb450', endColorstr='#f89406', GradientType=0);
+}
+
+#votes .ui-progressbar-value.red {
+    background-color: #dd514c;
+    background-image: -moz-linear-gradient(top, #ee5f5b, #c43c35);
+    background-image: -ms-linear-gradient(top, #ee5f5b, #c43c35);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ee5f5b), to(#c43c35));
+    background-image: -webkit-linear-gradient(top, #ee5f5b, #c43c35);
+    background-image: -o-linear-gradient(top, #ee5f5b, #c43c35);
+    background-image: linear-gradient(top, #ee5f5b, #c43c35);
+    background-repeat: repeat-x;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ee5f5b', endColorstr='#c43c35', GradientType=0);
+}
+
+#votes .ui-progressbar-value {
+    -webkit-transition: width 0.6s ease;
+    -moz-transition: width 0.6s ease;
+    -ms-transition: width 0.6s ease;
+    -o-transition: width 0.6s ease;
+    transition: width 0.6s ease;
+}
+
+</style>
+
+@if (Model.DraftStatus == DraftStatus.Completed)
+{
+    <div class="grid_16">
+        <div class="alert dismissible alert_red">
+            <img height="24" width="24" src="~/Images/icons/small/white/alert.png" alt="" />
+            This draft was completed previously. If you are looking for an active draft, please look @(Html.ActionLink("here", "Index")).
+        </div>
+    </div>
+}
+
+@if (Model.Broadcaster.Name.ToLower() == ((string)Session["user_name"]).ToLower())
+{
+    <div class="box grid_4">
+        <h2 class="box_head">Current Votes</h2>
+        <div class="controls">
+            <a href="#" class="grabber"></a>
+            <a href="#" class="toggle"></a>
+        </div>
+        <div class="toggle_container">
+            <ul class="block content_accordion isotope_holder" id="votes">
+            </ul>
+            <div class="alert alert_green" style="margin: 10px 0 0 0;">
+                <img height="24" width="24" src="~/Images/icons/small/white/mighty_mouse.png" alt="" />
+                Type <strong>!votenow</strong> in chat to follow along and vote
+	        </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="box grid_4">
+        <h2 class="box_head">Full Card</h2>
+        <div class="controls">
+            <a href="#" class="grabber"></a>
+            <a href="#" class="toggle"></a>
+        </div>
+        <div class="toggle_container">
+            <div id="full_card" style="margin: 5px;">
+                
+            </div>
+        </div>
+    </div>
+}
+
+<div class="box grid_8" id="draft_area">
+    <h2 class="box_head">Draft Area</h2>
+    <div class="controls">
+        <a href="#" class="grabber"></a>
+        <a href="#" class="toggle"></a>
+    </div>
+    <div id="picks" class="isotope_holder indented_area" style="margin: 0; padding: 0">
+        <ul class="gallery delete_buttons clearfix">
+        <!--<li class="blue">
+                <a rel="collection" class="no_loading" href="images/content/gallery/blue/image01.jpg">
+                <img src="images/content/gallery/blue/image01_thumb.jpg" height="84" width="148"/>
+            </li>
+            -->
+        </ul>
+    </div>
+</div>
+
+<div class="box grid_4 tabs">
+    <ul class="tab_header clearfix">
+        <li><a href="#tabs-pack1">Pack 1</a></li>
+        <li><a href="#tabs-pack2">Pack 2</a></li>
+        <li><a href="#tabs-pack3">Pack 3</a></li>
+    </ul>
+    <div class="controls">
+        <a href="#" class="grabber"></a>
+        <a href="#" class="toggle"></a>
+    </div>
+    <div class="toggle_container">
+        <div id="tabs-pack1" class="block">
+            <ul class="block content_accordion">
+			</ul>
+		</div>
+        <div id="tabs-pack2" class="block">
+            <ul class="block content_accordion"></ul>
+        </div>
+        <div id="tabs-pack3" class="block">
+            <ul class="block content_accordion"></ul>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <!--Script references. -->
+    <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
+    <!--Reference the SignalR library. -->
+    <script src="~/Scripts/jquery.signalR-1.0.1.js"></script>
+    <!--Reference the autogenerated SignalR hub script. -->
+    <script src="~/signalr/hubs"></script>
+    <!--SignalR script to update the chat page and send messages.--> 
+    <script>
+        $(function() {
+            if(typeof window.console === "undefined") { window.console = { log: function() { } };}
+            // Reference the auto-generated proxy for the hub.  
+            var mtg = $.connection.mtgHub;
+            // Create a function that the hub can call back to display messages.
+            /*mtg.client.addNewMessageToPage = function (name, message) {
+                // Add the message to the page. 
+                $('#discussion').append('<li><strong>' + htmlEncode(name) 
+                    + '</strong>: ' + htmlEncode(message) + '</li>');
+            };*/
+
+            var votes = {
+                currentVote: null
+            };
+
+            var cards = [];
+            
+            function pad(n, width, z) {
+                z = z || '0';
+                n = n + '';
+                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+            }
+            
+            function thumbLink(card) {
+                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
+            }
+            
+            function fullLink(card) {
+                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".full.jpg";
+            }
+            
+            mtg.client.draftCompleted = function() {
+                //$('#draft_area .box_head')
+                $('#draft_area').insertAfter(
+                    $('<div class="box grid_8" id="build_area" />').append(
+                        $('<h2 class="box_head" />').text('Deck Building')
+                    ).append(
+                        $('<div class="controls">').append(
+                            $('<a href="#" class="grabber" />')
+                        ).append(
+                            $('<a href="#" class="toggle" />')
+                        )
+                    ).append(
+                        $('<div id="build_div" class="indented_area" />').append(
+                            $('<ul class="gallery clearfix" />')
+                        )
+                    )
+                );
+
+                var buildArea = $('#build_div ul');
+                
+                $.each(cards, function(idx, card) {
+                    buildArea.Append(
+                        $('<a rel="collection" href="#" onclick="return false;" />').append(
+                            $('<img src="' + thumbLink(card) + '" style="width: 114px; height: 163px" />')
+                        ).data({
+                            'card': card
+                        }).hover(function() {
+                            $('#full_card').empty().append(
+                                $('<img src="' + fullLink(card) + '" style="width: 100%" />')
+                            );
+                        })
+                    );
+                });
+
+                /*
+    <div id="picks" class="isotope_holder indented_area" style="margin: 0; padding: 0">
+        <ul class="gallery delete_buttons clearfix">
+        <!--<li class="blue">
+                <a rel="collection" class="no_loading" href="images/content/gallery/blue/image01.jpg">
+                <img src="images/content/gallery/blue/image01_thumb.jpg" height="84" width="148"/>
+            </li>
+                -->
+            </ul>
+        </div>
+    </div>*/
+            };
+            
+            mtg.client.pendingSelection = function(pickId, previousPicks, picks, dir, time) {
+                //$container.isotope('remove', $container.data('isotope').$allAtoms )
+                try {
+                    $('#picks .gallery').isotope('remove', $('#picks .gallery').data('isotope').$allAtoms);
+                } catch(err) {
+                }
+                console.log("Pending Selection");
+                console.log(previousPicks);
+                $('#tiptip_holder').css('display', 'none');
+                votes.currentVote = pickId;
+                var currentPicks = [];
+
+                $.each(picks, function(idx, el) {
+                    /*$('#picks').append(
+                        $('<div class="card" />').append(
+                            $('<div class="img_holder" />').append(
+                                $('<img src="http://magiccards.info/scans/en/' + el.CardSet.MagicCardsInfoSetShort + '/' + el.MagicCardsInfoId + '.jpg" />')
+                            )
+                        ).click(function() {
+                            console.log("Selecting Card");
+                            mtg.server.sendVote(Model.DraftId, pickId, el.Id);
+                            $(this).addClass('voted');
+                        })
+                    );*/
+
+                    var newItem = $('<li/>').append(
+                        $('<a rel="collection" class="no_loading vote" href="#" onclick="return false;" />').append(
+                            $('<img src="' + thumbLink(el) + '" style="width: 114px; height: 163px" />')
+                        ).data({
+                            'pick-id': pickId,
+                            'card-id': el.Id
+                        }).hover(function() {
+                            $('#full_card').empty().append(
+                                $('<img src="' + fullLink(el) + '" style="width: 100%" />')
+                            );
+                        })
+                    );
+                    $('#picks .gallery').isotope('insert', newItem);
+                    currentPicks.push(el.Id);
+
+                    setTimeout(function() {
+                        $('#picks .gallery li a.vote').click(function() {
+                            //if ($('#picks .gallery a.voted').length > 0)
+                            //    return;
+                            $('#picks .gallery a.voted').removeClass('voted');
+
+                            $(this).addClass('voted');
+                            //console.log("SubmitVote");
+                            //console.log([@Model.Id, pickId, el.Id]);
+                            mtg.server.submitVote(@Model.Id, $(this).data('pick-id'), $(this).data('card-id'));
+                        });
+                    }, 1000);
+                    /*
+                        <!--<a rel="collection" class="no_loading" href="images/content/gallery/blue/image01.jpg">
+                            <img src="images/content/gallery/blue/image01_thumb.jpg" height="84" width="148"/>
+                    </li>-->
+                    */
+                });
+
+                //console.log(currentPicks);
+
+                $.each(previousPicks, function(idx, previousPick) {
+                    $.each(previousPick.Cards, function(idx2, card) {
+                        if ($.inArray(card.Id, currentPicks) == -1) {
+                            var previousPickOverlay = $('<div class="previous_pick_overlay tooltip" />').attr('title', 'This card was picked previously by another player');
+
+                            if (card.Id == previousPick.PickId)
+                                previousPickOverlay.addClass('picked').attr('title', 'This card was picked previously by @Model.Broadcaster.Name');
+                            
+                            var newItem = $('<li/>').append(
+                                $('<a rel="collection" class="no_loading" href="#" onclick="return false;" />').append(
+                                    previousPickOverlay
+                                ).append(
+                                    $('<img src="' + thumbLink(card) + '" style="width: 114px; height: 163px" />')
+                                ).hover(function() {
+                                    $('#full_card').empty().append(
+                                        $('<img src="' + fullLink(card) + '" style="width: 100%" />')
+                                    );
+                                })
+                            );
+                            $('#picks .gallery').isotope('insert', newItem);
+                        }
+                    });
+                });
+                
+                $(".tooltip").tipTip({
+                    defaultPosition: "top",
+                    maxWidth: "auto",
+                    edgeOffset: 0
+                });
+            };
+
+            mtg.client.draftSelection = function(pick, pack) {
+                console.log("Draft Selection");
+                console.log({ pick: pick, pack: pack });
+
+                cards.push(pick);
+
+                var ul = $('#tabs-pack' + pack).find('ul');
+                ul.append(
+                    $('<li />').append(
+                        $('<h3 class="bar" />').text(pick.Name)
+                    ).append(
+                        $('<div class="content" style="display: none;" />').append(
+                            $('<div style="margin: 5px;">').append(
+                                $('<img src="' + fullLink(pick) + '" style="width: 100%; margin: auto; max-width: 312px;" />')
+                            )
+                        )
+                    )
+                );
+                ul.accordion('refresh');
+                ul.parents('.tabs').tabs('option', 'active', pack - 1);
+
+                votes.currentVote = null;
+                try {
+                    $('#votes').isotope('remove', $('#votes').data('isotope').$allAtoms);
+                } catch(err) {
+                }
+            };
+
+            mtg.client.addVote = function(pickId, previousCard, card, username) {
+                console.log("Add Vote");
+                console.log({ pickId: pickId, card: card, username: username });
+                console.log(votes);
+
+                if (votes[pickId]) {
+                    if (!votes[pickId][card.Id]) {
+                        votes[pickId][card.Id] = {
+                            li: null,
+                            votes: 0
+                        };
+                    }
+                } else {
+                    votes[pickId] = {
+                        totalVotes: 0
+                    };
+                    votes[pickId][card.Id] = {
+                        li: null,
+                        votes: 0
+                    };
+                }
+
+                if (previousCard != null) {
+                    votes[pickId][previousCard.Id].votes--;
+                    votes[pickId][previousCard.Id].li.find('span.vote').text(votes[pickId][previousCard.Id].votes);
+                } else {
+                    votes[pickId].totalVotes++;
+                }
+                
+                votes[pickId][card.Id].votes++;
+
+                if (votes.currentVote == null || votes.currentVote != pickId) {
+                    return;
+                }
+
+                if (votes[pickId][card.Id].li != null) {
+                    /*$(votes[vote.Id].li).find('div.content table tbody').append(
+                        $('<tr />').append(
+                            $('<td />').text(username)
+                        )
+                    );*/
+                    votes[pickId][card.Id].li.find('span.vote').text(votes[pickId][card.Id].votes);
+                    //$('#votes').accordion('refresh');
+                } else {
+                    var li = $('<li />').append(
+                        $('<h3 class="bar" style="text-shadow: none" />').append(
+                            $('<span />').css('padding-left', 10).text(card.Name)
+                        ).append(
+                            $('<span class="vote" />').css({ 'padding-right': 10, 'float': 'right' }).text(votes[pickId][card.Id].votes)
+                        )
+                    )/*.append(
+                        $('<div class="content" />').append(
+                            $('<table class="static" />').append(
+                                $('<tbody />').append(
+                                    $('<tr />').append(
+                                        $('<td />').text(username)
+                                    )
+                                )
+                            )
+                        )
+                    )*/;
+
+                    $('#votes').isotope({
+                        getSortData: {
+                            votes: function($elem) {
+                                return parseInt($elem.data('votes'));
+                            }
+                        },
+                        sortBy: 'votes',
+                        sortAscending: false
+                    }).isotope('insert', li);
+                    //$('#votes').accordion('refresh');
+                    votes[pickId][card.Id].li = li;
+
+                    $(li).find('h3').progressbar({
+                        create: function() {
+                            $(this).find('div.ui-progressbar-value').removeClass('red yellow green');
+
+                            var value = this.getAttribute("aria-valuenow");
+                            if (value < 30) {
+                                $(this).find('div.ui-progressbar-value').addClass('red');
+                            } else if (value < 60) {
+                                $(this).find('div.ui-progressbar-value').addClass('yellow');
+                            } else {
+                                $(this).find('div.ui-progressbar-value').addClass('green');
+                            }
+                        },
+                        change: function() {
+                            $(this).find('div.ui-progressbar-value').removeClass('red yellow green');
+
+                            var value = this.getAttribute("aria-valuenow");
+                            if (value < 30) {
+                                $(this).find('div.ui-progressbar-value').addClass('red');
+                            } else if (value < 60) {
+                                $(this).find('div.ui-progressbar-value').addClass('yellow');
+                            } else {
+                                $(this).find('div.ui-progressbar-value').addClass('green');
+                            }
+                        },
+                        value: Math.floor(votes[pickId][card.Id].votes / votes[pickId].totalVotes * 100)
+                    });
+                }
+
+                $.each(votes[pickId], function(idx, vote) {
+                    if (!vote.li) return;
+                    $(vote.li).find('h3').progressbar('value', Math.floor(vote.votes / votes[pickId].totalVotes * 100));
+                    $(vote.li).data('votes', vote.votes);
+                });
+
+                $('#votes').isotope('reloadItems').isotope({ sortBy: 'votes' }).isotope('reLayout');
+                /*
+                var ul = $('#votes');
+                var li = ul.children('li');
+
+                li.sort(function(a, b) {
+                    return ( $(a).data('votes') < $(b).data('votes') ) ? 1 :
+                    ( $(a).data('votes') > $(b).data('votes') ) ? -1 : 0;
+                });
+                ul.append(li);
+                */
+
+                //<li><h3 class="bar">Blowfly Infestation</h3><div class="content" style="display: none" /></li>
+                //<li><h3 class="bar">Boon Reflection</h3><div class="content" style="display: none" /></li>
+            };
+
+            // Set initial focus to message input box.  
+            $('#tabs-pack1, #tabs-pack2, #tabs-pack3').find('ul').accordion('option', 'active', false);
+
+            // Start the connection.
+            $.connection.hub.start().done(function() {
+                console.log(mtg.server);
+                mtg.server.subscribeToDraft(@ViewContext.RouteData.Values["id"]);
+
+                /*$('#sendmessage').click(function () {
+                        // Call the Send method on the hub. 
+                        chat.server.send($('#message').val());
+                        // Clear text box and reset focus for next comment. 
+                        $('#message').val('').focus();
+                    });*/
+            });
+            // This optional function html-encodes messages for display in the page.
+        });
+
+        function htmlEncode(value) {
+            var encodedValue = $('<div />').text(value).html();
+            return encodedValue;
+        }
+    </script>
+}

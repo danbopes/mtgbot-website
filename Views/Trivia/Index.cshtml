@@ -1,0 +1,45 @@
+﻿@model MTGBotWebsite.Models.TriviaModel
+
+@{
+    ViewBag.Title = "Triva Game";
+    ViewBag.Description = "Enter a card here to have users guess what it is.";
+}
+
+<div class="box grid_16">
+    <div class="block">
+        @using (Html.BeginForm("Index", "Trivia", FormMethod.Post, new { @class = "validate_form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <h2 class="section">Trivia Game</h2>
+            <div class="columns clearfix">
+                <div class="col_50">
+                    <fieldset class="label_side label_small top">
+                        @Html.LabelFor(m => m.Name)
+                        <div>
+                            @Html.TextBoxFor(m => m.Name, new { @class = "required text" })
+                            @Html.ValidationMessageFor(m => m.Name)
+                            <div class="required_tag"></div>
+                        </div>
+                        <!--
+                            <label for="name">Name</label>
+                            <div>
+                                <input type="text" name="name" id="name" class="required" />
+                                <div class="required_tag"></div>
+                            </div>
+                            -->
+                    </fieldset>
+                </div>
+            </div>
+            <div class="button_bar clearfix">
+                <button class="dark" type="submit">
+                    <img src="@Url.Content("~/Images/icons/small/white/flag.png")" alt="" />
+                    <span>Start Game</span>
+                </button>
+                <button class="light send_right" type="reset">
+                    <span>Reset</span>
+                </button>
+            </div>
+        }
+    </div>
+</div>

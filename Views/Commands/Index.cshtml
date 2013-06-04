@@ -1,0 +1,183 @@
+﻿@{
+    ViewBag.Title = "Command Listing";
+    ViewBag.Description = "Command listing of the bot";
+}
+
+
+<div class="box grid_16">
+    <h2 class="box_head">Broadcaster Only Commands</h2>
+    <div class="controls">
+        <a href="#" class="toggle"></a>
+    </div>
+    <div class="block">
+        <table class="static">
+            <thead>
+                <tr>
+                    <th style="width: 220px">Command</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>!addplug &lt;message&gt;</td>
+                    <td>Displays a message in the channel every X minutes. This is useful for broadcasters who want to throw out plugs, advertising clans, upcoming raffles, or simply to ask users to follow the channel.</td>
+                </tr>
+                <tr>
+                    <td>!delplug &lt;message&gt;</td>
+                    <td>Delete's a plug from the plug list (Enter the full message to be deleted).</td>
+                </tr>
+                <tr>
+                    <td>!plugoff</td>
+                    <td>Delete's all plugs from the plug list</td>
+                </tr>
+                <tr>
+                    <td>!plugtime &lt;time&gt;</td>
+                    <td>Set's the interval in minutes at which a plug will be outputted to the channel. (Default: 60 minutes)</td>
+                </tr>
+                <tr>
+			        <td>!antispam &lt;# of responses&gt; &lt;minutes&gt;</td>
+			        <td>Sets how often I respond to non mods. Ex: "!antispam 3 5" would allow me to answer 3 times every 5 minutes for non mods. This is the default setting I come with.</td>
+			    </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="box grid_16">
+    <h2 class="box_head">Moderator Only Commands</h2>
+    <div class="controls">
+        <a href="#" class="toggle"></a>
+    </div>
+    <div class="block">
+        <table class="static">
+            <thead>
+                <tr>
+                    <th style="width: 220px">Command</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>!poll &lt;seconds&gt; &lt;option 1&gt;, &lt;option n&gt;</td>
+                    <td>Starts a poll. This is a pretty useful feature for broadcasters. Let's say you wanted to ask your viewers in 60 seconds what their favorite color of magic is. Ask the question in your stream, and then type "!poll 60 red, blue, green, white, black". I will count the first answer from each person, and answers are not case sensitive.</td>
+                </tr>
+                <tr>
+                    <td>!rviewer</td>
+                    <td>Selects a random viewer in the channel.</td>
+                </tr>
+                <tr>
+                    <td>!ignore &lt;user&gt;</td>
+                    <td>Adds a user to the ignorelist, which prevents the bot from responding to them.</td>
+                </tr>
+                <tr>
+                    <td>!unignore &lt;user&gt;</td>
+                    <td>Removes a user from the ignorelist, which allows the bot to respond to them.</td>
+                </tr>
+                <tr>
+                    <td>!ignorelist</td>
+                    <td>Displays the current ignorelist.</td>
+                </tr>
+                <tr>
+                    <td>!notapunt</td>
+                    <td>Undo a recent punt that occurred</td>
+                </tr>
+                <tr>
+                    <td>!addreg &lt;user&gt;</td>
+                    <td>Add a regular to the regular list. Regulars are able to query MTGBot while running in !modonly mode, and around any !antispam filters.</td>
+                </tr>
+                <tr>
+                    <td>!delreg &lt;user&gt;</td>
+                    <td>Removes a regular to the regular list. Regulars are able to query MTGBot while running in !modonly mode, and around any !antispam filters.</td>
+                </tr>
+                <tr>
+                    <td>!reglist</td>
+                    <td>Display the current list of regulars.</td>
+                </tr>
+                <tr>
+                    <td>!modonly</td>
+                    <td>Toggles modonly mode, which only allows me to respond to mods. This feature is useful if I am is being abused. While it is harder now to spam because you can set !antispam settings, this can be used to tell me to only respond to mods.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="box grid_16">
+    <h2 class="box_head">Regular Commands</h2>
+    <div class="controls">
+        <a href="#" class="toggle"></a>
+    </div>
+    <div class="block">
+        <table class="static">
+            <thead>
+                <tr>
+                    <th style="width: 220px">Command</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>!card &lt;card&gt; OR !&lt;card&gt;</td>
+                    <td>The basic use of MTGBot. Looks up a card, and displays oracle text.</td>
+                </tr>
+                <tr>
+                    <td>!flavor &lt;card&gt;</td>
+                    <td>Fetches the flavor text(s) of a card.</td>
+                </tr>
+                <tr>
+                    <td>!link &lt;card&gt;</td>
+                    <td>Fetches the magiccards.info link for a card.</td>
+                </tr>
+                <tr>
+                    <td>!artist &lt;card&gt;</td>
+                    <td>Fetches the artist(s) of a card.</td>
+                </tr>
+                <tr>
+                    <td>!price &lt;card&gt;</td>
+                    <td>Looks up a card on <a href="http://www.mtgotraders.com/">MTGO Traders</a>, and fetches the MTGO prices. (Regular prices coming soon)</td>
+                </tr>
+                <tr>
+                    <td>!random</td>
+                    <td>Selects a random card and displays the oracle text.</td>
+                </tr>
+                <tr>
+                    <td>!spoiler &lt;card&gt;</td>
+                    <td>Fetches a card from the <a href="http://www.mtgsalvation.com/">MTG Salvation</a> spoiler and displays the possible oracle text. If card is omitted, then it will show the latest 5 spoilers.</td>
+                </tr>
+                <tr>
+                    <td>!rating &lt;mtgo username&gt;</td>
+                    <td>Fetches the Composite, Construced, and Limited rating of anyone on magic online.</td>
+                </tr>
+                <tr>
+                    <td>!flip</td>
+                    <td>Flips a coin.</td>
+                </tr>
+                <tr>
+                    <td>!roll &lt;n&gt;</td>
+                    <td>Roll an n-sided die. As a broadcaster this could be really useful. Let's say you have a raffle with a list of users, each assigned a number (Let's say 17 for this example). You can do "!roll 17" and pick a person from your list.</td>
+                </tr>
+                <tr>
+                    <td>!topdeck</td>
+                    <td>For those moments when you topdeck the perfect card.</td>
+                </tr>
+                <tr>
+                    <td>!punt</td>
+                    <td>For those moments when a punt occurs.</td>
+                </tr>
+                <tr>
+                    <td>!puntcount</td>
+                    <td>Displays the current !punt count.</td>
+                </tr>
+                <tr>
+                    <td>!tableflip or !fliptable</td>
+                    <td>For those moments when you need to let your frustrations out.</td>
+                </tr>
+                <tr>
+                    <td>!help</td>
+                    <td>Displays a help message sending the user here.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
