@@ -1,8 +1,9 @@
-﻿@using MTGOLibrary.Models;
-@model Draft
+﻿@using MTGOLibrary.Models
+@model CubeDraft
+
 @{
-    ViewBag.Title = "Draft Viewer";
-    ViewBag.Description = "Vote on drafts currently in progress on twitch.tv";
+    ViewBag.Title = "Cube Draft";
+    ViewBag.MiniLayout = true;
 }
 
 <style type="text/css">
@@ -98,51 +99,32 @@
 
 </style>
 
-@if (Model.DraftStatus == DraftStatus.Completed)
-{
-    <div class="grid_16">
-        <div class="alert dismissible alert_red">
-            <img height="24" width="24" src="~/Images/icons/small/white/alert.png" alt="" />
-            This draft was completed previously. If you are looking for an active draft, please look @(Html.ActionLink("here", "Index")).
-        </div>
+<div class="box grid_16">
+    <h2 class="box_head">Picks</h2>
+    <div class="controls">
+        <a href="#" class="grabber"></a>
+        <a href="#" class="toggle"></a>
     </div>
-}
+    <div id="picks" class="isotope_holder indented_area" style="margin: 0; padding: 0">
+        <ul class="gallery delete_buttons clearfix">
+        </ul>
+    </div>
+</div>
 
-@if (Model.Broadcaster.Name.ToLower() == ((string)Session["user_name"]).ToLower())
-{
-    <div class="box grid_4">
-        <h2 class="box_head">Current Votes</h2>
-        <div class="controls">
-            <a href="#" class="grabber"></a>
-            <a href="#" class="toggle"></a>
-        </div>
-        <div class="toggle_container">
-            <ul class="block content_accordion isotope_holder" id="votes">
-            </ul>
-            <div class="alert alert_green" style="margin: 10px 0 0 0;">
-                <img height="24" width="24" src="~/Images/icons/small/white/mighty_mouse.png" alt="" />
-                Type <strong>!votenow</strong> in chat to follow along and vote
-	        </div>
-        </div>
+<div class="box grid_4">
+    <h2 class="box_head">Full Card</h2>
+    <div class="controls">
+        <a href="#" class="grabber"></a>
+        <a href="#" class="toggle"></a>
     </div>
-}
-else
-{
-    <div class="box grid_4">
-        <h2 class="box_head">Full Card</h2>
-        <div class="controls">
-            <a href="#" class="grabber"></a>
-            <a href="#" class="toggle"></a>
-        </div>
-        <div class="toggle_container">
-            <div id="full_card" style="margin: 5px;">
+    <div class="toggle_container">
+        <div id="full_card" style="margin: 5px;">
                 
-            </div>
         </div>
     </div>
-}
+</div>
 
-<div class="box grid_8">
+<div class="box grid_12">
     <h2 class="box_head">Draft Area</h2>
     <div class="controls">
         <a href="#" class="grabber"></a>
@@ -150,36 +132,7 @@ else
     </div>
     <div id="picks" class="isotope_holder indented_area" style="margin: 0; padding: 0">
         <ul class="gallery delete_buttons clearfix">
-        <!--<li class="blue">
-                <a rel="collection" class="no_loading" href="images/content/gallery/blue/image01.jpg">
-                <img src="images/content/gallery/blue/image01_thumb.jpg" height="84" width="148"/>
-            </li>
-            -->
         </ul>
-    </div>
-</div>
-
-<div class="box grid_4 tabs">
-    <ul class="tab_header clearfix">
-        <li><a href="#tabs-pack1">Pack 1</a></li>
-        <li><a href="#tabs-pack2">Pack 2</a></li>
-        <li><a href="#tabs-pack3">Pack 3</a></li>
-    </ul>
-    <div class="controls">
-        <a href="#" class="grabber"></a>
-        <a href="#" class="toggle"></a>
-    </div>
-    <div class="toggle_container">
-        <div id="tabs-pack1" class="block">
-            <ul class="block content_accordion">
-			</ul>
-		</div>
-        <div id="tabs-pack2" class="block">
-            <ul class="block content_accordion"></ul>
-        </div>
-        <div id="tabs-pack3" class="block">
-            <ul class="block content_accordion"></ul>
-        </div>
     </div>
 </div>
 
@@ -214,10 +167,12 @@ else
             }
             
             function thumbLink(card) {
+                return "http://mtgbot.tv/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
                 return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
             }
             
             function fullLink(card) {
+                return "http://mtgbot.tv/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".full.jpg";
                 return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".full.jpg";
             }
 

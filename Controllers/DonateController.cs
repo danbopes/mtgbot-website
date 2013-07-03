@@ -7,7 +7,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using MTGBotWebsite.Helpers;
-using MTGBotWebsite.Models;
+using MTGOLibrary.Models;
 
 namespace MTGBotWebsite.Controllers
 {

@@ -1,0 +1,841 @@
+﻿@using MTGOLibrary.Models
+@model CubeDraft
+
+@{
+    ViewBag.Title = "Cube Draft";
+    ViewBag.Description = Model.Name;
+    ViewBag.IsBroadcaster = Model.Broadcaster.Name.ToLower() == ((string) Session["user_name"]).ToLower();
+}
+
+<style type="text/css">
+    #main_tabs > .ui-tabs-nav li a {
+        float: inherit;
+        padding: inherit;
+        text-decoration: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        text-shadow: inherit;
+    }
+
+    #main_tabs > .ui-widget-header {
+        background-color: inherit;
+        margin-bottom: 5px;
+    }
+
+    #main_tabs > .ui-tabs-nav li {
+        list-style: inherit;
+        float: left;
+        position: inherit;
+        top: inherit;
+        margin: 0 5px 0 0;
+        border-bottom: inherit;
+        padding: 5px;
+        white-space: inherit;
+        -moz-box-shadow: inherit;
+        -webkit-box-shadow: inherit;
+        box-shadow: inherit;
+    }
+
+    #main_tabs .toggle_container, #main_tabs .ui-tabs-panel {
+        background: none;
+        padding: 0;
+    }
+
+    #main_tabs .ui-corner-tl {
+        display: none;
+    }
+
+    #main_tabs .dataTables_scrollHeadInner {
+        display: none;
+    }
+
+    table#pending_players, table#accepted_players {
+        width: 100% !important;
+    }
+
+    table#pending_players td, table#accepted_players td {
+        vertical-align: middle;
+    }
+
+    table#pending_players tr, table#accepted_players tr {
+        cursor: pointer;
+    }
+
+    table#pending_players td.image, table#accepted_players td.image {
+        width: 40px;
+    }
+</style>
+<div class="grid_16 tabs" id="main_tabs" style="opacity: 1;">
+    <ul class="clearfix">
+        <li class="light img_icon has_text button">
+			<img src="/Images/icons/small/grey/blocks_images.png">
+			<span><a href="#tabs-cards">Cards</a></span>
+		</li>
+       <li class="light img_icon has_text button">
+			<img src="/Images/icons/small/grey/users.png">
+			<span><a href="#tabs-players">Players</a></span>
+		</li>
+    </ul>
+    <!--
+    <div class="controls">
+        <a href="#" class="grabber"></a>
+        <a href="#" class="toggle"></a>
+    </div>
+    -->
+	<div class="toggle_container">
+		<div id="tabs-cards" style="opacity: 1;">
+			
+		</div>
+	    <div id="tabs-players" class="container_16 clearfix" style="opacity: 1;">
+	        <div class="box grid_8" style="opacity: 1;">
+	            <h2 class="box_head grad_green">Players &nbsp;Accepted &nbsp;(Max #@Math.Floor((double)Model.CubeDraftCards.Count/45))</h2>
+	            <div class="controls">
+	                <a href="#" class="grabber"></a>
+	                <a href="#" class="toggle"></a>
+	            </div>
+	            <div class="toggle_container">
+	                <div class="block" style="opacity: 1;">
+		                <table id="accepted_players" class="datatable">
+		                    <thead>
+		                        <tr>
+		                            <th style="width: 40px">I</th>
+		                            <th style="width: 100%">Username</th>
+		                        </tr>
+		                    </thead>
+		                    <tbody></tbody>
+		                </table>
+		            </div>
+	            </div>
+	        </div>
+		    <div class="box grid_8 single_datatable" style="opacity: 1;">
+		        <h2 class="box_head grad_red">Players &nbsp;Waiting</h2>
+		        <div class="controls">
+		            <a href="#" class="grabber"></a>
+		            <a href="#" class="toggle"></a>
+		        </div>
+		        <div class="block" style="opacity: 1;">
+		            <table id="pending_players" class="datatable">
+		                <thead>
+		                    <tr>
+		                        <th style="width: 40px">I</th>
+		                        <th style="width: 100%">Username</th>
+		                    </tr>
+		                </thead>
+		                <tbody></tbody>
+		            </table>
+		        </div>
+                <div class="button_bar clearfix">
+					<button class="green text_only has_text send_right" id="signup_button">
+						<span>Signup for this Draft</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="box grid_8 light" style="opacity: 1; display: none" id="dialog_user">
+    <h2 class="box_head">Full Width Content box</h2>
+    <div class="controls">
+        <a href="#" class="grabber"></a>
+        <a href="#" class="toggle"></a>
+    </div>
+    <div class="toggle_container">
+        <div class="block" style="opacity: 1;">
+            <div class="columns clearfix">
+                <div class="col_25">
+                    <div class="section">
+                        <img id="contactImage" width="50" alt="Profile Pic" src="">
+                    </div>
+                </div>
+                <div class="col_75">
+                    <div class="section">
+                        <h2 id="contactName"></h2>
+                        <h3 id="contactEmail"></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="columns clearfix">
+                <div class="col_100">
+                    <fieldset class="label_side top">
+                        <label>User Type</label>
+                        <div class="clearfix">
+                            <select class="select_box">
+                                <option>Administrator</option>
+                                <option>Member</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                    <fieldset class="label_side">
+                        <label>Phone Number<span>Required</span></label>
+                        <div class="clearfix">
+                            <input type="text" class="text">
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="label_side">
+                        <label>Address</label>
+                        <div class="clearfix">
+                            <textarea class="textarea"></textarea>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="label_side bottom">
+                        <label>Active</label>
+                        <div class="uniform inline clearfix">
+                            <label for="yes3"><div class="radio" id="uniform-yes3"><span><input type="radio" name="answer3" id="yes3" style="opacity: 0;"></span></div>Yes</label>
+                            <label for="no3"><div class="radio" id="uniform-no3"><span><input type="radio" name="answer3" id="no3" style="opacity: 0;"></span></div>No</label>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="button_bar clearfix">
+                <button class="dark img_icon has_text">
+                    <img src="images/icons/small/white/bended_arrow_right.png">
+                    <span>Save</span>
+                </button>
+
+                <button class="dialog_button red send_right img_icon has_text" data-dialog="delete">
+                    <img src="images/icons/small/white/trashcan.png">
+                    <span>Delete</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="dialog_content no_dialog_titlebar wide" id="dialog_mtgolink" style="display: none">
+    <div class="box light grid_16 full_size main_container">
+	    <h2 class="box_head">Link your MTGO Username</h2>
+	    <div class="controls">
+		    <div class="wizard_progressbar"></div>
+	    </div>
+	    <div class="toggle_container">
+		    <div class="wizard">
+
+			    <div class="wizard_steps">
+				    <ul class="clearfix">
+					    <li class="current">
+						    <a href="#link_step_1" class="clearfix">
+							    <span>1. <strong>MTGO Username</strong></span>
+						    </a>
+					    </li>
+					    <li>
+						    <a href="#link_step_2" class="clearfix">
+							    <span>2. <strong>Confirm Code</strong></span>
+						    </a>
+					    </li>
+					    <li>
+						    <a href="#link_step_3" class="clearfix">
+							    <span>3. <strong>Finish</strong></span>
+						    </a>
+					    </li>
+				    </ul>
+			    </div>
+
+			    <div class="wizard_content">
+		            <form action="#" method="post" class="validate_form">
+				    <div id="link_step_1" class="step block" style="display:block;">
+					    <div class="section">
+						    <h2>1. MTGO Username</h2>
+						    <p>Please enter your MTGO username below, and make sure you are online to recieve the confirmation code that will be sent do you.</p>
+					    </div>
+					    <div class="columns clearfix">
+							<fieldset class="label_side top">
+								<label>Name</label>
+								<div>
+									<input type="text" name="mtgousername" class="required" minlength="3" maxlength="29">
+									<div class="required_tag"></div>
+				                </div>
+							</fieldset>
+					    </div>
+
+					    <div class="button_bar clearfix">
+						    <button class="next_step forward send_right" type="button">
+							    <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
+							    <span>Next Step</span>
+						    </button>
+					    </div>
+				    </div>
+
+		            <div id="link_step_2" class="step block">
+		                <div class="section">
+		                    <h2>2. Confirm Code</h2>
+		                    <p>A confirmation code should have been sent to you on Magic: Online. Please enter the code below.</p>
+		                </div>
+		                <div class="columns clearfix">
+		                    <fieldset class="label_side top">
+		                        <label>Code</label>
+		                        <div>
+		                            <input type="text" name="confirmkey" id="confirmkey" class="required number" minlength="4" maxlength="4">
+		                            <div class="required_tag"></div>
+		                        </div>
+		                    </fieldset>
+		                </div>
+		                <div class="button_bar clearfix">
+		                    <button class="next_step forward send_right" type="button">
+		                        <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
+		                        <span>Next Step</span>
+		                    </button>
+		                </div>
+		            </div>
+
+				    <div id="link_step_3" class="step block">
+					    <div class="section">
+						    <h2>3. Finish</h2>
+						    <p>Thank you for confirming your username. Please click complete to signup for this draft.</p>
+					    </div>
+
+					    <div class="button_bar clearfix">
+						    <button class="next_step green send_right submit_button" type="button">
+							    <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
+							    <span>Complete</span>
+						    </button>
+					    </div>
+				    </div>
+		            </form>
+			    </div>
+
+		    </div>
+	    </div>
+    </div>
+</div>
+
+<div style="display: none">
+    <div id="dialog_readycheck" class="dialog_content narrow no_dialog_titlebar" title="Ready Check Dialog">
+        <div class="block">
+            <div class="section">
+                <h1>Ready Check</h1>
+                <div class="dashed_line"></div>	
+                <p>@Model.Broadcaster.Name has initiated a ready check.</p>
+                <p>Are you ready?</p>
+            </div>
+            <div class="button_bar clearfix">
+                <button class="green no_margin_bottom send_right close_dialog">
+                    <div class="ui-icon ui-icon-check"></div>
+                    <span>Ready</span>
+                </button>
+                <button class="red send_right close_dialog">
+                    <div class="ui-icon ui-icon-closethick"></div>
+                    <span>Not Ready</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <!--Script references. -->
+    <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
+    <!--Reference the SignalR library. -->
+    <script src="~/Scripts/jquery.signalR-1.0.1.js"></script>
+    <!--Reference the autogenerated SignalR hub script. -->
+    <script src="~/signalr/hubs"></script>
+    <!--SignalR script to update the chat page and send messages.--> 
+    <script>
+        var mtg;
+        $(function() {
+            if (typeof window.console === "undefined") {
+                window.console = {
+                    log: function() {
+                    }
+                };
+            }
+            
+            //Init data table
+            $('#pending_players').dataTable({
+                bJQueryUI: true,
+                sScrollX: "",
+                bSortClasses: false,
+                //bAutoWidth: true,
+                bInfo: true,
+                sScrollX: "101%",
+                bScrollCollapse: true,
+                sPaginationType: "full_numbers",
+                bRetrieve: true,
+                bFilter: false,
+                bLengthChange: false,
+                aoColumns: [
+                    {sClass: 'image'}, {sClass: 'username'}
+                ],
+                oLanguage: {
+                    sEmptyTable: "There are no players waiting! Send some players to this page to signup.",
+                    sInfo: "Showing _START_ to _END_ of _TOTAL_ players"
+                },
+                fnInitComplete: function () {
+                    $("#pending_players .dataTables_length > label > select").uniform();
+                    $("#pending_players .dataTables_filter input[type=text]").addClass("text");
+                    $(".datatable").css("visibility", "visible");
+                }
+            });
+            
+            //Init data table
+            $('#accepted_players').dataTable({
+                bJQueryUI: true,
+                sScrollX: "",
+                bSortClasses: false,
+                //bAutoWidth: true,
+                bInfo: true,
+                sScrollX: "101%",
+                bScrollCollapse: true,
+                sPaginationType: "full_numbers",
+                bRetrieve: true,
+                bFilter: false,
+                bLengthChange: false,
+                bPaginate: false,
+                aoColumns: [
+                    {sClass: 'image'}, {sClass: 'username'}
+                ],
+                oLanguage: {
+                    sEmptyTable: @(ViewBag.IsBroadcaster ? Html.Raw("\"There are no accepted players! Add some by clicking on them from the right.\"") : Html.Raw("\"There are no accepted players yet.\"")),
+                    sInfo: "Showing _START_ to _END_ of _TOTAL_ players"
+                },
+                fnInitComplete: function () {
+                    $("#pending_players .dataTables_length > label > select").uniform();
+                    $("#pending_players .dataTables_filter input[type=text]").addClass("text");
+                    $(".datatable").css("visibility", "visible");
+                }
+            });
+            
+            //if(ViewBag.IsBroadcaster) {
+            //    <text>
+            $(document).ready(function() {
+                var acceptedPlayersTable = $('#accepted_players').dataTable();
+                    /* Add a click handler to the rows - this could be used as a callback */
+                    $("#pending_players tbody").click(function(event) {
+                        /*$(oTable.fnSettings().aoData).each(function (){
+                            $(this.nTr).removeClass('row_selected');
+                        });
+                        $(event.target.parentNode).addClass('row_selected');*/
+
+                        console.log(event.target.parentNode);
+                    });
+                } );
+             //   </text>
+            //}
+
+            /* Get the rows which are currently selected */
+            function fnGetSelected( oTableLocal )
+            {
+                var aReturn = new Array();
+                var aTrs = oTableLocal.fnGetNodes();
+	
+                for ( var i=0 ; i<aTrs.length ; i++ )
+                {
+                    if ( $(aTrs[i]).hasClass('row_selected') )
+                    {
+                        aReturn.push( aTrs[i] );
+                    }
+                }
+                return aReturn;
+            }
+            
+            // Reference the auto-generated proxy for the hub.  
+            mtg = $.connection.cubeHub;
+
+            var draftId = @ViewContext.RouteData.Values["id"];
+            var readyCheckGuid = null;
+            // Create a function that the hub can call back to display messages.
+            /*mtg.client.addNewMessageToPage = function (name, message) {
+                // Add the message to the page. 
+                $('#discussion').append('<li><strong>' + htmlEncode(name) 
+                    + '</strong>: ' + htmlEncode(message) + '</li>');
+            };*/
+
+            function pad(n, width, z) {
+                z = z || '0';
+                n = n + '';
+                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+            }
+
+            function thumbLink(card) {
+                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
+            }
+
+            function fullLink(card) {
+                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".full.jpg";
+            }
+
+            $('#dialog_readycheck button.green').click(function() {
+                mtg.server.readyCheck(readyCheckGuid, draftId, true);
+            });
+
+            $('#dialog_readycheck button.red').click(function() {
+                mtg.server.readyCheck(readyCheckGuid, draftId, false);
+            });
+
+            $('#signup_button').click(function() {
+                mtg.server.signup(draftId).done(function(result) {
+                    switch (result) {
+                        case 0:
+                            //Error
+                            alert("An error occurred signing up. Please refresh the page and try again");
+                            break;
+                        case 1:
+                            //Need to link mtgo username to twitch account
+                            $('#dialog_mtgolink').dialog('open');
+                            break;
+                        case 2:
+                            $('#dialog_mtgolink').dialog('open');
+                            $('#dialog_mtgolink input[name=mtgousername]').val('****');
+                            $('#dialog_mtgolink .wizard_steps ul li:nth-child(2) a').trigger('click');
+                            break;
+                    }
+                });
+            });
+
+            $('#dialog_mtgolink #link_step_1 button').click(function() {
+                if (!$('#dialog_mtgolink .validate_form').valid())
+                    return;
+
+                mtg.server.linkUsername($('#dialog_mtgolink input[name=mtgousername]').val()).done(function(result) {
+                    console.log("linkUsername result = " + result);
+                    switch (result) {
+                        case 0:
+                            alert("An unknown error occurred while signing up. Please refresh the page and try again.");
+                            break;
+                        case 1:
+                            //Unable to send message ingame
+                            alert("There was a problem sending the message to this user. Please make sure you are signed in. If this problem persists, please contact the webmaster.");
+                            break;
+                        case 2:
+                            $('#dialog_mtgolink form').validate().showErrors({
+                                mtgousername: "This username is already linked to another twitch user."
+                            });
+                            break;
+                        case 3:
+                            //Success
+                            $('#dialog_mtgolink .wizard_steps ul li:nth-child(2) a').trigger('click');
+                            break;
+                        }
+                });
+            });
+
+            $('#dialog_mtgolink #link_step_2 button.next_step').click(function() {
+                if (!$('#dialog_mtgolink .validate_form').valid())
+                    return;
+                
+                mtg.server.confirmUsername($('#dialog_mtgolink input[name=confirmkey]').val()).done(function(result) {
+                    console.log("confirmUsername result = " + result);
+                    switch (result) {
+                        case 0:
+                            alert("An unknown error occurred while confirming your mtgo username. Please refresh the page and try again.");
+                            break;
+                        case 1:
+                            //Key is incorrect
+                            $('#dialog_mtgolink form').validate().showErrors({
+                                confirmkey: "Invalid Code"
+                            });
+                            break;
+                        case 2:
+                            //Trying more then 3 times within 5 minutes
+                            $('#dialog_mtgolink form').validate().showErrors({
+                                confirmkey: "Too many attempts. Please try again later."
+                            });
+                            break;
+                        case 3:   
+                            //MTGO already linked to another account
+                            $('#dialog_mtgolink form').validate().showErrors({
+                                confirmkey: "This mtgo account has already been linked to another account."
+                            });
+                            break;
+                        case 4:
+                            //Success
+                            $('#dialog_mtgolink .wizard_steps ul li:nth-child(3) a').trigger('click');
+                            break;
+                        }
+                });
+            });
+            
+            mtg.client.readyCheck = function(guid) {
+                readyCheckGuid = guid;
+                var audio = new window.Audio("/Content/warning.wav");
+                audio.play();
+                $('#dialog_readycheck').dialog('open');
+            };
+
+            mtg.client.readyCheckUpdate = function() {
+
+            };
+
+            mtg.client.playerSignup = function(username) {
+                console.log("Signup from: " + username);
+                $.getJSON('https://api.twitch.tv/kraken/users/' + username + '?callback=?', null,
+                    function(data) {
+                        console.log(data);
+                        
+                        var image = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
+                        if (data.logo != null)
+                            image = data.logo.replace(/50x50/, '28x28');
+
+                        $('#pending_players').dataTable().fnAddData([
+                            $('<img alt="Player Image" />').attr('src', image).css({width: 28, height: 28})[0].outerHTML,
+                            data.display_name
+                        ]);
+                    }
+                );
+            };
+
+            mtg.client.pendingSelection = function() {
+                window.href = "@Url.Action("Draft", Model.Id)";
+                return;
+                try {
+                    $('#picks .gallery').isotope('remove', $('#picks .gallery').data('isotope').$allAtoms);
+                } catch(err) {
+                }
+                console.log("Pending Selection");
+                //console.log([pickId, previousPicks, picks, dir, time]);
+                console.log(previousPicks);
+                $('#tiptip_holder').css('display', 'none');
+                votes.currentVote = pickId;
+                var currentPicks = [];
+
+                $.each(picks, function(idx, el) {
+                    /*$('#picks').append(
+                        $('<div class="card" />').append(
+                            $('<div class="img_holder" />').append(
+                                $('<img src="http://magiccards.info/scans/en/' + el.CardSet.MagicCardsInfoSetShort + '/' + el.MagicCardsInfoId + '.jpg" />')
+                            )
+                        ).click(function() {
+                            console.log("Selecting Card");
+                            mtg.server.sendVote(Model.DraftId, pickId, el.Id);
+                            $(this).addClass('voted');
+                        })
+                    );*/
+
+                    var newItem = $('<li/>').append(
+                        $('<a rel="collection" class="no_loading vote" href="#" onclick="return false;" />').append(
+                            $('<img src="' + thumbLink(el) + '" style="width: 114px; height: 163px" />')
+                        ).data({
+                            'pick-id': pickId,
+                            'card-id': el.Id
+                        }).hover(function() {
+                            $('#full_card').empty().append(
+                                $('<img src="' + fullLink(el) + '" style="width: 100%" />')
+                            );
+                        })
+                    );
+                    $('#picks .gallery').isotope('insert', newItem);
+                    currentPicks.push(el.Id);
+
+                    setTimeout(function() {
+                        $('#picks .gallery li a.vote').click(function() {
+                            if ($('#picks .gallery a.voted').length > 0)
+                                return;
+
+                            $(this).addClass('voted');
+                            //console.log("SubmitVote");
+                            //console.log([@Model.Id, pickId, el.Id]);
+                            mtg.server.submitVote(@Model.Id, $(this).data('pick-id'), $(this).data('card-id'));
+                        });
+                    }, 2000);
+                    /*
+                        <!--<a rel="collection" class="no_loading" href="images/content/gallery/blue/image01.jpg">
+                            <img src="images/content/gallery/blue/image01_thumb.jpg" height="84" width="148"/>
+                    </li>-->
+                    */
+                });
+
+                console.log(currentPicks);
+
+                $.each(previousPicks, function(idx, previousPick) {
+                    $.each(previousPick.Cards, function(idx, card) {
+                        if ($.inArray(card.Id, currentPicks) == -1) {
+                            var previousPickOverlay = $('<div class="previous_pick_overlay tooltip" />').attr('title', 'This card was picked previously by another player');
+
+                            if (card.Id == previousPick.PickId)
+                                previousPickOverlay.addClass('picked').attr('title', 'This card was picked previously by @Model.Broadcaster.Name');
+
+                            var newItem = $('<li/>').append(
+                                $('<a rel="collection" class="no_loading" href="#" onclick="return false;" />').append(
+                                    previousPickOverlay
+                                ).append(
+                                    $('<img src="' + thumbLink(card) + '" style="width: 114px; height: 163px" />')
+                                ).hover(function() {
+                                    $('#full_card').empty().append(
+                                        $('<img src="' + fullLink(card) + '" style="width: 100%" />')
+                                    );
+                                })
+                            );
+                            $('#picks .gallery').isotope('insert', newItem);
+                        }
+                    });
+                });
+
+                $(".tooltip").tipTip({
+                    defaultPosition: "top",
+                    maxWidth: "auto",
+                    edgeOffset: 0
+                });
+            };
+
+            mtg.client.draftSelection = function(pick, pack) {
+                console.log("Draft Selection");
+                console.log({ pick: pick, pack: pack });
+
+                var ul = $('#tabs-pack' + pack).find('ul');
+                ul.append(
+                    $('<li />').append(
+                        $('<h3 class="bar" />').text(pick.Name)
+                    ).append(
+                        $('<div class="content" style="display: none;" />').append(
+                            $('<div style="margin: 5px;">').append(
+                                $('<img src="' + fullLink(pick) + '" style="width: 100%; margin: auto; max-width: 312px;" />')
+                            )
+                        )
+                    )
+                );
+                ul.accordion('refresh');
+                ul.parents('.tabs').tabs('option', 'active', pack - 1);
+
+                votes.currentVote = null;
+                try {
+                    $('#votes').isotope('remove', $('#votes').data('isotope').$allAtoms);
+                } catch(err) {
+                }
+            };
+
+            mtg.client.addVote = function(pickId, card, username) {
+                console.log("Add Vote");
+                console.log({ pickId: pickId, card: card, username: username });
+                console.log(votes);
+
+                if (votes[pickId]) {
+                    if (!votes[pickId][card.Id]) {
+                        votes[pickId][card.Id] = {
+                            li: null,
+                            votes: 0
+                        };
+                    }
+                } else {
+                    votes[pickId] = {
+                        totalVotes: 0
+                    };
+                    votes[pickId][card.Id] = {
+                        li: null,
+                        votes: 0
+                    };
+                }
+
+                votes[pickId].totalVotes++;
+                votes[pickId][card.Id].votes++;
+
+                if (votes.currentVote == null || votes.currentVote != pickId) {
+                    return;
+                }
+
+                if (votes[pickId][card.Id].li != null) {
+                    /*$(votes[vote.Id].li).find('div.content table tbody').append(
+                        $('<tr />').append(
+                            $('<td />').text(username)
+                        )
+                    );*/
+                    votes[pickId][card.Id].li.find('span.vote').text(votes[pickId][card.Id].votes);
+                    //$('#votes').accordion('refresh');
+                } else {
+                    var li = $('<li />').append(
+                        $('<h3 class="bar" style="text-shadow: none" />').append(
+                            $('<span />').css('padding-left', 10).text(card.Name)
+                        ).append(
+                            $('<span class="vote" />').css({ 'padding-right': 10, 'float': 'right' }).text(votes[pickId][card.Id].votes)
+                        )
+                    )/*.append(
+                        $('<div class="content" />').append(
+                            $('<table class="static" />').append(
+                                $('<tbody />').append(
+                                    $('<tr />').append(
+                                        $('<td />').text(username)
+                                    )
+                                )
+                            )
+                        )
+                    )*/;
+
+                    $('#votes').isotope({
+                        getSortData: {
+                            votes: function($elem) {
+                                return parseInt($elem.data('votes'));
+                            }
+                        },
+                        sortBy: 'votes',
+                        sortAscending: false
+                    }).isotope('insert', li);
+                    //$('#votes').accordion('refresh');
+                    votes[pickId][card.Id].li = li;
+
+                    $(li).find('h3').progressbar({
+                        create: function() {
+                            $(this).find('div.ui-progressbar-value').removeClass('red yellow green');
+
+                            var value = this.getAttribute("aria-valuenow");
+                            if (value < 30) {
+                                $(this).find('div.ui-progressbar-value').addClass('red');
+                            } else if (value < 60) {
+                                $(this).find('div.ui-progressbar-value').addClass('yellow');
+                            } else {
+                                $(this).find('div.ui-progressbar-value').addClass('green');
+                            }
+                        },
+                        change: function() {
+                            $(this).find('div.ui-progressbar-value').removeClass('red yellow green');
+
+                            var value = this.getAttribute("aria-valuenow");
+                            if (value < 30) {
+                                $(this).find('div.ui-progressbar-value').addClass('red');
+                            } else if (value < 60) {
+                                $(this).find('div.ui-progressbar-value').addClass('yellow');
+                            } else {
+                                $(this).find('div.ui-progressbar-value').addClass('green');
+                            }
+                        },
+                        value: Math.floor(votes[pickId][card.Id].votes / votes[pickId].totalVotes * 100)
+                    });
+                }
+
+                $.each(votes[pickId], function(idx, vote) {
+                    if (!vote.li) return;
+                    $(vote.li).find('h3').progressbar('value', Math.floor(vote.votes / votes[pickId].totalVotes * 100));
+                    $(vote.li).data('votes', vote.votes);
+                });
+
+                $('#votes').isotope('reloadItems').isotope({ sortBy: 'votes' }).isotope('reLayout');
+                /*
+                var ul = $('#votes');
+                var li = ul.children('li');
+
+                li.sort(function(a, b) {
+                    return ( $(a).data('votes') < $(b).data('votes') ) ? 1 :
+                    ( $(a).data('votes') > $(b).data('votes') ) ? -1 : 0;
+                });
+                ul.append(li);
+                */
+
+                //<li><h3 class="bar">Blowfly Infestation</h3><div class="content" style="display: none" /></li>
+                //<li><h3 class="bar">Boon Reflection</h3><div class="content" style="display: none" /></li>
+            };
+
+            // Set initial focus to message input box.  
+            $('#tabs-pack1, #tabs-pack2, #tabs-pack3').find('ul').accordion('option', 'active', false);
+            
+            // Start the connection.
+            $.connection.hub.start().done(function() {
+                console.log(mtg.server);
+                mtg.server.subscribeToDraft(@ViewContext.RouteData.Values["id"]);
+
+                /*$('#sendmessage').click(function () {
+                        // Call the Send method on the hub. 
+                        chat.server.send($('#message').val());
+                        // Clear text box and reset focus for next comment. 
+                        $('#message').val('').focus();
+                    });*/
+            });
+            // This optional function html-encodes messages for display in the page.
+        });
+
+        function htmlEncode(value) {
+            var encodedValue = $('<div />').text(value).html();
+            return encodedValue;
+        }
+    </script>
+}

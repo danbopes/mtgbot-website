@@ -1,5 +1,5 @@
-﻿@using MvcMtgBot.Models
-@model IEnumerable<MvcMtgBot.Models.Draft>
+﻿@using MTGOLibrary.Models;
+@model IEnumerable<Draft>
 
 @{
     ViewBag.Title = "Draft Viewer";
@@ -10,7 +10,7 @@
 	<h3>What is the Draft Viewer?</h3>
     <p>MTGBot's Draft Viewer provides a portal for broadcasters to allow their viewers to view and vote on possible picks during an online draft. Users will be able to view in real time draft picks, and submit their votes which are then relayed back to broadcasters.</p>
     <h3>I'm a broadcaster, how to I use Draft Viewer?</h3>
-    <p>Draft Viewer is still in early experimental stages. If you would like to be a part of the beta testing, please send me an email @Html.ActionLink("here", "Index", "Contact").</p>
+    <p>Please send me an email @Html.ActionLink("here", "Index", "Contact") if you wish to utilize the Draft Viewer functionality.</p>
 </div>
 
 <div class="box grid_4">

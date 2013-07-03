@@ -160,7 +160,7 @@
 	</head>
 <body>
     <div id="wrapper" data-adminica-nav-top="1" data-adminica-side-top="1">
-        <div id="topbar" class="clearfix">
+        <div id="topbar" class="clearfix"@if(ViewBag.MiniLayout != null && ViewBag.MiniLayout == true) { <text>style="display: none"</text> }> 
             <a href="#" class="logo"><span>MTGBot</span></a>
                 
             <!--

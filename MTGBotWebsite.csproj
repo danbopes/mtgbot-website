@@ -39,8 +39,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Antlr3.Runtime">
-      <HintPath>..\packages\WebGrease.1.1.0\lib\Antlr3.Runtime.dll</HintPath>
+    <Reference Include="Antlr3.Runtime, Version=3.3.1.7705, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\WebGrease.1.3.0\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
@@ -62,6 +63,9 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
+    <Reference Include="MTGOLibrary">
+      <HintPath>..\MTGOLibrary\bin\Release\MTGOLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MySql.Data.6.5.4\lib\net40\MySql.Data.dll</HintPath>
@@ -81,8 +85,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -142,8 +148,9 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
-    <Reference Include="WebGrease">
-      <HintPath>..\packages\WebGrease.1.1.0\lib\WebGrease.dll</HintPath>
+    <Reference Include="WebGrease, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\WebGrease.1.3.0\lib\WebGrease.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -151,11 +158,18 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="Controllers\CommandsController.cs" />
     <Compile Include="Controllers\ContactController.cs" />
+    <Compile Include="Controllers\CubeDraftController.cs" />
     <Compile Include="Controllers\DonateController.cs" />
     <Compile Include="Controllers\DraftViewerController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TournamentCenterController.cs" />
     <Compile Include="Controllers\TriviaController.cs" />
+    <Compile Include="CubeDrafts\CubeDraftManager.cs" />
+    <Compile Include="CubeDrafts\DraftCollection.cs" />
+    <Compile Include="CubeDrafts\Drafter.cs" />
+    <Compile Include="CubeDrafts\ICubeDraftManager.cs" />
+    <Compile Include="CubeDrafts\Pack.cs" />
+    <Compile Include="CubeDrafts\SwissTournament.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -164,56 +178,13 @@
     <Compile Include="Helpers\Email.cs" />
     <Compile Include="Helpers\MySql.cs" />
     <Compile Include="Helpers\Pipe.cs" />
+    <Compile Include="Helpers\TimerPlus.cs" />
     <Compile Include="Hubs\ChatClass.cs" />
+    <Compile Include="Hubs\CubeHub.cs" />
     <Compile Include="Hubs\MtgHub.cs" />
-    <Compile Include="Models\Broadcaster.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\BugReportModel.cs" />
-    <Compile Include="Models\Card.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\CardSet.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
     <Compile Include="Models\ContactModel.cs" />
-    <Compile Include="Models\Direction.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Donation.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Draft.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\DraftPick.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\DraftStatus.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Main.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Main.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Main.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Main.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Main.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Models\TriviaModel.cs" />
-    <Compile Include="Models\TwitchOAuth.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Vote.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +248,7 @@
     <Content Include="Content\themes\theme_navy.css" />
     <Content Include="Content\themes\theme_red.css" />
     <Content Include="Content\themes\theme_switcher.php" />
+    <Content Include="Content\warning.wav" />
     <Content Include="Content\_Site.css" />
     <Content Include="Content\_themes\_base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\_themes\_base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -2044,23 +2016,6 @@
     <Content Include="Scripts\hoverintent\hoverintent.js" />
     <Content Include="Scripts\isotope\isotope-min.js" />
     <Content Include="Scripts\isotope\isotope.js" />
-    <EntityDeploy Include="Models\Main.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>Main.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <Content Include="Models\Main.edmx.diagram">
-      <DependentUpon>Main.edmx</DependentUpon>
-    </Content>
-    <Content Include="Models\Main.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Main.Context.cs</LastGenOutput>
-      <DependentUpon>Main.edmx</DependentUpon>
-    </Content>
-    <Content Include="Models\Main.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Main.cs</LastGenOutput>
-      <DependentUpon>Main.edmx</DependentUpon>
-    </Content>
     <Content Include="packages.config" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <None Include="Scripts\jquery-1.6.4-vsdoc.js" />
@@ -2177,6 +2132,10 @@
     <Content Include="Views\TournamentCenter\Index.cshtml" />
     <Content Include="Views\Trivia\Index.cshtml" />
     <Content Include="Views\_ViewStart.cshtml" />
+    <Content Include="Views\CubeDraft\Create.cshtml" />
+    <Content Include="Views\CubeDraft\Index.cshtml" />
+    <Content Include="Views\CubeDraft\View.cshtml" />
+    <Content Include="Views\CubeDraft\Draft.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -2262,6 +2221,9 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -2278,9 +2240,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerPort>56202</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:51236/</IISUrl>
+          <IISUrl>http://localhost:50528</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

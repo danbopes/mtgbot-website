@@ -7,7 +7,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Helpers;
-using MTGBotWebsite.Models;
+using MTGOLibrary.Models;
 
 namespace MTGBotWebsite.Helpers
 {
@@ -78,6 +78,7 @@ namespace MTGBotWebsite.Helpers
                 }
                 catch
                 {
+                    throw;
                 }
             }
 

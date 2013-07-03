@@ -1,0 +1,74 @@
+﻿@using MTGOLibrary.Models;
+@model IEnumerable<CubeDraft>
+
+@{
+    ViewBag.Title = "Cube Draft";
+    ViewBag.Description = "Run a cube draft through mtgbot";
+}
+
+<div class="flat_area grid_8">
+	<h3>What is the Cube Draft System?</h3>
+    <p>MTGBot's Cube Draft System provides a portal for broadcasters to allow their viewers to participate in a cube draft of the broadcasters card. MTGBot will run the draft, auto trade cards to players after the draft, and keep track of rounds all automatically.</p>
+    <h3>I'm a broadcaster, how to I use Cube Draft System?</h3>
+    <p>The Cube Drafting System is still in early experimental stages. If you would like to be a part of the beta testing, please send me an email @Html.ActionLink("here", "Index", "Contact").</p>
+</div>
+
+<div class="box grid_8">
+    <h2 class="box_head">Previous Cube Drafts</h2>
+	<div class="controls">
+        <a href="#" class="toggle"></a>
+	</div>
+	<div class="toggle_container">
+	    <div class="block">
+	        <div class="section">
+	            <table class="static">
+	                <thead>
+	                    <tr>
+	                        <th>Name</th>
+	                        <th>Broadcaster</th>
+	                        <th>Status</th>
+	                    </tr>
+	                </thead>
+                    <tbody>
+	                @foreach (var item in Model) {
+	                    <tr>
+	                        <td>
+	                            <a href="@Url.Action("View", new { item.Id })">@Html.DisplayFor(modelItem => item.Name)</a>
+	                        </td>
+	                        <td>
+	                            <a href="@Url.Action("View", new { item.Id })">@Html.DisplayFor(modelItem => item.Broadcaster.Name)</a>
+	                        </td>
+	                        <td>
+	                            @{
+	                                string draftStatus = "Unknown";
+	                                switch (item.Status)
+	                                {
+	                                    case CubeDraftStatus.PreStart:
+	                                        draftStatus = "Signups";
+	                                        break;
+	                                    case CubeDraftStatus.Drafting:
+	                                        draftStatus = "Drafting";
+	                                        break;
+	                                    case CubeDraftStatus.InMatches:
+	                                    case CubeDraftStatus.ProductHandIn:
+	                                    case CubeDraftStatus.ProductHandOut:
+	                                        draftStatus = "In Progress";
+	                                        break;
+	                                    case CubeDraftStatus.Exception:
+	                                        draftStatus = "Error";
+	                                        break;
+	                                    case CubeDraftStatus.Completed:
+	                                        draftStatus = "Completed";
+	                                        break;
+	                                }
+	                            }
+	                            @Html.DisplayFor(modelItem => draftStatus)
+	                        </td>
+	                    </tr>
+	                }
+                    </tbody>
+	            </table>
+	        </div>
+	    </div>
+	</div>
+</div>

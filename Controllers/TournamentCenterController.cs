@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using MTGBotWebsite.Helpers;
-using MTGBotWebsite.Models;
+using MTGOLibrary.Models;
 
 namespace MTGBotWebsite.Controllers
 {

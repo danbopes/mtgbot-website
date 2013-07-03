@@ -3,25 +3,25 @@ function adminicaDataTables() {
 if($(".datatable").length>0){
 if($.fn.dataTable){
 	// DataTables Config (more info can be found at http://www.datatables.net/)
-	var table1 = $('#dt1 .datatable').dataTable( {
-				"bJQueryUI": true,
-				"sScrollX": "",
-				"bSortClasses": false,
-				"aaSorting": [[0,'asc']],
-				"bAutoWidth": true,
-				"bInfo": true,
-				"sScrollX": "101%",
-				"bScrollCollapse": true,
-				"sPaginationType": "full_numbers",
-				"bRetrieve": true,
-				"fnInitComplete": function () {
+    var table1 = $('#pending_players .datatable').dataTable({
+                "bJQueryUI": true,
+                "sScrollX": "",
+                "bSortClasses": false,
+                "aaSorting": [[0, 'asc']],
+                "bAutoWidth": true,
+                "bInfo": true,
+                "sScrollX": "101%",
+                "bScrollCollapse": true,
+                "sPaginationType": "full_numbers",
+                "bRetrieve": true,
+                "fnInitComplete": function () {
 
-					$("#dt1 .dataTables_length > label > select").uniform();
-					$("#dt1 .dataTables_filter input[type=text]").addClass("text");
-					$(".datatable").css("visibility","visible");
+                    $("#dt1 .dataTables_length > label > select").uniform();
+                    $("#dt1 .dataTables_filter input[type=text]").addClass("text");
+                    $(".datatable").css("visibility", "visible");
 
-				}
-	});
+                }
+            });
 
 	var table2 = $('#dt2 .datatable').dataTable( {
 				"bJQueryUI": true,

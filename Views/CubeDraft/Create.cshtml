@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "Cube Draft";
+    ViewBag.Description = "Create a Cube Draft";
+}
+
+<div class="box light grid_16" style="opacity: 1;">
+	<!--<h2 class="box_head">Wizard</h2>-->
+	<div class="controls">
+		<div class="wizard_progressbar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"><div class="ui-progressbar-value ui-widget-header ui-corner-left" style="width: 25%;"></div></div>
+	</div>
+	<div class="toggle_container">
+		<div class="wizard">
+			<div class="wizard_steps">
+				<ul class="clearfix">
+					<li class="current">
+						<a href="#step_1" class="clearfix">
+							<span>1. <strong>Basic Information</strong></span>
+							<small>Draft Name, Settings</small>
+						</a>
+					</li>
+					<li>
+						<a href="#step_2" class="clearfix">
+							<span>2. <strong>Upload cube</strong></span>
+							<small>Trade cube with mtgbot for deployment</small>
+						</a>
+					</li>
+					<li>
+						<a href="#step_3" class="clearfix">
+							<span>3. <strong>Unimportant Information</strong></span>
+							<small>We're nearly there!</small>
+						</a>
+					</li>
+					<li>
+						<a href="#step_4" class="clearfix">
+							<span>4. <strong>Finish</strong></span>
+							<small>Confirm and complete</small>
+						</a>
+					</li>
+				</ul>
+			</div>
+
+			<div class="wizard_content">
+                <form action="#" method="post" class="validate_form" novalidate="novalidate">
+                    <div id="step_1" class="step block" style="display: block; opacity: 1;">
+                        <div class="section">
+                            <h2>1. Cube Draft Information</h2>
+                            <p>Welcome to the new cube draft system created by mtgbot! Please enter the following information to get started</p>
+                        </div>
+                        <div class="columns even clearfix">
+                            <div class="col_50" style="height: 57px;">
+                                <fieldset class="label_side top" style="height: 56px;">
+                                    <label style="height: 26px;">Name</label>
+                                    <div class="clearfix" style="height: 26px;">
+                                        <input name="tournament_name" type="text" class="required text" title="A friendly name to show for the website">
+                                        <div class="required_tag"></div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col_50" style="height: 57px;">
+                                <fieldset class="label_side top right" style="height: 56px;">
+                                    <label style="height: 26px;">Round Limits on Matches</label>
+                                    <div class="clearfix" style="height: 26px;">
+                                        <select name="round_limits" class="uniform full_width" style="opacity: 0;" title="This is how long mtgbot will tell users to create matches.">
+                                            <option value="15">15 Minutes (30 Minutes Total)</option>
+                                            <option value="20">20 Minutes (40 Minutes Total)</option>
+                                            <option value="30" selected="selected">30 Minutes (60 Minutes Total)</option>
+                                            <option value="40">40 Minutes (1 Hour 20 Minutes Total)</option>
+                                            <option value="60">1 Hour (2 Hours Total)</option>
+                                        </select>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="columns even clearfix">
+                            <div class="col_100" style="height: 57px;">
+                                <fieldset class="label_side">
+                                    <label>Message</label>
+                                    <div class="uniform inline clearfix">
+                                        <label for="message"><div class="checker"><span><input type="checkbox" name="message" checked="checked" value="1" style="opacity: 0;"></span></div>If Checked, after creation, have mtgbot send a message to your channel with a link.</label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="columns even clearfix">
+                            <div class="col_100" style="height: 57px;">
+                                <fieldset class="label_side">
+                                    <label>Require Watchers</label>
+                                    <div class="uniform inline clearfix">
+                                        <label for="message"><div class="checker"><span><input type="checkbox" name="require_watchers" checked="checked" value="1" style="opacity: 0;"></span></div>If Checked, will require games to be created with the "allow watchers" checked.</label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="button_bar clearfix">
+                            <button class="next_step forward send_right img_icon has_text green" data-goto="step_2" type="button">
+                                <img height="24" width="24" alt="Bended Arrow Right" src="~/Images/icons/small/white/bended_arrow_right.png">
+                                <span>Next Step</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="step_2" class="step block" style="opacity: 1;">
+					<h2 class="section">2. Upload Cube</h2>
+				    <p>Please open trade with "6packs" on mtgo and trade the cube collection. This page will update when the trade is complete with the cube. Click next when you are finished trading your collection.</p>
+
+				    <div class="columns even clearfix grid_4" style="opacity: 1;">
+				        <div class="col_33" style="height: 110px;"></div>
+				        <div class="col_33" style="height: 110px;"></div>
+				        <div class="col_33" style="height: 110px;"></div>
+				    </div>
+
+					<div class="button_bar clearfix">
+						<button class="next_step back img_icon has_text" data-goto="step_1" type="button">
+							<img height="24" width="24" alt="Bended Arrow Right" src="images/icons/small/grey/bended_arrow_left.png">
+							<span>Prev Step</span>
+						</button>
+						<button class="next_step forward light send_right img_icon has_text" type="button">
+							<img height="24" width="24" alt="Bended Arrow Right" src="images/icons/small/white/bended_arrow_right.png">
+							<span>Complete</span>
+						</button>
+					</div>
+				</div>
+            </form>
+			</div>
+
+		</div>
+	</div>
+</div>

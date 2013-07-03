@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using MTGBotWebsite.Helpers;
-using MTGBotWebsite.Models;
+using MTGOLibrary.Models;
 using Microsoft.AspNet.SignalR;
 using Microsoft.CSharp.RuntimeBinder;
 

@@ -287,7 +287,7 @@ function adminicaForms() {
         	show:{effect: "fade", duration: 500},
         	hide:{effect: "fade", duration: 500},
         	create: function(){
-        		$('.dialog_content.no_dialog_titlebar').dialog('option', 'dialogClass', 'no_dialog_titlebar');
+        		$( this ).dialog('option', 'dialogClass', 'no_dialog_titlebar');
         	},
         	open: function(){
         		setTimeout(columnHeight, 100);

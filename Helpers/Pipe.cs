@@ -27,6 +27,9 @@ namespace MTGBotWebsite.Helpers
                 catch (TimeoutException)
                 {
                 }
+                catch (ObjectDisposedException)
+                {
+                }
             }
         }
     }
