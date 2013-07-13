@@ -1,8 +1,10 @@
-﻿@{
+﻿@using MTGOLibrary.Models;
+@model CubeDraft
+@{
     ViewBag.Title = "Cube Draft";
     ViewBag.Description = "Create a Cube Draft";
 }
-
+    
 <div class="box light grid_16" style="opacity: 1;">
 	<!--<h2 class="box_head">Wizard</h2>-->
 	<div class="controls">
@@ -13,25 +15,25 @@
 			<div class="wizard_steps">
 				<ul class="clearfix">
 					<li class="current">
-						<a href="#step_1" class="clearfix">
+						<a href="#step_1" class="clearfix" onclick="return false;">
 							<span>1. <strong>Basic Information</strong></span>
 							<small>Draft Name, Settings</small>
 						</a>
 					</li>
 					<li>
-						<a href="#step_2" class="clearfix">
+						<a href="#step_2" class="clearfix" onclick="return false;">
 							<span>2. <strong>Upload cube</strong></span>
 							<small>Trade cube with mtgbot for deployment</small>
 						</a>
 					</li>
 					<li>
-						<a href="#step_3" class="clearfix">
+						<a href="#step_3" class="clearfix" onclick="return false;">
 							<span>3. <strong>Unimportant Information</strong></span>
 							<small>We're nearly there!</small>
 						</a>
 					</li>
 					<li>
-						<a href="#step_4" class="clearfix">
+						<a href="#step_4" class="clearfix" onclick="return false;">
 							<span>4. <strong>Finish</strong></span>
 							<small>Confirm and complete</small>
 						</a>
@@ -41,7 +43,7 @@
 
 			<div class="wizard_content">
                 <form action="#" method="post" class="validate_form" novalidate="novalidate">
-                    <div id="step_1" class="step block" style="display: block; opacity: 1;">
+                    <div data-step="1" class="step block" style="display: block; opacity: 1;">
                         <div class="section">
                             <h2>1. Cube Draft Information</h2>
                             <p>Welcome to the new cube draft system created by mtgbot! Please enter the following information to get started</p>
@@ -51,7 +53,7 @@
                                 <fieldset class="label_side top" style="height: 56px;">
                                     <label style="height: 26px;">Name</label>
                                     <div class="clearfix" style="height: 26px;">
-                                        <input name="tournament_name" type="text" class="required text" title="A friendly name to show for the website">
+                                        <input name="tournament_name" type="text" class="required text" title="A friendly name to show for the website" value="@(Model != null ? Model.Name : "")">
                                         <div class="required_tag"></div>
                                     </div>
                                 </fieldset>
@@ -92,37 +94,346 @@
                             </div>
                         </div>
                         <div class="button_bar clearfix">
-                            <button class="next_step forward send_right img_icon has_text green" data-goto="step_2" type="button">
+                            <button class="next_step forward send_right img_icon has_text green" type="button">
                                 <img height="24" width="24" alt="Bended Arrow Right" src="~/Images/icons/small/white/bended_arrow_right.png">
                                 <span>Next Step</span>
                             </button>
                         </div>
                     </div>
 
-                    <div id="step_2" class="step block" style="opacity: 1;">
+                    <div data-step="2" class="step block" style="opacity: 1;">
 					<h2 class="section">2. Upload Cube</h2>
-				    <p>Please open trade with "6packs" on mtgo and trade the cube collection. This page will update when the trade is complete with the cube. Click next when you are finished trading your collection.</p>
+                    <p>Your designated bot for this draft will be: <span class="mtgo_bot"></span></p>
+                    <p>Please open trade with "<span class="mtgo_bot"></span>" on mtgo and trade the cube collection. This page will update when the trade is complete with the cards. Click next when you are finished trading your collection.</p>
 
 				    <div class="columns even clearfix grid_4" style="opacity: 1;">
-				        <div class="col_33" style="height: 110px;"></div>
-				        <div class="col_33" style="height: 110px;"></div>
-				        <div class="col_33" style="height: 110px;"></div>
-				    </div>
+                        <div id="currentpack">
 
-					<div class="button_bar clearfix">
-						<button class="next_step back img_icon has_text" data-goto="step_1" type="button">
-							<img height="24" width="24" alt="Bended Arrow Right" src="images/icons/small/grey/bended_arrow_left.png">
-							<span>Prev Step</span>
-						</button>
-						<button class="next_step forward light send_right img_icon has_text" type="button">
-							<img height="24" width="24" alt="Bended Arrow Right" src="images/icons/small/white/bended_arrow_right.png">
-							<span>Complete</span>
-						</button>
-					</div>
+                            <ul id="cards" data-bind="foreach: cards">
+                                <li>
+                                    <img draggable="true" data-bind="attr: { src: $root.thumbLink($data), alt: 'Alt Test' }, event: {
+                            mouseover: enableDetails, mouseout: disableDetails, dragstart: function (data, event) { $parent.dragsel = this; console.log(this); return true; },
+                            dragend: function (data, event) { return true; },
+                            dragover: function (data, event) { event.preventDefault(); },
+                            dragenter: function (data, event) { event.preventDefault(); },
+                            dragleave: function (data, event) { event.preventDefault(); }
+
+                            }" src="" alt="" />
+                                </li>
+                            </ul>
+                        </div>
+    
+    
+
+                        </div>
+
+					    <div class="button_bar clearfix">
+						    <button class="next_step back img_icon has_text" data-goto="step_1" type="button">
+							    <img height="24" width="24" alt="Bended Arrow Right" src="images/icons/small/grey/bended_arrow_left.png">
+							    <span>Prev Step</span>
+						    </button>
+						    <button class="next_step forward light send_right img_icon has_text" type="button">
+							    <img height="24" width="24" alt="Bended Arrow Right" src="images/icons/small/white/bended_arrow_right.png">
+							    <span>Complete</span>
+						    </button>
+					    </div>
+				    </div>
+                    </form>
 				</div>
-            </form>
 			</div>
 
 		</div>
 	</div>
-</div>
+
+@section scripts {
+    <!--Script references. -->
+    @Scripts.Render("~/Scripts/knockout/knockout.js")
+    <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
+    <!--Reference the SignalR library. -->
+    <script src="~/Scripts/jquery.signalR-1.0.1.js"></script>
+    <!--Reference the autogenerated SignalR hub script. -->
+    <script src="~/signalr/hubs"></script>
+    <!--SignalR script to update the chat page and send messages.--> 
+    
+    <script type="text/javascript">
+        $(function() {
+            var mtg = $.connection.cubeHub;
+            $.connection.hub.logging = true;
+            var mtgBot = @(Model != null ? "\"" + Model.BotName + "\"" ?? "null" : "null");
+
+            @if (Model != null)
+            {
+                <text>
+                    $('.mtgo_bot').text(mtgBot);
+                    $('.wizard .step[data-step=\'1\'] button.next_step').trigger('click');
+                </text>
+            }
+            
+            function pad(n, width, z) {
+                z = z || '0';
+                n = n + '';
+                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+            }
+            
+            $('.wizard .step[data-step=\'1\'] button.next_step').data('next', function() {
+                if (mtgBot != null)
+                    return true;
+
+                showLoadingOverlay();
+                mtg.server.createDraft($('input[name=tournament_name]').val(), parseInt($('select[name=round_limits]').val()), $('input[name=require_watchers]').is(":checked")).done(function(response) {
+                    console.log(response);
+                    if (response.Error != undefined && response.Error != false) {
+                        alert(response.Error);
+                    } else if (response.Error == false && response.Username != null) {
+                        mtgBot = response.Username;
+                        $('.mtgo_bot').text(response.Username);
+                        $('.wizard .step[data-step=\'1\'] button.next_step').trigger('click');
+                    }
+                    hideLoadingOverlay();
+                });
+                return false;
+            });
+
+            var cardViewModel = function() {
+                var self = this;
+                self.cards = ko.observableArray([]);
+                self.sortBy = ko.observable("colour");
+
+                self.dragsel = "init";
+
+                var origz;
+                var origw;
+
+                self.thumbLink = function(card) {
+                    return "http://mtgbot.tv/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
+                };
+                
+                /*self.sideboardids = ko.computed(function () {
+                    var ids = ko.utils.arrayMap(self.sideboard(), function (item) {
+                        return item.draftId;
+                    });
+                    return ids;
+                }, this);*/
+
+                /*
+                self.sortByColour = function () {
+                    self.sortBy("colour");
+                };
+    
+                self.sortByCost = function () {
+                    self.sortBy("cost");
+                };
+    
+                this.land = ko.computed(function () {
+                    return ko.utils.arrayFilter(this.deck(), function (card) {
+                        return String(card.Colours) == "L";
+                    });
+                }, this);
+    
+                this.selections0c = ko.computed(function () {
+                    var desiredType = this.sortBy();
+                    if (desiredType == "cost") {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return card.convCost == 0;
+                        });
+                    } else {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return String(card.Colours) == "L";
+                        });
+                    }
+                }, this);
+    
+                this.selections1c = ko.computed(function () {
+                    var desiredType = this.sortBy();
+                    if (desiredType == "cost") {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return card.convCost == 1;
+                        });
+                    } else {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+    
+                            return String(card.Colours) == "A";
+                        });
+                    }
+                }, this);
+    
+                this.selections2c = ko.computed(function () {
+                    var desiredType = this.sortBy();
+                    if (desiredType == "cost") {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return card.convCost == 2;
+                        });
+                    } else {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return String(card.Colours) == "U";
+                        });
+                    }
+                }, this);
+    
+                this.selections3c = ko.computed(function () {
+                    var desiredType = this.sortBy();
+                    if (desiredType == "cost") {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return card.convCost == 3;
+                        });
+                    } else {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return String(card.Colours) == "B";
+                        });
+                    }
+                }, this);
+    
+                this.selections4c = ko.computed(function () {
+                    var desiredType = this.sortBy();
+                    if (desiredType == "cost") {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return card.convCost == 4;
+                        });
+                    } else {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return String(card.Colours) == "R";
+                        });
+                    }
+                }, this);
+    
+                this.selections5c = ko.computed(function () {
+                    var desiredType = this.sortBy();
+                    if (desiredType == "cost") {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return card.convCost == 5;
+                        });
+                    } else {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return String(card.Colours) == "G";
+                        });
+                    }
+                }, this);
+    
+                this.selections6c = ko.computed(function () {
+                    var desiredType = this.sortBy();
+                    if (desiredType == "cost") {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return card.convCost == 6;
+                        });
+                    } else {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return String(card.Colours) == "W";
+                        });
+                    }
+                }, this);
+    
+                this.selections7c = ko.computed(function () {
+                    var desiredType = this.sortBy();
+                    if (desiredType == "cost") {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return card.convCost > 6;
+                        });
+                    } else {
+                        return ko.utils.arrayFilter(this.deck(), function (card) {
+                            return String(card.Colours).length > 1;
+                        });
+                    }
+                }, this);*/
+
+                enableDetails = function(item, event) {
+                    origz = $(event.target).parent().css('z-index');
+                    origw = $(event.target).css('width');
+
+                    $(event.target).parent().css('z-index', '1000');
+                    $(event.target).css('width', 'auto');
+
+                },
+                disableDetails = function(item, event) {
+                    $(event.target).css('width', origw);
+                    $(event.target).parent().css('z-index', origz);
+                },                
+                mtg.client.addedCards = function (cards) {
+                    console.log("Pushing Cards");
+                    console.log(cards);
+                    $.each(cards, function (idx, card) {
+                        console.log(card);
+                        self.cards.push(card);
+                    });
+                };
+
+                /*
+                self.addSelection = function (data) {
+                    // First remove from the server, then from the UI
+                    console.log('adding selection');
+                    console.log(data);
+                    clearInterval(timer);
+                    var selection = JSON.stringify(data);
+                    $.ajax({
+                        url: "/api/Draft",
+                        type: "POST",
+                        data: selection,
+                        datatype: "json",
+                        contentType: "application/json; charset=utf-8",
+                    })
+                        .done(function (postreturn) {
+                            self.selections(postreturn.Picks);
+                            if (postreturn.CurrentPack.packCards != null) {
+                                self.contacts(postreturn.CurrentPack.packCards);
+                                self.myclock(40);
+                                timer = setInterval(self.tick, 1000);
+                            } else {
+                                self.loaded(false);
+                                self.contacts([]);
+                                refresher = setInterval(self.getDraft, 5000);
+                            }
+                            //self.selections.push(data);
+                        });
+                    if (self.selections().length > 44) {
+                        alert("draft complete!");
+                        clearInterval(timer);
+                        clearInterval(refresher);
+                        self.draftOver(true);
+                    }
+                    return true;
+                };
+                */
+
+                textDeck = function() {
+                    //alert(self.sideboardids());
+                    /*var mysideboard = JSON.stringify(self.sideboard());
+                    $("body").append("<iframe src='" + "/api/Contacts?sideboard=" + mysideboard + "' style='display: none;' ></iframe>");*/
+                };
+            };
+
+            $.fn.serializeObject = function() {
+                var o = {};
+                var a = this.serializeArray();
+                $.each(a, function() {
+                    if (o[this.name]) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        o[this.name].push(this.value || '');
+                    } else {
+                        o[this.name] = this.value || '';
+                    }
+                });
+                return o;
+            };
+
+            window.cvm = new cardViewModel();
+            ko.applyBindings(cvm);
+
+            $.connection.hub.start().done(function() {
+                //console.log(mtg.server);
+                @if (Model != null)
+                {
+                    <text>mtg.server.subscribeToDraft(@Model.Id);</text>
+                }
+
+
+                /*$('#sendmessage').click(function () {
+                        // Call the Send method on the hub. 
+                        chat.server.send($('#message').val());
+                        // Clear text box and reset focus for next comment. 
+                        $('#message').val('').focus();
+                    });*/
+            });
+        });
+    </script>
+}

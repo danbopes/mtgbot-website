@@ -86,7 +86,8 @@ namespace MTGBotWebsite.App_Start
                 "~/Scripts/uistars/uistars.js",
                 "~/Scripts/uitotop/uitotop.js",
                 "~/Scripts/uniform/uniform.js",
-                "~/Scripts/validation/validation.js"
+                "~/Scripts/validation/validation.js",
+                "~/Scripts/tmpl/tmpl.js"
             ));
             /* bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));

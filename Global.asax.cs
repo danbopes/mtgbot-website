@@ -12,13 +12,13 @@ namespace MTGBotWebsite
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
     // visit http://go.microsoft.com/?LinkId=9394801
 
-    public class MvcApplication : System.Web.HttpApplication
+    public class MvcApplication : HttpApplication
     {
-        private static RouteBase _hubRoute;
+        public static RouteBase HubRoute;
 
         protected void Application_Start()
         {
-            _hubRoute = RouteTable.Routes.MapHubs();
+            HubRoute = RouteTable.Routes.MapHubs();
             AreaRegistration.RegisterAllAreas();
 
             //Database.SetInitializer(new DropCreateMySqlDatabaseIfModelChanges<MainDbContext>());
@@ -40,7 +40,7 @@ namespace MTGBotWebsite
 
         private static bool IsSignalRRequest(HttpContext context)
         {
-            var routeData = _hubRoute.GetRouteData(new HttpContextWrapper(context));
+            var routeData = HubRoute.GetRouteData(new HttpContextWrapper(context));
 
             // If the routeData isn't null then it's a SignalR request
             return routeData != null;

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
 using MTGOLibrary;
 
 namespace MTGBotWebsite.CubeDrafts
@@ -19,7 +17,7 @@ namespace MTGBotWebsite.CubeDrafts
         public int Wins = 0;
         public int Losses = 0;
         public int Ties = 0;
-        public int Points { get { return Wins*3 + Ties*1; } }
+        public int Points { get { return Wins * 3 + Ties * 1; } }
 
         public Player(int playerId, string playerName)
         {
@@ -44,10 +42,10 @@ namespace MTGBotWebsite.CubeDrafts
 
         public Pairing(Player player1, Player player2)
         {
-            if ( player1 == null )
+            if (player1 == null)
                 throw new ArgumentException("Player1 cannot be null");
 
-            if ( player1 == player2 )
+            if (player1 == player2)
                 throw new ArgumentException("Player1 cannot equal player2");
 
             Player1 = player1;
@@ -77,9 +75,15 @@ namespace MTGBotWebsite.CubeDrafts
             Ties = ties;
 
             if (Player1Wins > Player2Wins)
+            {
                 Player1.Wins++;
+                Console.WriteLine("{0} Wins {1}", Player1.PlayerName, Player1.Wins);
+            }
             else if (Player1Wins < Player2Wins)
+            {
                 Player2.Wins++;
+                Console.WriteLine("{0} Wins {1}", Player1.PlayerName, Player1.Wins);
+            }
         }
 
         public override string ToString()
@@ -97,7 +101,7 @@ namespace MTGBotWebsite.CubeDrafts
 
         public Player[] Players { get; internal set; }
         public int CurrentRound { get; internal set; }
-        public Dictionary<int, Pairing[]> Rounds = new Dictionary<int, Pairing[]>(); 
+        public Dictionary<int, Pairing[]> Rounds = new Dictionary<int, Pairing[]>();
 
         public SwissTournament(Player[] players)
         {
@@ -107,13 +111,13 @@ namespace MTGBotWebsite.CubeDrafts
 
         public Pairing[] PairNextRound()
         {
-            if ( Players.Length < 2 )
+            if (Players.Length < 2)
                 throw new InvalidOperationException("Need more then 2 players to pair");
 
             var pairings = new List<Pairing>();
 
             var tempPlayers = ((Player[])Players.Clone()).Shuffle().OrderByDescending(p => p.Points).ToList();
-            while ( tempPlayers.Count > 1 )
+            while (tempPlayers.Count > 1)
             {
                 var player = tempPlayers.First();
                 var previousOpponents = Rounds.SelectMany(i => i.Value)
@@ -123,15 +127,39 @@ namespace MTGBotWebsite.CubeDrafts
                 //Find the best player
                 var match = tempPlayers.FirstOrDefault(p => !previousOpponents.Contains(player) && p != player);
 
-                if ( match == null )
+
+
+                if (match == null)
                     throw new InvalidOperationException("Unable to find match for player.");
 
-                pairings.Add(new Pairing(player, match));
-                tempPlayers.Remove(player);
-                tempPlayers.Remove(match);
+                Pairing thispair = new Pairing(player, match);
+                if (!previousOpponents.Contains(player))
+                {
+                    pairings.Add(thispair);
+                    tempPlayers.Remove(player);
+                    tempPlayers.Remove(match);
+                }
+                else
+                {
+                    //Console.WriteLine("Played Previously: {0}", thispair.ToString());
+                    int samepoints = player.Wins;
+                    var playertier =
+                        pairings.Where(
+                            tierpair => (tierpair.Player1.Wins == samepoints || tierpair.Player2.Wins == samepoints));
+                    foreach (Pairing thistierpair in playertier)
+                    {
+                        pairings.Remove(thistierpair);
+                        tempPlayers.Add(thistierpair.Player1);
+                        tempPlayers.Add(thistierpair.Player2);
+                        tempPlayers.Shuffle();
+                    }
+
+                }
+
+
             }
 
-            if ( tempPlayers.Count > 0 )
+            if (tempPlayers.Count > 0)
                 pairings.Add(new Pairing(tempPlayers.First(), null));
 
             CurrentRound++;

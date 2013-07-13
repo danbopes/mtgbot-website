@@ -62,7 +62,6 @@ namespace MTGBotWebsite.CubeDrafts
             throw new NotImplementedException();
         }
 
-
         //Overrideables
 
         public void Pick(string drafterName, int pickNumber, int pickId)

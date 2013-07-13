@@ -1,37 +1,45 @@
 function adminicaWizard() {
-    
 	$(".wizard_progressbar").progressbar({ value: 10 });
 
-	$('.wizard_steps ul li a').on('click', function () {
+	$('.wizard_steps ul li a').bind('click', function () {
+	    var wizard = $(this).parents('.wizard');
 	    var steps = $(this).parents('.wizard_steps');
-	    var step_num = steps.find('li').index($(this).parent()) + 1;
-	    var step_current = steps.find('li').index(steps.find('li.current')) + 1;
+	    var stepNext = steps.find('li').index($(this).parent()) + 1;
+	    var stepCurrent = steps.find('li').index(steps.find('li.current')) + 1;
 
-		console.log("step clicked: "+step_num);
-		console.log("step current: "+step_current);
-		if (step_current > step_num){
-			$('label.error').css("display","none");
+		//console.log("step clicked: "+stepNext);
+		//console.log("step current: "+stepCurrent);
+		if (stepCurrent > stepNext) {
+		    return false;
+		    $(wizard).find('label.error').css("display", "none");
 		}
 		else{
-			$(".validate_form").valid();
+		    $(wizard).find(".validate_form").valid();
 		}
 
 
-		var errorsPresent = $('.step').find('label.error').filter(":visible").length;
-		console.log(errorsPresent);
+		var errorsPresent = $(wizard).find('.step label.error').filter(":visible").length;
+		//console.log(errorsPresent);
 
-		if(errorsPresent < 1){
+		if (errorsPresent < 1) {
+		    var nextButton = $(wizard).find('.wizard_content').find('.step[data-step=\'' + stepCurrent + '\'] button.next_step');
+		    if ($(nextButton).data('next')) {
+		        var retVal = $(nextButton).data('next')();
+		        if (!retVal)
+		            return false;
+		    }
+		    
 			$('.wizard_steps ul li').removeClass('current');
 			$(this).parent('li').addClass('current');
 
-			var step = $(this).attr('href');
 			var step_multiplyby = (100 / steps.find('li').size());
-			var prog_val = (step_num*step_multiplyby);
+			var prog_val = (stepNext*step_multiplyby);
 
-			$( ".wizard_progressbar").progressbar({ value: prog_val });
+			$(wizard).find(".wizard_progressbar").progressbar({ value: prog_val });
 
-			$('.wizard_content').find('.step').hide();
-			$('.wizard_content').find(step).fadeIn(1000);
+			$(wizard).find('.wizard_content').find('.step').hide();
+			$(wizard).find('.wizard_content').find('.step[data-step=\'' + stepNext + '\']').fadeIn(1000);
+			columnHeight();
 		}
 		return false;
 	});
@@ -40,20 +48,14 @@ function adminicaWizard() {
 
 	$( ".wizard_progressbar").progressbar({ value : initialProg});
 
-	$('.wizard .button_bar button:not(".submit_button")').on('click', function() {
+	$('.wizard .button_bar button.next_step').bind('click', function () {
+	    var steps = $(this).parents('.wizard').find('.wizard_steps');
+	    var nextStep = steps.find('li').index(steps.find('li.current')) + 2;
 
-	    //if (!$(this).attr('data-goto'))
-	    //    return;
-
-	    //var goTo = $(this).attr("data-goto").replace('step_','');
-	    
-
-		//$('.wizard_steps ul li:nth-child('+goTo+') a').trigger('click');
-
-		columnHeight();
+	    $(this).parents('.wizard').find('.wizard_steps ul li:nth-child(' + nextStep + ') a').trigger('click');
 	});
 
-	$('.wizard_content form .submit_button').on('click', function(){
+	$('.wizard_content form .submit_button').bind('click', function(){
 		$(".validate_form").valid();
 
 		var errorsPresent = $(this).parents('form').find('.error').html();

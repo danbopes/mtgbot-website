@@ -46,7 +46,8 @@
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Core">
+    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.1.1.2\lib\net40\Microsoft.AspNet.SignalR.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Owin">
@@ -56,7 +57,8 @@
       <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.1.1.2\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Owin.Host.SystemWeb">
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.1.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -78,7 +80,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Owin">
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -176,10 +179,10 @@
     </Compile>
     <Compile Include="Helpers\Authorization.cs" />
     <Compile Include="Helpers\Email.cs" />
+    <Compile Include="Helpers\LogParser.cs" />
     <Compile Include="Helpers\MySql.cs" />
     <Compile Include="Helpers\Pipe.cs" />
     <Compile Include="Helpers\TimerPlus.cs" />
-    <Compile Include="Hubs\ChatClass.cs" />
     <Compile Include="Hubs\CubeHub.cs" />
     <Compile Include="Hubs\MtgHub.cs" />
     <Compile Include="Models\BugReportModel.cs" />
@@ -2047,6 +2050,7 @@
     <Content Include="Scripts\knob\knob.js" />
     <Content Include="Scripts\knockout-2.2.0.debug.js" />
     <Content Include="Scripts\knockout-2.2.0.js" />
+    <Content Include="Scripts\knockout\knockout.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\modernizr\modernizr-min.js" />
     <Content Include="Scripts\modernizr\modernizr.js" />
@@ -2080,6 +2084,7 @@
     <Content Include="Scripts\tinyeditor\tinyeditor.js" />
     <Content Include="Scripts\tiptip\tiptip-min.js" />
     <Content Include="Scripts\tiptip\tiptip.js" />
+    <Content Include="Scripts\tmpl\tmpl.js" />
     <Content Include="Scripts\touchpunch\touchpunch-min.js" />
     <Content Include="Scripts\touchpunch\touchpunch.js" />
     <Content Include="Scripts\uistars\uistars-min.js" />

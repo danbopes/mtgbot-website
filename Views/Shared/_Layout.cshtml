@@ -208,6 +208,7 @@
             </div>
         </div>
     </div>
+    @RenderSection("scripts", required: false)
     <script type="text/javascript">
 
         var _gaq = _gaq || [];
@@ -269,7 +270,7 @@
                     </footer>
 
                     @Scripts.Render("~/bundles/jquery")
-                    @RenderSection("scripts", required: false)
+                    RenderSection("scripts", required: false)
                 </body>
             </html>
             
