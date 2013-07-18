@@ -3,44 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using MTGOLibrary;
 
-namespace MTGBotWebsite.CubeDrafts
+namespace MTGBotWebsite.TournamentLibrary
 {
-    public class Player
-    {
-        //PlayerId in the Database
-        public int PlayerId { get; internal set; }
-
-        //PlayerName (Twitch username)
-        public string PlayerName { get; internal set; }
-
-        //Points
-        public int Wins = 0;
-        public int Losses = 0;
-        public int Ties = 0;
-        public int Points { get { return Wins * 3 + Ties * 1; } }
-
-        public Player(int playerId, string playerName)
-        {
-            PlayerId = playerId;
-            PlayerName = playerName;
-        }
-
-        public override string ToString()
-        {
-            return PlayerName;
-        }
-    }
-
     public class Pairing
     {
-        public Player Player1 { get; internal set; }
-        public Player Player2 { get; internal set; }
+        public TournPlayer Player1 { get; internal set; }
+        public TournPlayer Player2 { get; internal set; }
 
         public int Player1Wins = 0;
         public int Player2Wins = 0;
         public int Ties = 0;
 
-        public Pairing(Player player1, Player player2)
+        public Pairing(TournPlayer player1, TournPlayer player2)
         {
             if (player1 == null)
                 throw new ArgumentException("Player1 cannot be null");
@@ -94,16 +68,16 @@ namespace MTGBotWebsite.CubeDrafts
 
     public class SwissTournament
     {
-        public Player[] Standings
+        public TournPlayer[] Standings
         {
             get { return Players.OrderByDescending(p => p.Points).ToArray(); }
         }
 
-        public Player[] Players { get; internal set; }
+        public TournPlayer[] Players { get; internal set; }
         public int CurrentRound { get; internal set; }
         public Dictionary<int, Pairing[]> Rounds = new Dictionary<int, Pairing[]>();
 
-        public SwissTournament(Player[] players)
+        public SwissTournament(TournPlayer[] players)
         {
             Players = players;
             CurrentRound = 0;
@@ -116,7 +90,7 @@ namespace MTGBotWebsite.CubeDrafts
 
             var pairings = new List<Pairing>();
 
-            var tempPlayers = ((Player[])Players.Clone()).Shuffle().OrderByDescending(p => p.Points).ToList();
+            var tempPlayers = ((TournPlayer[])Players.Clone()).Shuffle().OrderByDescending(p => p.Points).ToList();
             while (tempPlayers.Count > 1)
             {
                 var player = tempPlayers.First();

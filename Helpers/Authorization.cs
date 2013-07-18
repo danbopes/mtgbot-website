@@ -68,12 +68,12 @@ namespace MTGBotWebsite.Helpers
 
                     HttpContext.Current.Session.Add("user_name", (string) json2.token.user_name);
 
-                    DB.TwitchOAuths.Add(new TwitchOAuth
+                    /*DB.TwitchOAuths.Add(new TwitchOAuth
                         {
                             OAuth = (string) json.access_token,
                             Username = (string) json2.token.user_name
                         });
-                    DB.SaveChanges();
+                    DB.SaveChanges();*/
                     return;
                 }
                 catch

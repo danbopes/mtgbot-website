@@ -6,42 +6,36 @@
 }
     
 <div class="box light grid_16" style="opacity: 1;">
-	<!--<h2 class="box_head">Wizard</h2>-->
-	<div class="controls">
-		<div class="wizard_progressbar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"><div class="ui-progressbar-value ui-widget-header ui-corner-left" style="width: 25%;"></div></div>
-	</div>
-	<div class="toggle_container">
-		<div class="wizard">
-			<div class="wizard_steps">
-				<ul class="clearfix">
-					<li class="current">
-						<a href="#step_1" class="clearfix" onclick="return false;">
-							<span>1. <strong>Basic Information</strong></span>
-							<small>Draft Name, Settings</small>
-						</a>
-					</li>
-					<li>
-						<a href="#step_2" class="clearfix" onclick="return false;">
-							<span>2. <strong>Upload cube</strong></span>
-							<small>Trade cube with mtgbot for deployment</small>
-						</a>
-					</li>
-					<li>
-						<a href="#step_3" class="clearfix" onclick="return false;">
-							<span>3. <strong>Unimportant Information</strong></span>
-							<small>We're nearly there!</small>
-						</a>
-					</li>
-					<li>
-						<a href="#step_4" class="clearfix" onclick="return false;">
-							<span>4. <strong>Finish</strong></span>
-							<small>Confirm and complete</small>
-						</a>
-					</li>
-				</ul>
-			</div>
+    <!--<h2 class="box_head">Wizard</h2>-->
+    <div class="controls">
+        <div class="wizard_progressbar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="25"><div class="ui-progressbar-value ui-widget-header ui-corner-left" style="width: 25%;"></div></div>
+    </div>
+    <div class="toggle_container">
+        <div class="wizard">
+            <div class="wizard_steps">
+                <ul class="clearfix">
+                    <li class="current">
+                        <a href="#step_1" class="clearfix" onclick="return false;">
+                            <span>1. <strong>Basic Information</strong></span>
+                            <small>Draft Name, Settings</small>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#step_2" class="clearfix" onclick="return false;">
+                            <span>2. <strong>Upload cube</strong></span>
+                            <small>Trade cube with mtgbot for deployment</small>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#step_3" class="clearfix" onclick="return false;">
+                            <span>3. <strong>Finish</strong></span>
+                            <small>Confirm and complete</small>
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-			<div class="wizard_content">
+            <div class="wizard_content">
                 <form action="#" method="post" class="validate_form" novalidate="novalidate">
                     <div data-step="1" class="step block" style="display: block; opacity: 1;">
                         <div class="section">
@@ -73,16 +67,18 @@
                                 </fieldset>
                             </div>
                         </div>
-                        <div class="columns even clearfix">
-                            <div class="col_100" style="height: 57px;">
-                                <fieldset class="label_side">
-                                    <label>Message</label>
-                                    <div class="uniform inline clearfix">
-                                        <label for="message"><div class="checker"><span><input type="checkbox" name="message" checked="checked" value="1" style="opacity: 0;"></span></div>If Checked, after creation, have mtgbot send a message to your channel with a link.</label>
-                                    </div>
-                                </fieldset>
+                        <!--
+                            <div class="columns even clearfix">
+                                <div class="col_100" style="height: 57px;">
+                                    <fieldset class="label_side">
+                                        <label>Message</label>
+                                        <div class="uniform inline clearfix">
+                                            <label for="message"><div class="checker"><span><input type="checkbox" name="message" checked="checked" value="1" style="opacity: 0;"></span></div>If Checked, after creation, have mtgbot send a message to your channel with a link.</label>
+                                        </div>
+                                    </fieldset>
+                                </div>
                             </div>
-                        </div>
+                            -->
                         <div class="columns even clearfix">
                             <div class="col_100" style="height: 57px;">
                                 <fieldset class="label_side">
@@ -102,48 +98,98 @@
                     </div>
 
                     <div data-step="2" class="step block" style="opacity: 1;">
-					<h2 class="section">2. Upload Cube</h2>
-                    <p>Your designated bot for this draft will be: <span class="mtgo_bot"></span></p>
-                    <p>Please open trade with "<span class="mtgo_bot"></span>" on mtgo and trade the cube collection. This page will update when the trade is complete with the cards. Click next when you are finished trading your collection.</p>
+                        <div class="section">
+                            <h2>2. Upload Cube</h2>
+                            <p>Your designated bot for this draft will be: <span class="mtgo_bot" style="font-weight: bold"></span></p>
+                            <p>Please open trade with "<span class="mtgo_bot" style="font-weight: bold"></span>" on mtgo and trade the cube collection. This page will update when the trade is complete with the cards. Click next when you are finished trading your collection. Your cube must be able to support at least 2 players to continue.</p>
+                        </div>
 
-				    <div class="columns even clearfix grid_4" style="opacity: 1;">
-                        <div id="currentpack">
+                        <div class="columns clearfix grid_16" style="opacity: 1;">
+                            <!--<div id="currentpack">
 
-                            <ul id="cards" data-bind="foreach: cards">
-                                <li>
-                                    <img draggable="true" data-bind="attr: { src: $root.thumbLink($data), alt: 'Alt Test' }, event: {
-                            mouseover: enableDetails, mouseout: disableDetails, dragstart: function (data, event) { $parent.dragsel = this; console.log(this); return true; },
+                                    <ul id="cards" data-bind="foreach: cards">
+                                        <li>
+                                            <img draggable="true" data-bind="attr: { src: $root.thumbLink($data), alt: 'Alt Test' }, event: {
+                            mouseover: enableDetails, mouseout: disableDetails, dragstart: function (data, event) { $parent.dragsel = this; ); return true; },
                             dragend: function (data, event) { return true; },
                             dragover: function (data, event) { event.preventDefault(); },
                             dragenter: function (data, event) { event.preventDefault(); },
                             dragleave: function (data, event) { event.preventDefault(); }
 
                             }" src="" alt="" />
-                                </li>
+                                        </li>
+                                    </ul>
+                                </div>-->
+                            <div class="col_100">
+                                <div class="box grid_16">
+                                    <h2 class="box_head">
+                                        Cards:&nbsp; <div data-bind="text: cards().length" style="display: inline;">&nbsp;</div>&nbsp;&nbsp;&nbsp; (Supported Players:&nbsp; <div data-bind="text: supportedPlayers()" style="display: inline;">&nbsp;</div>)
+                                        <button class="light small has_text send_right" data-bind="click: sortByCost">Cost</button>
+                                        <button class="light small has_text send_right" data-bind="click: sortByColor">Color</button>
+                                        <div class="send_right">Sort By: &nbsp;</div>
+                                    </h2>
+                                    <div class="block">
+                                        <div class="section">
+                                            <table>
+                                                <tr class="cards" data-bind="foreach: columns">
+                                                    <td data-bind="foreach: $data, style: { height: (134 + 20 * $data.length) + 'px' }" style="width: 108px">
+                                                        <div style="padding: 0 2px 0 2px" data-bind="attr: { style: 'z-index: ' + $index() + '; position: absolute; margin-top: ' + $index() * 20 + 'px;' }, event: { mouseover: enableDetails, mouseout: disableDetails }">
+                                                            <img data-bind="attr: { src: thumbLink($data), alt: Name }" />
+                                                        </div>
+                                                        <div style="clear: both"></div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="button_bar clearfix">
+                            <button class="dark img_icon has_text cancel red">
+                                <div class="ui-icon ui-icon-closethick"></div>
+                                <span>Cancel and Return Cards</span>
+                            </button>
+                            <button class="next_step forward send_right img_icon has_text" type="button" data-bind="enable: supportedPlayers() > 1, css: buttonColor">
+                                <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
+                                <span>Next Step</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div data-step="3" class="step block" style="opacity: 1;">
+                        <div class="section">
+                            <h2>3. Information</h2>
+                            <p>Your cube draft is ready to go. A brief breakdown of how the draft will run is below:</p>
+                            <ul>
+                                <li>Create your draft (This step)</li>
+                                <li>Send a link to people interested in joining your draft, and have them signup.</li>
+                                <li>Accept players by clicking their name in the pending players box.</li>
+                                <li>After you accept at least 2 members, you can start your draft by clicking "Start Draft" below accepted players.<br />Note: You can require collateral in order for users to recieve their cards. Please let them know ahead of time, so they can have their tickets ready.</li>
+                                <li>Accepted players in the draft will be redirected to a draft page to start their draft.</li>
+                                <li>After the draft is complete, players can download their deck, and the bot designated for your draft will auto trade them their collection to use.</li>
+                                <li>When players are done building their decks, you can start pairing of the rounds. The bot will handle handing out pairings to everyone.</li>
+                                <li>When games are completed, they are automatically posted back to the website. Continue pairing rounds until you are done.</li>
+                                <li>After the draft is completed, players can hand back decks to the bot, and after all are collected, you will automatically be traded in game with your collection back.</li>
+                                <li>Happy drafting!</li>
                             </ul>
                         </div>
-    
-    
 
+                        <div class="columns clearfix grid_16" style="opacity: 1;">
                         </div>
+                        <div class="button_bar clearfix">
+                            <button class="finish forward green send_right img_icon has_text" type="button">
+                                <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
+                                <span>Goto Draft Page</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-					    <div class="button_bar clearfix">
-						    <button class="next_step back img_icon has_text" data-goto="step_1" type="button">
-							    <img height="24" width="24" alt="Bended Arrow Right" src="images/icons/small/grey/bended_arrow_left.png">
-							    <span>Prev Step</span>
-						    </button>
-						    <button class="next_step forward light send_right img_icon has_text" type="button">
-							    <img height="24" width="24" alt="Bended Arrow Right" src="images/icons/small/white/bended_arrow_right.png">
-							    <span>Complete</span>
-						    </button>
-					    </div>
-				    </div>
-                    </form>
-				</div>
-			</div>
-
-		</div>
-	</div>
 
 @section scripts {
     <!--Script references. -->
@@ -158,8 +204,25 @@
     <script type="text/javascript">
         $(function() {
             var mtg = $.connection.cubeHub;
+            console.log(mtg);
             $.connection.hub.logging = true;
-            var mtgBot = @(Model != null ? "\"" + Model.BotName + "\"" ?? "null" : "null");
+            @if (Model != null && Model.BotName != null)
+            {
+                <text>var mtgBot = "@Model.BotName";</text>
+            }
+            else
+            {
+                <text>var mtgBot = null;</text>
+            }
+            
+            @if (Model != null)
+            {
+                <text>var draftId = @Model.Id;</text>
+            }
+            else
+            {
+                <text>var draftId = null;</text>
+            }
 
             @if (Model != null)
             {
@@ -169,23 +232,18 @@
                 </text>
             }
             
-            function pad(n, width, z) {
-                z = z || '0';
-                n = n + '';
-                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-            }
-            
             $('.wizard .step[data-step=\'1\'] button.next_step').data('next', function() {
-                if (mtgBot != null)
+                if (mtgBot != null && draftId != null)
                     return true;
 
                 showLoadingOverlay();
                 mtg.server.createDraft($('input[name=tournament_name]').val(), parseInt($('select[name=round_limits]').val()), $('input[name=require_watchers]').is(":checked")).done(function(response) {
-                    console.log(response);
+                    //console.log(response);
                     if (response.Error != undefined && response.Error != false) {
                         alert(response.Error);
                     } else if (response.Error == false && response.Username != null) {
                         mtgBot = response.Username;
+                        draftId = response.DraftId;
                         $('.mtgo_bot').text(response.Username);
                         $('.wizard .step[data-step=\'1\'] button.next_step').trigger('click');
                     }
@@ -193,147 +251,93 @@
                 });
                 return false;
             });
+            
+            $('.wizard .step[data-step=\'2\'] button.cancel').bind('click', function () {
+                mtg.server.cancelDraft(draftId).done(function(success) {
+                    if (success) {
+                        alert('Your draft has been canceled. If you traded any cards, they will be returned to you shortly.');
+                    } else {
+                        alert('There was a problem canceling this draft. Please refresh the page and try again.');
+                    }
+                    location.reload();
+                });
+                return false;
+            });
+            
+            $('.wizard .step[data-step=\'2\'] button.next_step').data('next', function () {
+                return cvm.supportedPlayers() > 1;
+            });
+            
+            $('.wizard .step[data-step=\'3\'] button.finish').bind('click', function () {
+                location.href = "@Url.Action("View")/" + draftId;
+            });
 
             var cardViewModel = function() {
                 var self = this;
-                self.cards = ko.observableArray([]);
-                self.sortBy = ko.observable("colour");
+                this.cards = ko.observableArray([]);
+                this.sortBy = ko.observable("color");
 
-                self.dragsel = "init";
+                this.supportedPlayers = ko.computed(function () {
+                    return Math.floor(self.cards().length / 45);
+                });
+
+                this.buttonColor = ko.computed(function () {
+                    return self.supportedPlayers() < 2 ? "red" : "green";
+                });
+
+                this.dragsel = "init";
 
                 var origz;
                 var origw;
 
-                self.thumbLink = function(card) {
-                    return "http://mtgbot.tv/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
-                };
-                
-                /*self.sideboardids = ko.computed(function () {
-                    var ids = ko.utils.arrayMap(self.sideboard(), function (item) {
-                        return item.draftId;
-                    });
-                    return ids;
-                }, this);*/
-
-                /*
-                self.sortByColour = function () {
-                    self.sortBy("colour");
+                self.sortByColor = function () {
+                    self.sortBy("color");
                 };
     
                 self.sortByCost = function () {
                     self.sortBy("cost");
                 };
-    
-                this.land = ko.computed(function () {
-                    return ko.utils.arrayFilter(this.deck(), function (card) {
-                        return String(card.Colours) == "L";
-                    });
-                }, this);
-    
-                this.selections0c = ko.computed(function () {
-                    var desiredType = this.sortBy();
+
+                this.columns = ko.computed(function () {
+                    var desiredType = self.sortBy();
+                    var cards = self.cards();
+                    var rowCards = [];
+                    var result = [];
+                    
                     if (desiredType == "cost") {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return card.convCost == 0;
+                        for (var i = 0; i <= 20; i++) {
+                            rowCards = ko.utils.arrayFilter(cards, function (card) {
+                                return card.CMC == i;
+                            });
+                            
+                            if (rowCards.length > 0)
+                                result.push(rowCards);
+                        }
+                    } else if (desiredType == "color") {
+                        //Match all the colors
+                        var colors = ['L', 'C', 'W', 'U', 'B', 'R', 'G'];
+
+                        $.each(colors, function(idx, color) {
+                            rowCards = ko.utils.arrayFilter(cards, function (card) {
+                                return card.Color == color;
+                            });
+                            
+                            if (rowCards.length > 0)
+                                result.push(rowCards);
                         });
-                    } else {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return String(card.Colours) == "L";
+                        
+                        //Match multicolored
+                        rowCards = ko.utils.arrayFilter(cards, function (card) {
+                            return $.inArray(card.Color, colors) == -1;
                         });
+                        
+                        if (rowCards.length > 0)
+                            result.push(rowCards);
                     }
-                }, this);
-    
-                this.selections1c = ko.computed(function () {
-                    var desiredType = this.sortBy();
-                    if (desiredType == "cost") {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return card.convCost == 1;
-                        });
-                    } else {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-    
-                            return String(card.Colours) == "A";
-                        });
-                    }
-                }, this);
-    
-                this.selections2c = ko.computed(function () {
-                    var desiredType = this.sortBy();
-                    if (desiredType == "cost") {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return card.convCost == 2;
-                        });
-                    } else {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return String(card.Colours) == "U";
-                        });
-                    }
-                }, this);
-    
-                this.selections3c = ko.computed(function () {
-                    var desiredType = this.sortBy();
-                    if (desiredType == "cost") {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return card.convCost == 3;
-                        });
-                    } else {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return String(card.Colours) == "B";
-                        });
-                    }
-                }, this);
-    
-                this.selections4c = ko.computed(function () {
-                    var desiredType = this.sortBy();
-                    if (desiredType == "cost") {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return card.convCost == 4;
-                        });
-                    } else {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return String(card.Colours) == "R";
-                        });
-                    }
-                }, this);
-    
-                this.selections5c = ko.computed(function () {
-                    var desiredType = this.sortBy();
-                    if (desiredType == "cost") {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return card.convCost == 5;
-                        });
-                    } else {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return String(card.Colours) == "G";
-                        });
-                    }
-                }, this);
-    
-                this.selections6c = ko.computed(function () {
-                    var desiredType = this.sortBy();
-                    if (desiredType == "cost") {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return card.convCost == 6;
-                        });
-                    } else {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return String(card.Colours) == "W";
-                        });
-                    }
-                }, this);
-    
-                this.selections7c = ko.computed(function () {
-                    var desiredType = this.sortBy();
-                    if (desiredType == "cost") {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return card.convCost > 6;
-                        });
-                    } else {
-                        return ko.utils.arrayFilter(this.deck(), function (card) {
-                            return String(card.Colours).length > 1;
-                        });
-                    }
-                }, this);*/
+
+                    //console.log(result);
+                    return result;
+                });
 
                 enableDetails = function(item, event) {
                     origz = $(event.target).parent().css('z-index');
@@ -341,19 +345,21 @@
 
                     $(event.target).parent().css('z-index', '1000');
                     $(event.target).css('width', 'auto');
-
                 },
+                
                 disableDetails = function(item, event) {
                     $(event.target).css('width', origw);
                     $(event.target).parent().css('z-index', origz);
-                },                
+                },
+                
+
                 mtg.client.addedCards = function (cards) {
-                    console.log("Pushing Cards");
-                    console.log(cards);
+                    var selfCards = self.cards();
                     $.each(cards, function (idx, card) {
-                        console.log(card);
-                        self.cards.push(card);
+                        selfCards.push(card);
                     });
+
+                    self.cards(selfCards);
                 };
 
                 /*

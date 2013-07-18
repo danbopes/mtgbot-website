@@ -8,8 +8,8 @@ function adminicaWizard() {
 	    var stepCurrent = steps.find('li').index(steps.find('li.current')) + 1;
 
 		//console.log("step clicked: "+stepNext);
-		//console.log("step current: "+stepCurrent);
-		if (stepCurrent > stepNext) {
+		//console.log("step current: " + stepCurrent);
+		if (stepCurrent > stepNext || stepNext >= stepCurrent+2) {
 		    return false;
 		    $(wizard).find('label.error').css("display", "none");
 		}
@@ -19,7 +19,7 @@ function adminicaWizard() {
 
 
 		var errorsPresent = $(wizard).find('.step label.error').filter(":visible").length;
-		//console.log(errorsPresent);
+		console.log(errorsPresent);
 
 		if (errorsPresent < 1) {
 		    var nextButton = $(wizard).find('.wizard_content').find('.step[data-step=\'' + stepCurrent + '\'] button.next_step');
@@ -46,7 +46,7 @@ function adminicaWizard() {
 
 	var initialProg = (100 / $(".wizard_steps > ul > li").size());
 
-	$( ".wizard_progressbar").progressbar({ value : initialProg});
+	$(".wizard_progressbar").progressbar({value : initialProg});
 
 	$('.wizard .button_bar button.next_step').bind('click', function () {
 	    var steps = $(this).parents('.wizard').find('.wizard_steps');
@@ -54,7 +54,8 @@ function adminicaWizard() {
 
 	    $(this).parents('.wizard').find('.wizard_steps ul li:nth-child(' + nextStep + ') a').trigger('click');
 	});
-
+    
+    /*
 	$('.wizard_content form .submit_button').bind('click', function(){
 		$(".validate_form").valid();
 
@@ -67,6 +68,7 @@ function adminicaWizard() {
 		    console.log("error");
 		}
 	});
+    */
 
 	$(".validate_form").validate();
 }

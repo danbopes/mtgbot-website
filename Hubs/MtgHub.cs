@@ -302,11 +302,11 @@ namespace MTGBotWebsite.Hubs
 
 
             //For broadcasters, submit the pick
-            if (username.ToLower() != draft.Broadcaster.Name.ToLower())
-                return;
+            //if (username.ToLower() != draft.Broadcaster.Name.ToLower())
+            //    return;
 
             //Sending the draft.DraftId (The mtgo client draftId)
-            Clients.Group("broadcasterclient/" + draft.Broadcaster.Id).takePick(cardId, draft.DraftId);
+            //Clients.Group("broadcasterclient/" + draft.Broadcaster.Id).takePick(cardId, draft.DraftId);
         }
     }
 }

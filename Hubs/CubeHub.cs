@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity.Validation;
+using System.Data.Objects;
 using System.Globalization;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
-using MTGBotWebsite.CubeDrafts;
 using MTGBotWebsite.Helpers;
+using MTGBotWebsite.TournamentLibrary;
 using MTGOLibrary;
 using MTGOLibrary.Models;
 using Microsoft.AspNet.SignalR;
@@ -17,15 +20,53 @@ namespace MTGBotWebsite.Hubs
 {
     public class CubeHub : Hub
     {
-        private static ICubeDraftManager _draftManager;
-        private readonly MainDbContext DB = new MainDbContext();
+        private static object LockObject = new object();
+        private MainDbContext _db = new MainDbContext();
 
-        //private static IBotService 
+        private static readonly ConcurrentDictionary<string, string> ConnectedClients = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<int, ICubeDraftManager> DraftManagers = new ConcurrentDictionary<int, ICubeDraftManager>();
+
+        private static IBotService BotService
+        {
+            get
+            {
+                return new ChannelFactory<IBotService>(
+                    new NetNamedPipeBinding(),
+                    new EndpointAddress("net.pipe://localhost/MTGOBotService")
+                ).CreateChannel();
+            }
+        }
 
         private class CacheCheck
         {
             public DateTime Last = DateTime.Now;
             public int Count = 1;
+        }
+
+        public override Task OnDisconnected()
+        {
+            string ignored;
+            ConnectedClients.TryRemove(Context.ConnectionId, out ignored);
+
+            try
+            {
+                foreach (var player in DraftManagers.SelectMany(x => x.Value.Players))
+                {
+                    player.ClientIds.Remove(Context.ConnectionId);
+                }
+            }
+            catch
+            {
+            }
+            /*foreach (var player in ConnectedPlayers.Where(c => c.ConnectedClients.Contains(Context.ConnectionId)))
+            {
+                player.ConnectedClients.Remove(Context.ConnectionId);
+
+                if (player.ConnectedClients.Count == 0)
+                    ConnectedPlayers.Remove(player);
+            }*/
+
+            return base.OnDisconnected();
         }
 
         public bool SubscribeToDraft(int draftId)
@@ -35,21 +76,38 @@ namespace MTGBotWebsite.Hubs
             if (user == null)
                 return false;
 
-            Groups.Add(Context.ConnectionId, String.Format("draft/{0}/clients", draftId));
-
-            var draft = DB.CubeDrafts.Find(draftId);
+            var draft = _db.CubeDrafts.Find(draftId);
 
             if (draft == null)
                 return false;
 
-            var cubeDraftCards = draft.CubeDraftCards.Select(cdc => cdc.CardId).ToArray();
-            Clients.Caller.addedCards(DB.Cards.Where(c => cubeDraftCards.Contains(c.Id)).ToArray());
+            Groups.Add(Context.ConnectionId, String.Format("draft/{0}/clients", draftId));
+            ConnectedClients.TryAdd(Context.ConnectionId, user);
 
+            if (draft.Broadcaster.Name.ToLower() == user.ToLower())
+                Groups.Add(Context.ConnectionId, String.Format("draft/{0}/broadcaster", draftId));
+
+            var cardIds = draft.CubeDraftCards.Select(c => c.CardId).ToArray();
+
+            var cardObjects = _db.Cards.Where(c => cardIds.Contains(c.Id)).ToArray();
+
+            Clients.Caller.addedCards(cardIds.Select(c => cardObjects.Single(co => co.Id == c)).ToArray());
+
+            //For security purposes, I don't want to send MtgoUsernames for signed up players
             foreach ( var player in draft.CubeDraftPlayers.Where(p => !p.Confirmed) )
-                Clients.Caller.playerSignup(player.MTGOUsername.TwitchUsername);
+                Clients.Caller.playerUpdated(new {
+                    MTGOUsername = new {
+                        player.MTGOUsername.TwitchUsername,
+                        MtgoUsername = null as string
+                    },
+                    player.Confirmed,
+                    RequireCollateral = 0
+                });
 
             foreach (var player in draft.CubeDraftPlayers.Where(p => p.Confirmed))
-                Clients.Caller.playerApproved(player);
+                Clients.Caller.playerUpdated(player);
+
+
 
             return false;
         }
@@ -61,7 +119,49 @@ namespace MTGBotWebsite.Hubs
         /// <param name="cards"></param>
         public void AddedCards(int draftId, int[] cards)
         {
-            Clients.Group(String.Format("draft/{0}/clients", draftId)).addedCards(DB.Cards.Where(c => cards.Contains(c.Id)));
+            //Verify local request
+            if (!HttpContext.Current.Request.IsLocal)
+                return;
+
+            var cardObjects = _db.Cards.Where(c => cards.Contains(c.Id)).ToArray();
+
+            Clients.Caller.addedCards(cards.Select(c => cardObjects.Single(co => co.Id == c)).ToArray());
+
+            Clients.Group(String.Format("draft/{0}/clients", draftId)).addedCards(_db.Cards.Where(c => cards.Contains(c.Id)));
+        }
+
+        public bool CancelDraft(int draftId)
+        {
+            string user = (string)HttpContext.Current.Session["user_name"];
+
+            if (user == null)
+                return false;
+
+            var draft = _db.CubeDrafts.Find(draftId);
+
+            if (draft == null || draft.Status != CubeDraftStatus.PreStart)
+                return false;
+
+            //Make sure they are a broadcaster
+            //TODO: Is the .ToLower() required?
+            if (draft.Broadcaster.Name.ToLower() != user.ToLower())
+                return false;
+
+            if (draft.CubeDraftCards.Count > 0)
+            {
+                draft.Status = CubeDraftStatus.ProductHandIn;
+                _db.Entry(draft).State = EntityState.Modified;
+                _db.SaveChanges();
+                BotService.UpdateCubeStatus(draft.Id);
+            }
+            else
+            {
+                draft.Status = CubeDraftStatus.Completed;
+                _db.Entry(draft).State = EntityState.Modified;
+                _db.SaveChanges();
+            }
+
+            return true;
         }
 
         public void SubscribeToDrafting(int draftId)
@@ -71,18 +171,8 @@ namespace MTGBotWebsite.Hubs
             if (user == null)
                 return;
 
-            var player = DB.CubeDraftPlayers.FirstOrDefault(p => p.MTGOUsername.TwitchUsername == user && p.CubedraftId == draftId && p.Confirmed);
-
-            if (player == null)
-                return;
-
-            Groups.Add(Context.ConnectionId, String.Format("draft/{0}/players/{1}", draftId, player.Id));
-
-            var drafter = _draftManager.Players.FirstOrDefault(p => p.PlayerId == player.Id);
-
-            if (drafter == null) return;
-
-            drafter.NotifyPick();
+            //TODO: This can throw an exception, but too lazy to fix ATM
+            DraftManagers[draftId].PlayerSubscribe(user, Context.ConnectionId);
         }
 
         public object CreateDraft(string name, int roundLimits, bool requireWatchers)
@@ -93,7 +183,7 @@ namespace MTGBotWebsite.Hubs
                 return new { Error = "An unknown error has occurred. Please refresh the page and try again." };
 
             //Should never happen, but an additional check just in case
-            var broadcaster = DB.Broadcasters.FirstOrDefault(b => b.Name == user);
+            var broadcaster = _db.Broadcasters.FirstOrDefault(b => b.Name == user);
 
             if (broadcaster == null)
                 throw new Exception("Sorry, this feature is only for broadcasters on twitch.tv (With a valid mtgbot.tv client application).");
@@ -101,15 +191,15 @@ namespace MTGBotWebsite.Hubs
             var newCubeDraft = new CubeDraft
                 {
                     BroadcasterId = broadcaster.Id,
+                    Created = DateTime.Now,
                     Name = name,
                     RoundTime = roundLimits,
                     RequireWatchers = requireWatchers
                 };
             try
             {
-                DB.CubeDrafts.Add(newCubeDraft);
-
-                DB.SaveChanges();
+                _db.CubeDrafts.Add(newCubeDraft);
+                _db.SaveChanges();
             }
             catch (DbEntityValidationException)
             {
@@ -118,13 +208,10 @@ namespace MTGBotWebsite.Hubs
 
             string username = null;
 
-            var _botService = new ChannelFactory<IBotService>(
-                    new NetNamedPipeBinding(),
-                    new EndpointAddress("net.pipe://localhost/MTGOBotService")
-                ).CreateChannel();
+            
             try
             {
-                username = _botService.StartCubeDraft(newCubeDraft.Id);
+                username = BotService.StartCubeDraft(newCubeDraft.Id);
             }
             catch (Exception)
             {
@@ -134,7 +221,7 @@ namespace MTGBotWebsite.Hubs
                 return new { Error = "Unable to create draft. There is no bot available to support this draft. Please try again later." };
 
             Groups.Add(Context.ConnectionId, String.Format("draft/{0}/clients", newCubeDraft.Id));
-            return new {Error = false, Username = username};
+            return new {Error = false, Username = username, DraftId = newCubeDraft.Id};
         }
 
         public bool StartDraft(int draftId)
@@ -143,8 +230,29 @@ namespace MTGBotWebsite.Hubs
 
             if (user == null)
                 return false;
+            
+            var draft = _db.CubeDrafts.Find(draftId);
 
-            return false;
+            if (draft == null || draft.Status != CubeDraftStatus.PreStart)
+                return false;
+
+            //Make sure they are a broadcaster
+            return draft.Broadcaster.Name.ToLower() == user.ToLower() && DraftManagers.TryAdd(draft.Id, new CubeDraftManager(ref _db, draft));
+        }
+
+        public void TakePick(int draftId, int pickNumber, int pickId)
+        {
+            string user = (string)HttpContext.Current.Session["user_name"];
+
+            if (user == null)
+                return;
+
+            ICubeDraftManager draftManager;
+
+            if (!DraftManagers.TryGetValue(draftId, out draftManager))
+                return;
+
+            draftManager.Pick(user, pickNumber, pickId);
         }
 
         public int Signup(int draftId)
@@ -154,12 +262,12 @@ namespace MTGBotWebsite.Hubs
             if (user == null)
                 return 0;
 
-            var draft = DB.CubeDrafts.Find(draftId);
+            var draft = _db.CubeDrafts.Find(draftId);
 
-            if (draft == null)
+            if (draft == null || draft.Status != CubeDraftStatus.PreStart)
                 return 0;
 
-            var dbUser = DB.MTGOUsernames.FirstOrDefault(c => c.TwitchUsername == user);
+            var dbUser = _db.MTGOUsernames.FirstOrDefault(c => c.TwitchUsername == user);
 
             if (dbUser == null)
                 return 1;
@@ -180,7 +288,7 @@ namespace MTGBotWebsite.Hubs
             {
                 draft.CubeDraftPlayers.Add(newPlayer);
 
-                DB.SaveChanges();
+                _db.SaveChanges();
             }
             catch (Exception)
             {
@@ -188,7 +296,16 @@ namespace MTGBotWebsite.Hubs
                 return 0;
             }
 
-            Clients.Group(String.Format("draft/{0}/clients", draftId)).playerSignup(user);
+            Clients.Group(String.Format("draft/{0}/clients", draftId)).playerUpdated(new
+                {
+                    MTGOUsername = new
+                    {
+                        newPlayer.MTGOUsername.TwitchUsername,
+                        MtgoUsername = null as string
+                    },
+                    newPlayer.Confirmed,
+                    RequireCollateral = 0
+                });
 
             return 3;
         }
@@ -197,10 +314,10 @@ namespace MTGBotWebsite.Hubs
         {
             string user = (string)HttpContext.Current.Session["user_name"];
 
-            if (user == null)
+            if (user == null || username == null)
                 return null;
 
-            var draft = DB.CubeDrafts.Find(draftId);
+            var draft = _db.CubeDrafts.Find(draftId);
 
             if (draft == null)
                 return null;
@@ -211,44 +328,51 @@ namespace MTGBotWebsite.Hubs
 
             var task = new LogParser(draft.Broadcaster.Name).FetchInfoAsync(username);
 
-            var player = DB.MTGOUsernames.First(u => u.TwitchUsername == username && u.Confirmed);
+            var player = _db.MTGOUsernames.First(u => u.TwitchUsername == username && u.Confirmed);
+            var player2 = draft.CubeDraftPlayers.SingleOrDefault(u => u.UserId == player.Id);
 
             var info = await task;
             return new
                 {
                     player.TwitchUsername,
                     player.MtgoUsername,
+                    Approved = player2 != null && player2.Confirmed,
+                    RequireCollateral = player2 != null ? player2.RequireCollateral : 0,
                     info.Joins,
                     info.MessageCount,
                     info.Last50Messages
                 };
         }
 
-        public void ApprovePlayer(int draftId, string username)
+        public void UpdatePlayer(int draftId, string username, bool approved, int collateral = 0)
         {
             string user = (string)HttpContext.Current.Session["user_name"];
 
             if (user == null)
                 return;
 
-            var draft = DB.CubeDrafts.Find(draftId);
+            var draft = _db.CubeDrafts.Find(draftId);
 
-            if (draft == null)
+            if (draft == null || draft.Status != CubeDraftStatus.PreStart)
                 return;
 
             //Make sure they are a broadcaster
             if (draft.Broadcaster.Name.ToLower() != user.ToLower())
                 return;
 
-            var player = draft.CubeDraftPlayers.First(p => p.MTGOUsername.TwitchUsername == username && !p.Confirmed);
+            if (!approved)
+                collateral = 0;
 
-            player.Confirmed = true;
+            var player = draft.CubeDraftPlayers.First(p => p.MTGOUsername.TwitchUsername == username);
 
-            DB.Entry(player).State = EntityState.Modified;
+            player.Confirmed = approved;
+            player.RequireCollateral = collateral;
 
-            DB.SaveChanges();
+            _db.Entry(player).State = EntityState.Modified;
 
-            Clients.Group(String.Format("draft/{0}/clients", draftId)).playerApproved(player);
+            _db.SaveChanges();
+
+            Clients.Group(String.Format("draft/{0}/clients", draftId)).playerUpdated(player);
         }
 
         public int LinkUsername(string mtgousername)
@@ -258,38 +382,34 @@ namespace MTGBotWebsite.Hubs
             if (user == null)
                 return 0;
 
-            var dbUser = DB.MTGOUsernames.FirstOrDefault(c => c.TwitchUsername == user);
+            var dbUser = _db.MTGOUsernames.FirstOrDefault(c => c.TwitchUsername == user);
 
             if (dbUser != null)
                 return 0;
 
             var confirmKey = new Random().Next(1000, 9999);
 
-            #if !debug
-            var botService = new ChannelFactory<IBotService>(
-                    new NetNamedPipeBinding(),
-                    new EndpointAddress("net.pipe://localhost/MTGOBotService")
-                ).CreateChannel();
-
-            if (!botService.SendMessage(mtgousername,
-                                        String.Format(
-                                            @"Welcome to the MTGBot Cube Drafting System! Your confirm code is '{0}'. If you did not initiate this request, please ignore this message and do nothing.",
-                                            confirmKey)))
-                return 1;
-            #endif
-
-            if (DB.MTGOUsernames.Any(u => u.MtgoUsername == mtgousername && u.Confirmed))
+            if (_db.MTGOUsernames.Any(u => u.MtgoUsername == mtgousername && u.Confirmed))
                 return 2;
 
-            DB.MTGOUsernames.Add(new MTGOUsername
+            var mtgoUser = BotService.SendMessage(mtgousername,
+                                                  String.Format(
+                                                      @"[sHat] Welcome to the MTGBot Cube Drafting System! Your confirmation code is '{0}'. If you did not initiate this request, please ignore this message and do nothing.",
+                                                      confirmKey));
+            if ( mtgoUser == null )
+                return 1;
+
+
+            _db.MTGOUsernames.Add(new MTGOUsername
                 {
                     ConfirmKey = confirmKey.ToString(CultureInfo.InvariantCulture),
                     Confirmed = false,
-                    MtgoUsername = mtgousername,
+                    MtgoUsername = mtgoUser.Username,
+                    MtgoId = mtgoUser.PlayerId,
                     TwitchUsername = user
                 });
 
-            DB.SaveChanges();
+            _db.SaveChanges();
 
             return 3;
         }
@@ -328,7 +448,7 @@ namespace MTGBotWebsite.Hubs
                                          null);
             }
 
-            var dbUser = DB.MTGOUsernames.FirstOrDefault(c => c.TwitchUsername == user);
+            var dbUser = _db.MTGOUsernames.FirstOrDefault(c => c.TwitchUsername == user);
 
             if (dbUser == null)
                 return 0;
@@ -336,7 +456,7 @@ namespace MTGBotWebsite.Hubs
             if (dbUser.Confirmed)
                 return 2;
 
-            if (DB.MTGOUsernames.Any(u => u.MtgoUsername == dbUser.MtgoUsername && u.Confirmed))
+            if (_db.MTGOUsernames.Any(u => u.MtgoUsername == dbUser.MtgoUsername && u.Confirmed))
                 return 3;
 
             if (dbUser.ConfirmKey != confirmKey.ToString(CultureInfo.InvariantCulture))
@@ -344,8 +464,8 @@ namespace MTGBotWebsite.Hubs
 
             dbUser.Confirmed = true;
             dbUser.ConfirmKey = null;
-            DB.Entry(dbUser).State = EntityState.Modified;
-            DB.SaveChanges();
+            _db.Entry(dbUser).State = EntityState.Modified;
+            _db.SaveChanges();
 
             return 4;
         }
@@ -357,7 +477,7 @@ namespace MTGBotWebsite.Hubs
             if (user == null)
                 return null;
 
-            var draft = DB.CubeDrafts.Find(draftId);
+            var draft = _db.CubeDrafts.Find(draftId);
 
             if (draft == null)
                 return null;
@@ -366,7 +486,12 @@ namespace MTGBotWebsite.Hubs
                 return null;
 
             var guid = Guid.NewGuid();
-            Clients.OthersInGroup(String.Format("draft/{0}/approved_clients", draftId)).readyCheck(guid);
+
+            var approvedClientNames =
+                draft.CubeDraftPlayers.Where(p => p.Confirmed && p.MTGOUsername.TwitchUsername != user).Select(p => p.MTGOUsername.TwitchUsername).ToArray();
+
+            foreach ( var client in ConnectedClients.Where(c => approvedClientNames.Contains(c.Value)).Select(x => x.Key))
+                Clients.Client(client).readyCheck(guid);
 
             return guid;
         }
@@ -378,7 +503,7 @@ namespace MTGBotWebsite.Hubs
             if (user == null)
                 return;
 
-            var draft = DB.CubeDrafts.Find(draftId);
+            var draft = _db.CubeDrafts.Find(draftId);
 
             if (draft == null)
                 return;

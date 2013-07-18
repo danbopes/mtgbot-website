@@ -1,5 +1,5 @@
 ﻿@using MTGOLibrary.Models
-@model CubeDraft
+@model MTGBotWebsite.Helpers.CubeDraftDraftModel
 
 @{
     ViewBag.Title = "Cube Draft";
@@ -7,25 +7,12 @@
 }
 
 <style type="text/css">
-    /*#picks .card {
-    float: left;
-    display: block;
-    width: 20%;
-}
-#picks .card .img_holder {
-    border: none;
-    margin: 5px;
-}
-#picks .card img {
-    border: none;
-    width: 100%;
-    cursor: pointer;
-}*/
-#picks .gallery li a.voted
+#picks .gallery li a.reserved
 {
     background-color: #1C5EA0;
     border-color: #064792;
 }
+
 #votes h3 {
     height: 30px;
     margin: 0px !important;
@@ -100,199 +87,465 @@
 </style>
 
 <div class="box grid_16">
-    <h2 class="box_head">Picks</h2>
-    <div class="controls">
-        <a href="#" class="grabber"></a>
-        <a href="#" class="toggle"></a>
+    <h2 class="box_head">Current Pick: <div data-bind="text: currentpick" style="display: inline;">&nbsp;</div>, Pack: <div data-bind="text: currentpack" style="display: inline;">&nbsp;</div></h2>
+    <div class="section block" data-bind="visible: !selections().length && !waiting().length" style="display: none; height: 141px;">
+        <h2>Pick accepted. Waiting for adjacent player to pass your next booster.</h2>
     </div>
-    <div id="picks" class="isotope_holder indented_area" style="margin: 0; padding: 0">
-        <ul class="gallery delete_buttons clearfix">
+    <div data-bind="visible: waiting().length" class="section block" style="display: none">
+        <h2>Waiting for Players:</h2>
+        <ul data-bind="foreach: waiting">
+            <li data-bind="text: TwitchUsername"></li>
         </ul>
     </div>
+    <div class="isotope_holder indented_area" style="margin: 0;" data-bind="foreach: selections">
+        <div style="float: left; padding: 3px;">
+            <img draggable="true" data-bind="attr: { src: fullLink($data), alt: Name }, event: {
+/*mouseover: $root.enableDetails, mouseout: $root.disableDetails,*/ click: $root.addSelection
+                    , dragstart: function (data, event) {
+                        event.originalEvent.dataTransfer.setData('Text', 'selections|' + data.Id);
+                        return true;
+                    }
+            }" style="width: 104px; cursor: pointer;" draggable="true" />
+        </div>
+    </div>
+    <div style="clear: both;"></div>
 </div>
 
-<div class="box grid_4">
-    <h2 class="box_head">Full Card</h2>
-    <div class="controls">
-        <a href="#" class="grabber"></a>
-        <a href="#" class="toggle"></a>
-    </div>
-    <div class="toggle_container">
-        <div id="full_card" style="margin: 5px;">
-                
+
+<div class="box grid_12">
+    <h2 class="box_head">
+        Deck
+        <button class="light small has_text send_right" data-bind="click: sortByCost">Cost</button>
+        <button class="light small has_text send_right" data-bind="click: sortByColor">Color</button>
+        <div class="send_right">Sort By: &nbsp;</div>
+        <!--<div data-bind="visible: draftOver"><button class="light small has_text send_right" data-bind="click: downloadDeck">Get Deck</button>&nbsp;&nbsp;&nbsp;&nbsp;</div>-->
+    </h2>
+    <div class="block">
+        <div class="section" style="min-height: 151px" data-bind="event: {
+    dragover: function (data, event) { event.preventDefault(); },
+    drop: function (data, event) {
+                var split = event.originalEvent.dataTransfer.getData('Text').split('|');
+                $root.movePick(split[0], split[1]);
+            }
+        }">
+            <table>
+                <tr class="cards" data-bind="foreach: columns">
+                    <td data-bind="foreach: $data, style: { height: (134 + 20 * $data.length) + 'px' }" style="width: 108px">
+                        <div style="padding: 0 2px 0 2px" data-bind="attr: { style: 'z-index: ' + $index() + '; position: absolute; margin-top: ' + $index() * 20 + 'px;' }, event: { /*mouseover: $root.enableDetails, mouseout: $root.disableDetails*/ }">
+                            <img data-bind="attr: { src: fullLink($data), alt: Name }, event: {
+    dragstart: function(data, event) {
+        event.originalEvent.dataTransfer.setData('Text', 'deck|' + data.Id);
+        return true; }
+                            }" draggable="true" style="width: 104px;" />
+                        </div>
+                        <div style="clear: both"></div>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>
 
-<div class="box grid_12">
-    <h2 class="box_head">Draft Area</h2>
-    <div class="controls">
-        <a href="#" class="grabber"></a>
-        <a href="#" class="toggle"></a>
-    </div>
-    <div id="picks" class="isotope_holder indented_area" style="margin: 0; padding: 0">
-        <ul class="gallery delete_buttons clearfix">
-        </ul>
+
+
+<div class="box grid_4">
+    <h2 class="box_head">Sideboard</h2>
+    <div class="block">
+        <div class="section" style="min-height: 151px" data-bind="event: {
+    dragover: function (data, event) { event.preventDefault(); },
+    drop: function (data, event) {
+        var split = event.originalEvent.dataTransfer.getData('Text').split('|');
+        $root.movePick(split[0], split[1], 'sideboard');
+    }
+}">
+			<table>
+                <tr class="cards">
+                    <td data-bind="foreach: sideboard, visible: sideboard().length > 0, style: { height: (134 + 20 * sideboard().length) + 'px' }">
+                        <div data-bind="attr: { style: 'z-index: ' + $index() + '; position: absolute; margin-top: ' + $index()*20 + 'px;' }, event: {/* mouseover: enableDetails, mouseout: disableDetails*/ }">
+                            <img data-bind="attr: { src: fullLink($data), alt: Name }, event: {
+    dragstart: function (data, event) {
+        event.originalEvent.dataTransfer.setData('Text', 'sideboard|' + data.Id);
+                                        return true;
+                                    }
+                                }" style="width: 104px;" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
 
 @section scripts {
     <!--Script references. -->
+    @Scripts.Render("~/Scripts/knockout/knockout.js")
     <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
     <!--Reference the SignalR library. -->
     <script src="~/Scripts/jquery.signalR-1.0.1.js"></script>
     <!--Reference the autogenerated SignalR hub script. -->
     <script src="~/signalr/hubs"></script>
     <!--SignalR script to update the chat page and send messages.--> 
-    <script>
+    <script type="text/javascript">
         $(function() {
-            if(typeof window.console === "undefined") { window.console = { log: function() { } };}
             // Reference the auto-generated proxy for the hub.  
-            var mtg = $.connection.mtgHub;
-            // Create a function that the hub can call back to display messages.
-            /*mtg.client.addNewMessageToPage = function (name, message) {
-                // Add the message to the page. 
-                $('#discussion').append('<li><strong>' + htmlEncode(name) 
-                    + '</strong>: ' + htmlEncode(message) + '</li>');
-            };*/
+            var mtg = $.connection.cubeHub;
+            $.connection.hub.logging = true;
 
-            var votes = {
-                currentVote: null
-            };
-            
-            function pad(n, width, z) {
-                z = z || '0';
-                n = n + '';
-                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-            }
-            
-            function thumbLink(card) {
-                return "http://mtgbot.tv/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
-                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
-            }
-            
-            function fullLink(card) {
-                return "http://mtgbot.tv/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".full.jpg";
-                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".full.jpg";
-            }
+            function draftViewModel() {
+                var self = this;
+                var draftId = @Model.CubeDraft.Id;
+                self.timed = ko.observable(@Model.CubeDraft.Timed.ToString().ToLower());
+                self.loaded = ko.observable(false);
+                self.players = ko.observableArray(@Html.Raw(Json.Encode(Model.CubeDraft.CubeDraftPlayers.Where(p => p.Confirmed).Select(p => new
+                                                      {
+                                                          p.Id,
+                                                          p.MTGOUsername.TwitchUsername,
+                                                          p.MTGOUsername.MtgoUsername,
+                                                          p.Position
+                                                      }))));
 
-            mtg.client.pendingSelection = function(pickId, previousPicks, picks, dir, time) {
-                //$container.isotope('remove', $container.data('isotope').$allAtoms )
-                try {
-                    $('#picks .gallery').isotope('remove', $('#picks .gallery').data('isotope').$allAtoms);
-                } catch(err) {
-                }
-                console.log("Pending Selection");
-                //console.log([pickId, previousPicks, picks, dir, time]);
-                console.log(previousPicks);
-                $('#tiptip_holder').css('display', 'none');
-                votes.currentVote = pickId;
-                var currentPicks = [];
 
-                $.each(picks, function(idx, el) {
-                    /*$('#picks').append(
-                        $('<div class="card" />').append(
-                            $('<div class="img_holder" />').append(
-                                $('<img src="http://magiccards.info/scans/en/' + el.CardSet.MagicCardsInfoSetShort + '/' + el.MagicCardsInfoId + '.jpg" />')
-                            )
-                        ).click(function() {
-                            console.log("Selecting Card");
-                            mtg.server.sendVote(Model.DraftId, pickId, el.Id);
-                            $(this).addClass('voted');
-                        })
-                    );*/
+                self.waiting = ko.observableArray([]);
 
-                    var newItem = $('<li/>').append(
-                        $('<a rel="collection" class="no_loading vote" href="#" onclick="return false;" />').append(
-                            $('<img src="' + thumbLink(el) + '" style="width: 114px; height: 163px" />')
-                        ).data({
-                            'pick-id': pickId,
-                            'card-id': el.Id
-                        }).hover(function() {
-                            $('#full_card').empty().append(
-                                $('<img src="' + fullLink(el) + '" style="width: 100%" />')
-                            );
-                        })
-                    );
-                    $('#picks .gallery').isotope('insert', newItem);
-                    currentPicks.push(el.Id);
+                self.selection = ko.observable(false);
+                self.selections = ko.observableArray([]);
 
-                    setTimeout(function() {
-                        $('#picks .gallery li a.vote').click(function() {
-                            if ($('#picks .gallery a.voted').length > 0)
+                self.deck = ko.observableArray(@Html.Raw(Json.Encode(Model.Deck)));
+                self.sideboard = ko.observableArray([]);
+
+                /*
+                self.currentpick = ko.computed(function() {
+                    return Math.min(self.deck().length + self.sideboard().length + 1, 45);
+                });*/
+                self.currentpick = ko.observable(@Model.CubeDraft.GetCurrentPick(Model.PlayerId));
+                self.currentpack = ko.computed(function() {
+                    return Math.ceil(self.currentpick() / 15);
+                });
+                self.sortBy = ko.observable("color");
+                self.draftOver = ko.observable(@((Model.CubeDraft.Status != CubeDraftStatus.Drafting).ToString().ToLower()));
+
+                self.myclock = ko.observable(0);
+
+                self.addingLand = ko.observable(false);
+                self.swamp = ko.observable(0);
+                self.mountain = ko.observable(0);
+                self.plains = ko.observable(0);
+                self.island = ko.observable(0);
+                self.forest = ko.observable(0);
+
+                self.dragsel = "init";
+
+                var timer, origz, origw;
+
+                this.sortByColor = function() {
+                    self.sortBy("color");
+                };
+
+                this.sortByCost = function() {
+                    self.sortBy("cost");
+                };
+
+                this.addSelection = function(data) {
+                    if (!self.timed())
+                        self.movePick('selections', data.Id);
+                    else {
+                        //A bit more logic needs to go here;
+                        self.selectPick('selections', data.Id);
+                    }
+                };
+
+                this.movePick = function(from, pickId, where) {
+                    //console.log([from, pickId, where]);
+                    var obj = null;
+                    switch (from) {
+                        case 'selections':
+                            obj = ko.utils.arrayFilter(self.selections(), function(card) {
+                                return card.Id == pickId;
+                            });
+
+                            if (obj.length == 0)
                                 return;
 
-                            $(this).addClass('voted');
-                            //console.log("SubmitVote");
-                            //console.log([@Model.Id, pickId, el.Id]);
-                            mtg.server.submitVote(@Model.Id, $(this).data('pick-id'), $(this).data('card-id'));
-                        });
-                    }, 2000);
-                    /*
-                        <!--<a rel="collection" class="no_loading" href="images/content/gallery/blue/image01.jpg">
-                            <img src="images/content/gallery/blue/image01_thumb.jpg" height="84" width="148"/>
-                    </li>-->
-                    */
-                });
+                            obj = obj[0];
+                            obj.pickId = pickId;
+                            self.selections.removeAll();
 
-                console.log(currentPicks);
+                            console.log('Taking pick:');
+                            mtg.server.takePick(draftId, self.currentpick(), pickId);
+                            break;
+                        case 'deck':
+                            obj = ko.utils.arrayFilter(self.deck(), function(card) {
+                                return card.Id == pickId;
+                            });
 
-                $.each(previousPicks, function(idx, previousPick) {
-                    $.each(previousPick.Cards, function(idx, card) {
-                        if ($.inArray(card.Id, currentPicks) == -1) {
-                            var previousPickOverlay = $('<div class="previous_pick_overlay tooltip" />').attr('title', 'This card was picked previously by another player');
+                            if (obj.length == 0)
+                                return;
 
-                            if (card.Id == previousPick.PickId)
-                                previousPickOverlay.addClass('picked').attr('title', 'This card was picked previously by @Model.Broadcaster.Name');
+                            obj = obj[0];
                             
-                            var newItem = $('<li/>').append(
-                                $('<a rel="collection" class="no_loading" href="#" onclick="return false;" />').append(
-                                    previousPickOverlay
-                                ).append(
-                                    $('<img src="' + thumbLink(card) + '" style="width: 114px; height: 163px" />')
-                                ).hover(function() {
-                                    $('#full_card').empty().append(
-                                        $('<img src="' + fullLink(card) + '" style="width: 100%" />')
-                                    );
-                                })
-                            );
-                            $('#picks .gallery').isotope('insert', newItem);
+                            self.deck.remove(obj);
+                        break;
+                        case 'sideboard':
+                            obj = ko.utils.arrayFilter(self.sideboard(), function(card) {
+                                return card.Id == pickId;
+                            });
+
+                            if (obj.length == 0)
+                                return;
+                            
+                            obj = obj[0];
+
+                            self.sideboard.remove(obj);
+                        break;
+                    }
+
+                    if (obj == null)
+                        return;
+
+                    if (where == 'sideboard') {
+                        self.sideboard.push(obj);
+                    } else {
+                        self.deck.push(obj);
+                    }
+                };
+
+                this.columns = ko.computed(function() {
+                    var desiredType = self.sortBy();
+                    var cards = self.deck();
+                    var rowCards = [];
+                    var result = [];
+
+                    if (desiredType == "cost") {
+                        for (var i = 0; i <= 20; i++) {
+                            rowCards = ko.utils.arrayFilter(cards, function(card) {
+                                return card.CMC == i;
+                            });
+
+                            if (rowCards.length > 0)
+                                result.push(rowCards);
                         }
+                    } else if (desiredType == "color") {
+                        //Match all the colors
+                        var colors = ['L', 'C', 'W', 'U', 'B', 'R', 'G'];
+
+                        $.each(colors, function(idx, color) {
+                            rowCards = ko.utils.arrayFilter(cards, function(card) {
+                                return card.Color == color;
+                            });
+
+                            if (rowCards.length > 0)
+                                result.push(rowCards);
+                        });
+
+                        //Match multicolored
+                        rowCards = ko.utils.arrayFilter(cards, function(card) {
+                            return $.inArray(card.Color, colors) == -1;
+                        });
+
+                        if (rowCards.length > 0)
+                            result.push(rowCards);
+                    }
+
+                    //console.log(result);
+                    return result;
+                });
+
+                toggleLand = function() {
+                    var current = self.addingLand();
+                    self.addingLand(!current);
+                };
+
+                this.submitDeck = function() {
+                    window.location = "/Home/Play";
+                };
+
+                /*this.deck = ko.computed(function () {
+                    var sdbIds = new Array();
+
+                    ko.utils.arrayForEach(this.sideboard(), function (item) {
+                        sdbIds.push(item.draftId)
                     });
-                });
+
+                    return ko.utils.arrayFilter(this.selections(), function (card) {
+                        return jQuery.inArray(card.draftId, sdbIds) == -1;
+                    });
+                }, this);*/
+
+                this.tick = function() {
+                    var timeremaining = self.myclock() - 1;
+                    if (timeremaining > 0) {
+                        self.myclock(timeremaining);
+                    } else {
+                        //var defaultpick = self.contacts()[0];
+                        //self.addSelection(defaultpick);
+                        //self.myclock("");
+                    }
+                };
+
+
+                this.enableDetails = function(item, event) {
+                    origz = $(event.target).css('z-index');
+                    origw = $(event.target).css('width');
+                    $(event.target).css('position', 'absolute');
+
+                    $(event.target).css('z-index', '1000');
+                    $(event.target).css('width', 'auto');
+                };
+
+                this.disableDetails = function(item, event) {
+                    $(event.target).css('width', origw);
+                    $(event.target).css('z-index', origz);
+                    $(event.target).css('position', 'static');
+                };
+
+                self.addSideboard = function(card) {
+                    self.deck.remove(card);
+                    self.sideboard.push(card);
+                };
+
+                self.removeSideboard = function(card) {
+                    self.sideboard.remove(card);
+                    self.deck.push(card);
+                };
+
+                self.textDeck = function() {
+                    //alert(self.sideboardids());
+                    /*var mysideboard = JSON.stringify(self.sideboard());
+                    $("body").append("<iframe src='" + "/api/Contacts?sideboard=" + mysideboard + "' style='display: none;' ></iframe>");*/
+
+                };
+
+
+                //Let's attach to some events
+                mtg.client.waitingForPlayers = function(playerIds) {
+                    self.waiting(ko.utils.arrayFilter(self.players(), function(player) {
+                        return $.inArray(player.Id, playerIds) > -1;
+                    }));
+                };
+
+                mtg.client.pendingSelection = function(pickId, cards, time) {
+                    self.currentpick(pickId);
+                    self.selections(cards);
+                    self.waiting.removeAll();
+
+                    if (timer > -1) {
+                        //TODO in the future
+                        if (time != undefined) {
+                            clearTimeout(self.timer);
+                        }
+
+                        self.myclock(time);
+                        setInterval(self.tick, 1000);
+                    }
+                };
+
+                mtg.client.draftSelection = function(card, pickId) {
+                    //TODO
+                    console.log(card, pickId);
+                };
+
+
+                /*
                 
-                $(".tooltip").tipTip({
-                    defaultPosition: "top",
-                    maxWidth: "auto",
-                    edgeOffset: 0
+                self.submitLandFromForm = function(formElement) {
+                    // If valid, post the serialized form data to the web api
+                    var jsonform = $(formElement).serializeObject();
+                    var selection = JSON.stringify(jsonform);
+                    toggleLand();
+
+                    $.ajax({
+                        url: "/api/Draft",
+                        type: "PUT",
+                        data: selection,
+                        datatype: "json",
+                        contentType: "application/json; charset=utf-8",
+                    })
+                        .done(function(postreturn) {
+                            self.selections(postreturn.Picks);
+                            //self.selections.push(data);
+                        });
+
+                };
+
+               self.getDraft = function () {
+                   $.getJSON("/api/Draft")
+                       .done(function (data) {
+                           if (data.CurrentPack.packCards != null) {
+                               self.contacts(data.CurrentPack.packCards);
+                               self.myclock(40);
+                               timer = setInterval(self.tick, 1000);
+                               self.loaded(true);
+                               clearInterval(refresher);
+                           }
+
+                       });
+                   if (self.selections().length > 44) {
+                       clearInterval(timer);
+                       self.draftOver(true);
+                   }
+               }*/
+
+                /*this.land = ko.computed(function () {
+                    return ko.utils.arrayFilter(this.deck(), function (card) {
+                        return String(card.Colours) == "L";
+                    });
+                }, this);*/
+
+
+                /*suggestLand = function () {
+                    self.sortBy("colour");
+                    var cards = self.deck().length - self.land().length;
+                    var lands = Math.round(0.74 * cards);
+                    var total = lands + cards;
+                    var swampcount = Math.round((self.selections3c().length / cards) * lands) + Math.round((self.selections3c().length / cards) * self.selections7c().length);
+                    var plainscount = Math.round((self.selections6c().length / cards) * lands) + Math.round((self.selections6c().length / cards) * self.selections7c().length);
+                    var islandcount = Math.round((self.selections2c().length / cards) * lands) + Math.round((self.selections2c().length / cards) * self.selections7c().length);
+                    var mountaincount = Math.round((self.selections4c().length / cards) * lands) + Math.round((self.selections4c().length / cards) * self.selections7c().length);
+                    var forestcount = Math.round((self.selections5c().length / cards) * lands) + Math.round((self.selections5c().length / cards) * self.selections7c().length);
+                    self.swamp(swampcount);
+                    self.plains(plainscount);
+                    self.island(islandcount);
+                    self.mountain(mountaincount);
+                    self.forest(forestcount);
+                }*/
+
+                // Load the initial state
+                // <img data-bind="attr: { src: Self + '.png'}" /> click: $parent.addSelection(media.m)
+                /*$.getJSON("/api/Draft",
+                  function (data) {
+                      self.contacts(data.CurrentPack.packCards);
+                      self.selections(data.Picks);
+                  })
+                    .done(function () {
+                        self.loaded(true);
+                        self.myclock(40);
+                        timer = setInterval(self.tick, 1000);
+                        if (self.selections().length > 44) {
+                            clearInterval(timer);
+                            self.draftOver(true);
+                        }
+                    });*/
+            }
+
+            ;
+
+            $.fn.serializeObject = function() {
+                var o = {};
+                var a = this.serializeArray();
+                $.each(a, function() {
+                    if (o[this.name]) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        o[this.name].push(this.value || '');
+                    } else {
+                        o[this.name] = this.value || '';
+                    }
                 });
+                return o;
             };
 
-            mtg.client.draftSelection = function(pick, pack) {
-                console.log("Draft Selection");
-                console.log({ pick: pick, pack: pack });
-
-                var ul = $('#tabs-pack' + pack).find('ul');
-                ul.append(
-                    $('<li />').append(
-                        $('<h3 class="bar" />').text(pick.Name)
-                    ).append(
-                        $('<div class="content" style="display: none;" />').append(
-                            $('<div style="margin: 5px;">').append(
-                                $('<img src="' + fullLink(pick) + '" style="width: 100%; margin: auto; max-width: 312px;" />')
-                            )
-                        )
-                    )
-                );
-                ul.accordion('refresh');
-                ul.parents('.tabs').tabs('option', 'active', pack - 1);
-
-                votes.currentVote = null;
-                try {
-                    $('#votes').isotope('remove', $('#votes').data('isotope').$allAtoms);
-                } catch(err) {
-                }
-            };
+            ko.applyBindings(new draftViewModel());
 
             mtg.client.addVote = function(pickId, card, username) {
                 console.log("Add Vote");
@@ -419,7 +672,7 @@
             // Start the connection.
             $.connection.hub.start().done(function() {
                 console.log(mtg.server);
-                mtg.server.subscribeToDraft(@ViewContext.RouteData.Values["id"]);
+                mtg.server.subscribeToDrafting(@ViewContext.RouteData.Values["id"]);
 
                 /*$('#sendmessage').click(function () {
                         // Call the Send method on the hub. 

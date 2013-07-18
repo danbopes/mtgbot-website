@@ -193,33 +193,12 @@ else
     <!--SignalR script to update the chat page and send messages.--> 
     <script>
         $(function() {
-            if(typeof window.console === "undefined") { window.console = { log: function() { } };}
             // Reference the auto-generated proxy for the hub.  
             var mtg = $.connection.mtgHub;
-            // Create a function that the hub can call back to display messages.
-            /*mtg.client.addNewMessageToPage = function (name, message) {
-                // Add the message to the page. 
-                $('#discussion').append('<li><strong>' + htmlEncode(name) 
-                    + '</strong>: ' + htmlEncode(message) + '</li>');
-            };*/
-
+            
             var votes = {
                 currentVote: null
             };
-            
-            function pad(n, width, z) {
-                z = z || '0';
-                n = n + '';
-                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-            }
-            
-            function thumbLink(card) {
-                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
-            }
-            
-            function fullLink(card) {
-                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".full.jpg";
-            }
 
             mtg.client.pendingSelection = function(pickId, previousPicks, picks, dir, time) {
                 //$container.isotope('remove', $container.data('isotope').$allAtoms )
@@ -268,8 +247,8 @@ else
                                 return;
 
                             $(this).addClass('voted');
-                            //console.log("SubmitVote");
-                            //console.log([@Model.Id, pickId, el.Id]);
+                            console.log("SubmitVote");
+                            console.log([@Model.Id, pickId, el.Id]);
                             mtg.server.submitVote(@Model.Id, $(this).data('pick-id'), $(this).data('card-id'));
                         });
                     }, 2000);
@@ -339,7 +318,7 @@ else
                 }
             };
 
-            mtg.client.addVote = function(pickId, card, username) {
+            mtg.client.addVote = function(pickId, previousCard, card, username) {
                 console.log("Add Vote");
                 console.log({ pickId: pickId, card: card, username: username });
                 console.log(votes);

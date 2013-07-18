@@ -84,6 +84,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
+    <Reference Include="Owin.Builder">
+      <HintPath>..\packages\Owin.Builder.0.8.5\lib\net40\Owin.Builder.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
@@ -167,28 +170,35 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TournamentCenterController.cs" />
     <Compile Include="Controllers\TriviaController.cs" />
-    <Compile Include="CubeDrafts\CubeDraftManager.cs" />
-    <Compile Include="CubeDrafts\DraftCollection.cs" />
-    <Compile Include="CubeDrafts\Drafter.cs" />
-    <Compile Include="CubeDrafts\ICubeDraftManager.cs" />
-    <Compile Include="CubeDrafts\Pack.cs" />
-    <Compile Include="CubeDrafts\SwissTournament.cs" />
+    <Compile Include="TournamentLibrary\CubeDraftManager.cs" />
+    <Compile Include="TournamentLibrary\DraftCollection.cs" />
+    <Compile Include="TournamentLibrary\Drafter.cs" />
+    <Compile Include="TournamentLibrary\ICubeDraftManager.cs" />
+    <Compile Include="TournamentLibrary\IPlayer.cs" />
+    <Compile Include="TournamentLibrary\ITournPlayer.cs" />
+    <Compile Include="TournamentLibrary\Pack.cs" />
+    <Compile Include="TournamentLibrary\Player.cs" />
+    <Compile Include="TournamentLibrary\SwissTournament.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\Authorization.cs" />
+    <Compile Include="Helpers\CubeDraftDraftModel.cs" />
     <Compile Include="Helpers\Email.cs" />
     <Compile Include="Helpers\LogParser.cs" />
     <Compile Include="Helpers\MySql.cs" />
     <Compile Include="Helpers\Pipe.cs" />
     <Compile Include="Helpers\TimerPlus.cs" />
+    <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Hubs\CubeHub.cs" />
     <Compile Include="Hubs\MtgHub.cs" />
     <Compile Include="Models\BugReportModel.cs" />
     <Compile Include="Models\ContactModel.cs" />
     <Compile Include="Models\TriviaModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TournamentLibrary\TournPlayer.cs" />
+    <Compile Include="TournamentLibrary\TournPlayerArray.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -251,7 +261,7 @@
     <Content Include="Content\themes\theme_navy.css" />
     <Content Include="Content\themes\theme_red.css" />
     <Content Include="Content\themes\theme_switcher.php" />
-    <Content Include="Content\warning.wav" />
+    <Content Include="Content\warning.mp3" />
     <Content Include="Content\_Site.css" />
     <Content Include="Content\_themes\_base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\_themes\_base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -1987,6 +1997,7 @@
     <Content Include="Scripts\datatables\.gitignore" />
     <Content Include="Scripts\datatables\datatables-min.js" />
     <Content Include="Scripts\datatables\datatables.js" />
+    <Content Include="Scripts\datatables\datatables.old.js" />
     <Content Include="Scripts\elfinder\connectors\php\connector.php" />
     <Content Include="Scripts\elfinder\connectors\php\elFinder.class.php" />
     <Content Include="Scripts\elfinder\elfinder-min.js" />
@@ -2054,6 +2065,7 @@
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\modernizr\modernizr-min.js" />
     <Content Include="Scripts\modernizr\modernizr.js" />
+    <Content Include="Scripts\mtgbot\global.js" />
     <Content Include="Scripts\multiselect\multiselect-min.js" />
     <Content Include="Scripts\multiselect\multiselect.js" />
     <Content Include="Scripts\nearest\nearest-min.js" />
@@ -2068,6 +2080,7 @@
     <Content Include="Scripts\slidernav\slidernav.js" />
     <Content Include="Scripts\smallipop\smallipop-min.js" />
     <Content Include="Scripts\smallipop\smallipop.js" />
+    <Content Include="Scripts\sound\sound.js" />
     <Content Include="Scripts\sparkline\sparkline-min.js" />
     <Content Include="Scripts\sparkline\sparkline.js" />
     <Content Include="Scripts\syntaxhighlighter\shBrushJScript-min.js" />
@@ -2145,6 +2158,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\_themes\base\images\" />
+    <Folder Include="CubeDrafts\" />
     <Folder Include="Scripts\elfinder\filemanager\videos\" />
   </ItemGroup>
   <ItemGroup>
