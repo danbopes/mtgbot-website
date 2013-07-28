@@ -57,13 +57,15 @@ namespace MTGBotWebsite.Controllers
             body.AppendFormat("Email: {0}", model.Email).AppendLine();
             body.AppendFormat("Twitch Name: {0}", Session["user_name"]).AppendLine();
 
-            body.AppendFormat("IP Address: {0}", Request.UserHostAddress).AppendLine();
+            if (Request.ServerVariables["HTTP_CF_CONNECTING_IP"] != null)
+                body.AppendFormat("IP Address (From Cloudflare): {0}", Request.ServerVariables["HTTP_CF_CONNECTING_IP"]).AppendLine();
+            else
+                body.AppendFormat("IP Address: {0}", Request.UserHostAddress).AppendLine();
 
             if (Request.ServerVariables["X_FORWARDED_FOR"] != null)
                 body.AppendFormat("Forwarded For: {0}", Request.ServerVariables["X_FORWARDED_FOR"]).AppendLine();
 
             body.AppendFormat("User Agent: {0}", Request.UserAgent).AppendLine().AppendLine().AppendLine();
-
 
             body.AppendLine("Bug:").AppendLine();
             body.AppendLine(model.Problem).AppendLine().AppendLine();
@@ -85,7 +87,13 @@ namespace MTGBotWebsite.Controllers
             if (!string.IsNullOrWhiteSpace(model.Subject))
                 body.AppendFormat("Subject: {0}", model.Subject).AppendLine();
 
-            body.AppendFormat("IP Address: {0}", Request.UserHostAddress).AppendLine();
+            if (!string.IsNullOrWhiteSpace(model.StreamName))
+                body.AppendFormat("Stream Name: {0}", model.StreamName).AppendLine();
+
+            if (Request.ServerVariables["HTTP_CF_CONNECTING_IP"] != null)
+                body.AppendFormat("IP Address (From Cloudflare): {0}", Request.ServerVariables["HTTP_CF_CONNECTING_IP"]).AppendLine();
+            else
+                body.AppendFormat("IP Address: {0}", Request.UserHostAddress).AppendLine();
 
             if (Request.ServerVariables["X_FORWARDED_FOR"] != null)
                 body.AppendFormat("Forwarded For: {0}", Request.ServerVariables["X_FORWARDED_FOR"]).AppendLine();
@@ -93,7 +101,6 @@ namespace MTGBotWebsite.Controllers
             body.AppendFormat("User Agent: {0}", Request.UserAgent).AppendLine().AppendLine().AppendLine();
 
             body.AppendLine(model.Message);
-
 
             return Email.SendMessage("Email from website", body.ToString(), model.Email);
         }

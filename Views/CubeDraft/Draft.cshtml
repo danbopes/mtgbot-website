@@ -89,7 +89,7 @@
 <div class="box grid_16">
     <h2 class="box_head">Current Pick: <div data-bind="text: currentpick" style="display: inline;">&nbsp;</div>, Pack: <div data-bind="text: currentpack" style="display: inline;">&nbsp;</div></h2>
     <div class="section block" data-bind="visible: !selections().length && !waiting().length" style="display: none; height: 141px;">
-        <h2>Pick accepted. Waiting for adjacent player to pass your next booster.</h2>
+        <h2><span data-bind="text: statusText"></span></h2>
     </div>
     <div data-bind="visible: waiting().length" class="section block" style="display: none">
         <h2>Waiting for Players:</h2>
@@ -100,7 +100,7 @@
     <div class="isotope_holder indented_area" style="margin: 0;" data-bind="foreach: selections">
         <div style="float: left; padding: 3px;">
             <img draggable="true" data-bind="attr: { src: fullLink($data), alt: Name }, event: {
-/*mouseover: $root.enableDetails, mouseout: $root.disableDetails,*/ click: $root.addSelection
+mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.addSelection
                     , dragstart: function (data, event) {
                         event.originalEvent.dataTransfer.setData('Text', 'selections|' + data.Id);
                         return true;
@@ -118,7 +118,7 @@
         <button class="light small has_text send_right" data-bind="click: sortByCost">Cost</button>
         <button class="light small has_text send_right" data-bind="click: sortByColor">Color</button>
         <div class="send_right">Sort By: &nbsp;</div>
-        <!--<div data-bind="visible: draftOver"><button class="light small has_text send_right" data-bind="click: downloadDeck">Get Deck</button>&nbsp;&nbsp;&nbsp;&nbsp;</div>-->
+        <div data-bind="visible: draftOver" class="send_right" style="margin-right: 30px"><button class="green small has_text send_right" data-bind="click: downloadDeck">Get Deck</button></div>
     </h2>
     <div class="block">
         <div class="section" style="min-height: 151px" data-bind="event: {
@@ -194,6 +194,8 @@
             function draftViewModel() {
                 var self = this;
                 var draftId = @Model.CubeDraft.Id;
+                self.packSize = ko.observable(15);
+                self.totalPicks = ko.observable(45);
                 self.timed = ko.observable(@Model.CubeDraft.Timed.ToString().ToLower());
                 self.loaded = ko.observable(false);
                 self.players = ko.observableArray(@Html.Raw(Json.Encode(Model.CubeDraft.CubeDraftPlayers.Where(p => p.Confirmed).Select(p => new
@@ -244,6 +246,13 @@
                 this.sortByCost = function() {
                     self.sortBy("cost");
                 };
+                
+                this.statusText = ko.computed(function() {
+                    if ((self.deck().length+self.sideboard().length) % self.packSize() == 0) {
+                        return "Pick accepted. Waiting for all players to receive their last pick.";
+                    }
+                    return "Pick accepted. Waiting for adjacent player to pass your next booster.";
+                });
 
                 this.addSelection = function(data) {
                     if (!self.timed())
@@ -252,6 +261,7 @@
                         //A bit more logic needs to go here;
                         self.selectPick('selections', data.Id);
                     }
+                    self.draftOver(self.deck().length + self.sideboard().length == 45);
                 };
 
                 this.movePick = function(from, pickId, where) {
@@ -355,10 +365,6 @@
                     self.addingLand(!current);
                 };
 
-                this.submitDeck = function() {
-                    window.location = "/Home/Play";
-                };
-
                 /*this.deck = ko.computed(function () {
                     var sdbIds = new Array();
 
@@ -382,7 +388,6 @@
                     }
                 };
 
-
                 this.enableDetails = function(item, event) {
                     origz = $(event.target).css('z-index');
                     origw = $(event.target).css('width');
@@ -397,24 +402,14 @@
                     $(event.target).css('z-index', origz);
                     $(event.target).css('position', 'static');
                 };
-
-                self.addSideboard = function(card) {
-                    self.deck.remove(card);
-                    self.sideboard.push(card);
+                
+                this.downloadDeck = function() {
+                    /*var mysideboard = JSON.stringify(self.sideboard());*/
+                    var sideboardIds = ko.utils.arrayMap(this.sideboard(), function(card) {
+                        return card.Id;
+                    });
+                    $("body").append("<iframe src='" + "/CubeDraft/Deck/" + draftId + "?sideboard=" + sideboardIds.join(',') + "' style='display: none;' ></iframe>");
                 };
-
-                self.removeSideboard = function(card) {
-                    self.sideboard.remove(card);
-                    self.deck.push(card);
-                };
-
-                self.textDeck = function() {
-                    //alert(self.sideboardids());
-                    /*var mysideboard = JSON.stringify(self.sideboard());
-                    $("body").append("<iframe src='" + "/api/Contacts?sideboard=" + mysideboard + "' style='display: none;' ></iframe>");*/
-
-                };
-
 
                 //Let's attach to some events
                 mtg.client.waitingForPlayers = function(playerIds) {
@@ -671,8 +666,8 @@
 
             // Start the connection.
             $.connection.hub.start().done(function() {
-                console.log(mtg.server);
-                mtg.server.subscribeToDrafting(@ViewContext.RouteData.Values["id"]);
+                console.log("subscribing to draft: ", @Model.CubeDraft.Id);
+                mtg.server.subscribeToDrafting(@Model.CubeDraft.Id);
 
                 /*$('#sendmessage').click(function () {
                         // Call the Send method on the hub. 

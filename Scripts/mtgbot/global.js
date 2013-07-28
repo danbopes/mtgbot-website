@@ -20,3 +20,13 @@ if (typeof window.console === "undefined") {
         }
     };
 }
+
+function comparePlayers(player1, player2) {
+    if (player1 != null && player2 != null)
+        return player1.PlayerId == player2.PlayerId;
+
+    if (player1 == null && player2 == null)
+        return true;
+
+    return false;
+}

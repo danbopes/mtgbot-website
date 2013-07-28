@@ -81,19 +81,31 @@ namespace MTGBotWebsite.Controllers
             });
         }
 
-        public ActionResult Deck(int id, string sideboardIds)
+        public ActionResult Deck(int id)
         {
             Authorization.Authorize();
+
+            string sideboardString = Request["sideboard"];
+            string user = (string) Session["user_name"];
+
+            if (user == null)
+                return RedirectToAction("View", new { Id = id });
+
+            int[] sideboardIds = new int[0];
+            try
+            {
+                sideboardIds = sideboardString.Split(',').Select(i => Convert.ToInt32(i)).ToArray();
+            }
+            catch (FormatException)
+            {
+            }
 
             var cubeDraft = db.CubeDrafts.Find(id);
 
             if (cubeDraft == null)
                 throw new Exception(String.Format("Unable to find CubeDraft with id='{0}'", id));
 
-            if (cubeDraft.Status != CubeDraftStatus.Drafting)
-                return RedirectToAction("View", id);
-
-            var player = db.CubeDraftPlayers.SingleOrDefault(p => p.MTGOUsername.TwitchUsername == (string)Session["user_name"]);
+            var player = cubeDraft.CubeDraftPlayers.SingleOrDefault(p => p.MTGOUsername.TwitchUsername == user);
 
             if (player == null)
                 return RedirectToAction("View", id);
@@ -102,7 +114,11 @@ namespace MTGBotWebsite.Controllers
             var cardObjects = db.Cards.Where(c => cardIds.Contains(c.Id)).ToArray();
             var cards = cardIds.Select(c => cardObjects.Single(co => co.Id == c)).OrderBy(c => c.Name).ToArray();
 
-            return File(Encoding.ASCII.GetBytes(String.Join("\n", cards.Select(x => "1 " + x.Name))), "text/plain", Utils.MakeValidFileName(cubeDraft.Name) + ".txt");
+            var deck = String.Join("\r\n", cards.Where(c => !sideboardIds.Contains(c.Id)).Select(x => "1 " + x.Name));
+            var sideboard = String.Join("\r\n", cards.Where(c => sideboardIds.Contains(c.Id)).Select(x => "1 " + x.Name));
+
+
+            return File(Encoding.ASCII.GetBytes(deck + "\r\n\r\nSideboard\r\n" + sideboard), "text/plain", Utils.MakeValidFileName(cubeDraft.Name) + ".txt");
         }
     }
 }

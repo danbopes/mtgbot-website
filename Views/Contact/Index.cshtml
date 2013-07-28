@@ -22,12 +22,12 @@
                         <div class="required_tag"></div>
                     </div>
                     <!--
-                    <label for="name">Name</label>
-                    <div>
-                        <input type="text" name="name" id="name" class="required" />
-                        <div class="required_tag"></div>
-                    </div>
-                    -->
+                        <label for="name">Name</label>
+                        <div>
+                            <input type="text" name="name" id="name" class="required" />
+                            <div class="required_tag"></div>
+                        </div>
+                        -->
                 </fieldset>
             </div>
             <div class="col_50">
@@ -41,12 +41,24 @@
                 </fieldset>
             </div>
         </div>
-        <fieldset class="label_side label_small">
-            @Html.LabelFor(m => m.Subject)
-            <div>
-                @Html.TextBoxFor(m => m.Email, new { @class = "text" })
+        <div class="columns clearfix">
+            <div class="col_50">
+                <fieldset class="label_side label_small">
+                    @Html.LabelFor(m => m.Subject)
+                    <div>
+                        @Html.TextBoxFor(m => m.Email, new { @class = "text" })
+                    </div>
+                </fieldset>
             </div>
-        </fieldset>
+            <div class="col_50">
+                <fieldset class="label_side label_small">
+                    @Html.LabelFor(m => m.StreamName)
+                    <div>
+                        @Html.TextBoxFor(m => m.StreamName, new { @class = "text" })
+                    </div>
+                </fieldset>
+            </div>
+        </div>
         <fieldset class="label_top">
             @Html.LabelFor(m => m.Message)
             <div>

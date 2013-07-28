@@ -170,15 +170,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TournamentCenterController.cs" />
     <Compile Include="Controllers\TriviaController.cs" />
-    <Compile Include="TournamentLibrary\CubeDraftManager.cs" />
-    <Compile Include="TournamentLibrary\DraftCollection.cs" />
-    <Compile Include="TournamentLibrary\Drafter.cs" />
-    <Compile Include="TournamentLibrary\ICubeDraftManager.cs" />
-    <Compile Include="TournamentLibrary\IPlayer.cs" />
-    <Compile Include="TournamentLibrary\ITournPlayer.cs" />
-    <Compile Include="TournamentLibrary\Pack.cs" />
-    <Compile Include="TournamentLibrary\Player.cs" />
-    <Compile Include="TournamentLibrary\SwissTournament.cs" />
+    <Compile Include="Helpers\HubResponse.cs" />
     <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -197,8 +189,12 @@
     <Compile Include="Models\ContactModel.cs" />
     <Compile Include="Models\TriviaModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TournamentLibrary\TournPlayer.cs" />
-    <Compile Include="TournamentLibrary\TournPlayerArray.cs" />
+    <Compile Include="TournamentLibrary\CubeDraftManager.cs" />
+    <Compile Include="TournamentLibrary\DraftCollection.cs" />
+    <Compile Include="TournamentLibrary\Drafter.cs" />
+    <Compile Include="TournamentLibrary\ICubeDraftManager.cs" />
+    <Compile Include="TournamentLibrary\Pack.cs" />
+    <Compile Include="TournamentLibrary\SwissTournament.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\FilterConfig.cs" />

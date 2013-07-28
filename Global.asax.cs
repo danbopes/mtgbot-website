@@ -6,6 +6,7 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.SessionState;
 using MTGBotWebsite.App_Start;
+using Microsoft.AspNet.SignalR;
 
 namespace MTGBotWebsite
 {
@@ -18,7 +19,8 @@ namespace MTGBotWebsite
 
         protected void Application_Start()
         {
-            HubRoute = RouteTable.Routes.MapHubs();
+            var hubConfiguration = new HubConfiguration {EnableDetailedErrors = true};
+            HubRoute = RouteTable.Routes.MapHubs(hubConfiguration);
             AreaRegistration.RegisterAllAreas();
 
             //Database.SetInitializer(new DropCreateMySqlDatabaseIfModelChanges<MainDbContext>());

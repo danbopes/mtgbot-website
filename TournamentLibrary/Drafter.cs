@@ -63,6 +63,11 @@ namespace MTGBotWebsite.TournamentLibrary
         private Object _notifyLockObject = new Object();
         private bool _isTimed;
 
+        public override string ToString()
+        {
+            return PlayerName;
+        }
+
         public Drafter(CubeDraft draft, CubeDraftPlayer player, int position, DraftCollection draftCollection)
         {
             QueuedPicks.Enqueue(draftCollection.GetNextPack().Cards.ToList());
@@ -74,12 +79,31 @@ namespace MTGBotWebsite.TournamentLibrary
             _isTimed = draft.Timed;
         }
 
+        public Drafter(CubeDraft draft, CubeDraftPlayer player, int position, DraftCollection draftCollection, List<Card> picks)
+        {
+            if ( picks == null )
+                picks = new List<Card>();
+
+            DraftId = draft.Id;
+            PlayerId = player.Id;
+            PlayerName = player.MTGOUsername.TwitchUsername;
+            Position = position;
+            _isTimed = draft.Timed;
+            Packs = draftCollection;
+            //QueuedPicks.Enqueue(draftCollection.GetNextPack().Cards.ToList());
+            Picks = picks;
+            CurrentPick = picks.Count + 1;
+        }
+
         public void OpenNextPack()
         {
             lock (_lockObject)
             {
                 if (CurrentPicks != null)
+                {
+                    Console.WriteLine("Current Picks Count: " + CurrentPicks.Count + " (" + String.Join(", ", CurrentPicks) + ")");
                     throw new InvalidOperationException("Cannot open next pack as invalid number of cards queued.");
+                }
 
                 var pack = Packs.GetNextPack();
 
@@ -87,8 +111,8 @@ namespace MTGBotWebsite.TournamentLibrary
                     throw new InvalidOperationException("No packs to open");
 
                 QueuedPicks.Enqueue(pack.Cards.ToList());
+                NotifyPick();
             }
-            NotifyPick();
         }
 
         public void NotifyPick(bool force = false)

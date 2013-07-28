@@ -73,18 +73,23 @@
 <div class="grid_16 tabs" id="main_tabs" style="opacity: 1;">
     <ul class="clearfix">
         <li class="light img_icon has_text button">
-			<img src="/Images/icons/small/grey/blocks_images.png">
-			<span><a href="#tabs-cards">Cards</a></span>
-		</li>
-        <li class="light img_icon has_text button">
-            <img src="/Images/icons/small/grey/users.png">
+            <img src="/Images/icons/small/grey/users.png" alt="">
             <span><a href="#tabs-players">Players</a></span>
         </li>
         <li class="light img_icon has_text button">
-            <img src="/Images/icons/small/grey/winner_podium.png">
+            <img src="/Images/icons/small/grey/blocks_images.png" alt="">
+            <span><a href="#tabs-cards">Cards</a></span>
+        </li>
+        <li class="light img_icon has_text button" data-bind="visible: currentRound() > 0">
+            <img src="/Images/icons/small/grey/winner_podium.png" alt="">
             <span><a href="#tabs-standings">Standings</a></span>
         </li>
+        <li class="light img_icon has_text button" data-bind="visible: currentRound() > 0">
+            <img src="/Images/icons/small/grey/clipboard.png" alt="">
+            <span><a href="#tabs-pairings">Pairings</a></span>
+        </li>
     </ul>
+    <h2 class="send_right" style="margin: -30px 10px 0 0">Draft Status: <span data-bind="text: statusText"></span></h2>
     <!--
     <div class="controls">
         <a href="#" class="grabber"></a>
@@ -92,9 +97,6 @@
     </div>
     -->
 	<div class="toggle_container">
-		<div id="tabs-cards" style="opacity: 1;">
-			
-		</div>
 	    <div id="tabs-players" class="container_16 clearfix" style="display: none">
 	        <div class="box grid_8" style="opacity: 1;">
 	            <h2 class="box_head grad_green">Players &nbsp;Accepted &nbsp;(Max #<span id="max_players">@Math.Floor((double)Model.CubeDraftCards.Count/45))</span></h2>
@@ -108,6 +110,7 @@
 	                            <th style="width: 40px">I</th>
 	                            <th style="width: 50%">Username</th>
 	                            <th style="width: 50%">Mtgo Username</th>
+                                <th style="width: 40px">Collateral</th>
 	                            <th style="width: 40px"></th>
 	                            <th style="width: 40px"></th>
 	                            <th style="width: 40px"></th>
@@ -115,6 +118,20 @@
 	                    </thead>
 	                    <tbody></tbody>
 	                </table>
+	            </div>
+	            <div class="button_bar clearfix" data-bind="visible: isBroadcaster">
+	                <button class="red text_only has_text send_right" data-bind="click: endTournament, visible: status() == @((int)CubeDraftStatus.InMatches)">
+	                    <span>End Tournament</span>
+	                </button>
+	                <button class="green text_only has_text send_right" data-bind="click: pairNextRound, visible: status() == @((int)CubeDraftStatus.InMatches)">
+	                    <span>Pair Next Round</span>
+	                </button>
+	                <button class="text_only has_text send_right" data-bind="click: startDraft, css: { red: acceptedPlayers().length < 2, green: acceptedPlayers().length > 1 }, visible: status() == @((int)CubeDraftStatus.PreStart)">
+	                    <span>Start Draft</span>
+	                </button>
+	                <button class="green text_only has_text send_right" data-bind="click: performReadyCheck">
+	                    <span>Readycheck</span>
+	                </button>
 	            </div>
 	        </div>
 	        <div class="box grid_8 single_datatable" style="opacity: 1;">
@@ -141,25 +158,84 @@
 	            </div>
 	        </div>
 	    </div>
+		<div id="tabs-cards" style="opacity: 1;">
+		    <div class="box grid_16">
+		        <h2 class="box_head">
+		            Cards:&nbsp; <div data-bind="text: cards().length" style="display: inline;">&nbsp;</div>&nbsp;&nbsp;&nbsp; (Supported Players:&nbsp; <div data-bind="    text: supportedPlayers()" style="display: inline;">&nbsp;</div>)
+		            <button class="light small has_text send_right" data-bind="click: sortByCost">Cost</button>
+		            <button class="light small has_text send_right" data-bind="click: sortByColor">Color</button>
+		            <div class="send_right">Sort By: &nbsp;</div>
+		        </h2>
+		        <div class="block">
+		            <div class="section">
+		                <table>
+		                    <tr class="cards" data-bind="foreach: columns">
+		                        <td data-bind="foreach: $data, style: { height: (134 + 20 * $data.length) + 'px' }" style="width: 108px">
+		                            <div style="padding: 0 2px 0 2px" data-bind="attr: { style: 'z-index: ' + $index() + '; position: absolute; margin-top: ' + $index() * 20 + 'px;' }, event: { mouseover: $root.enableDetails, mouseout: $root.disableDetails }">
+		                                <img data-bind="attr: { src: thumbLink($data), alt: Name }" />
+		                            </div>
+		                            <div style="clear: both"></div>
+		                        </td>
+		                    </tr>
+		                </table>
+		            </div>
+		        </div>
+		    </div>
+		</div>
 	    <div id="tabs-standings">
 	        <div class="box grid_16 single_datatable" style="opacity: 1;">
 	            <h2 class="box_head">Standings</h2>
 	            <div class="block" style="opacity: 1;">
-	                <table id="standings" class="datatable">
+	                <table id="standings" class="static">
 	                    <thead>
 	                        <tr>
-	                            <th colspan="2">&nbsp;</th>
-                                <th colspan="3">Tie Breakers</th>
+	                            <th colspan="3">&nbsp;</th>
+	                            <th colspan="3" style="text-align: center;">Tie Breakers</th>
 	                        </tr>
 	                        <tr>
 	                            <th style="width: 20px">Place</th>
+                                <th style="width: 20px">Points</th>
 	                            <th style="width: 100%">Username</th>
 	                            <th>OMW</th>
 	                            <th>GWP</th>
 	                            <th>OGW</th>
 	                        </tr>
 	                    </thead>
-	                    <tbody></tbody>
+	                    <tbody data-bind="foreach: standings">
+	                        <tr>
+	                            <td data-bind="text: Place"></td>
+	                            <td data-bind="text: Player.Wins*3"></td>
+	                            <td data-bind="text: Player.PlayerName + ' (' + Player.MtgoUsername + ')'"></td>
+	                            <td data-bind="text: Player.TieBreaker1 + '%'"></td>
+	                            <td data-bind="text: Player.TieBreaker2 + '%'"></td>
+                                <td data-bind="text: Player.TieBreaker3 + '%'"></td>
+	                        </tr>
+	                    </tbody>
+	                </table>
+	            </div>
+	        </div>
+	    </div>
+        <div id="tabs-pairings">
+	        <div class="box grid_16 single_datatable" style="opacity: 1;">
+	            <h2 class="box_head" data-bind="text: 'Pairings (Round ' + currentRound() + ')'"></h2>
+	            <div class="block" style="opacity: 1;">
+	                <table id="pairings" class="static">
+	                    <thead>
+	                        <tr>
+	                            <th>Game</th>
+	                            <th>Player1</th>
+	                            <th>Player2</th>
+                                <th>Current Score</th>
+	                        </tr>
+	                    </thead>
+	                    <tbody data-bind="foreach: pairings">
+	                        <tr>
+	                            <td data-bind="text: CurrentGame == -1 ? 'Completed' : CurrentGame"></td>
+	                            <td data-bind="text: Player1.PlayerName + ' (' + Player1.MtgoUsername + ')'"></td>
+	                            <td data-bind="text: Player2 == null ? '*** BYE ***' : Player2.PlayerName + ' (' + Player2.MtgoUsername + ')'"></td>
+                                <td data-bind="text: Player1Wins + '-' + Player2Wins"></td>
+	                        </tr>
+	                    </tbody>
 	                </table>
 	            </div>
 	        </div>
@@ -168,7 +244,7 @@
 </div>
 
 <script id="user_dialog" type="text/x-jquery-tmpl">
-   <div class="box light grid_16 full_size main_container">
+    <div class="box light grid_16 full_size main_container">
         <h2 class="box_head">Approve Player</h2>
         <div class="block" style="opacity: 1;">
             <div class="columns clearfix">
@@ -188,32 +264,59 @@
                 <div class="col_100">
                     <fieldset class="label_side top">
                         <label><img src="/Images/icons/small/grey/power.png" alt="" style="float: left; margin-top: -3px;" /> Joins:</label>
-                        <div class="clearfix">
+                        <div class="clearfix" style="padding-top: 20px">
                             ${Joins}
                         </div>
                     </fieldset>
 
                     <fieldset class="label_side">
                         <label><img src="/Images/icons/small/grey/user_comment.png" alt="" style="float: left; margin-top: -3px;" />Chat Lines:</label>
-                        <div class="clearfix">
+                        <div class="clearfix" style="padding-top: 20px">
                             ${MessageCount}
                         </div>
                     </fieldset>
-                    <!--<fieldset class="label_side">
-                        <label><img src="/Images/icons/small/grey/pencil.png" alt="" />Notes:</label>
+                    <fieldset class="label_side">
+                        <label><img src="/Images/icons/small/grey/money.png" alt="" style="float: left; margin-top: 3px;" />Require Collateral:</label>
                         <div class="clearfix">
-                            ${Notes}
+                            <input name="collateral" type="text" class="text" value="${RequireCollateral}" />
                         </div>
-                    </fieldset>-->
+                    </fieldset>
+                    {{if Approved}}
+                    <fieldset class="no_label">
+                        <div class="uniform inline clearfix">
+                            <label for="approved">
+                                <div class="checker" id="uniform-approved">
+                                    <span>
+                                        <input type="checkbox" name="approved" value="1" checked="checked" />
+                                    </span>
+                                </div>
+                                Player is approved.
+                            </label>
+                        </div>
+                    </fieldset>
+                    {{/if}}
+                    <!--<fieldset class="label_side">
+                            <label><img src="/Images/icons/small/grey/pencil.png" alt="" />Notes:</label>
+                            <div class="clearfix">
+                                ${Notes}
+                            </div>
+                        </fieldset>-->
                 </div>
             </div>
             <div class="button_bar clearfix">
+                {{if Approved}}
+                <button class="green img_icon has_text update">
+                    <img src="/Images/icons/small/white/bended_arrow_left.png" alt="">
+                    <span>Update</span>
+                </button>
+                {{else}}
                 <button class="green img_icon has_text approve">
                     <img src="/Images/icons/small/white/bended_arrow_left.png" alt="">
                     <span>Approve</span>
                 </button>
+                {{/if}}
 
-                <button class="drak send_right img_icon has_text cancel">
+                <button class="dark send_right img_icon has_text cancel">
                     <div class="ui-icon ui-icon-closethick"></div>
                     <span>Cancel</span>
                 </button>
@@ -224,98 +327,98 @@
 
 <div class="dialog_content no_dialog_titlebar wide" id="dialog_mtgolink" style="display: none">
     <div class="box light grid_16 full_size main_container">
-	    <h2 class="box_head">Link your MTGO Username</h2>
-	    <div class="controls">
-		    <div class="wizard_progressbar"></div>
-	    </div>
-	    <div class="toggle_container">
-		    <div class="wizard">
+        <h2 class="box_head">Link your MTGO Username</h2>
+        <div class="controls">
+            <div class="wizard_progressbar"></div>
+        </div>
+        <div class="toggle_container">
+            <div class="wizard">
 
-			    <div class="wizard_steps">
-				    <ul class="clearfix">
-					    <li class="current">
-						    <a href="#link_step_1" class="clearfix">
-							    <span>1. <strong>MTGO Username</strong></span>
-						    </a>
-					    </li>
-					    <li>
-						    <a href="#link_step_2" class="clearfix">
-							    <span>2. <strong>Confirm Code</strong></span>
-						    </a>
-					    </li>
-					    <li>
-						    <a href="#link_step_3" class="clearfix">
-							    <span>3. <strong>Finish</strong></span>
-						    </a>
-					    </li>
-				    </ul>
-			    </div>
+                <div class="wizard_steps">
+                    <ul class="clearfix">
+                        <li class="current">
+                            <a href="#link_step_1" class="clearfix">
+                                <span>1. <strong>MTGO Username</strong></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#link_step_2" class="clearfix">
+                                <span>2. <strong>Confirm Code</strong></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#link_step_3" class="clearfix">
+                                <span>3. <strong>Finish</strong></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
-			    <div class="wizard_content">
-		            <form action="#" method="post" class="validate_form">
-				    <div id="link_step_1" class="step block" style="display:block;">
-					    <div class="section">
-						    <h2>1. MTGO Username</h2>
-						    <p>Please enter your MTGO username below, and make sure you are online to recieve the confirmation code that will be sent do you.</p>
-					    </div>
-					    <div class="columns clearfix">
-							<fieldset class="label_side top">
-								<label>Name</label>
-								<div>
-									<input type="text" name="mtgousername" class="required" minlength="3" maxlength="29">
-									<div class="required_tag"></div>
-				                </div>
-							</fieldset>
-					    </div>
+                <div class="wizard_content">
+                    <form action="#" method="post" class="validate_form">
+                        <div data-step="1" class="step block" style="display:block;">
+                            <div class="section">
+                                <h2>1. MTGO Username</h2>
+                                <p>Please enter your MTGO username below, and make sure you are online to recieve the confirmation code that will be sent do you.</p>
+                            </div>
+                            <div class="columns clearfix">
+                                <fieldset class="label_side top">
+                                    <label>Name</label>
+                                    <div>
+                                        <input type="text" name="mtgousername" class="required" minlength="3" maxlength="29">
+                                        <div class="required_tag"></div>
+                                    </div>
+                                </fieldset>
+                            </div>
 
-					    <div class="button_bar clearfix">
-						    <button class="next_step forward send_right" type="button">
-							    <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
-							    <span>Next Step</span>
-						    </button>
-					    </div>
-				    </div>
+                            <div class="button_bar clearfix">
+                                <button class="next_step forward send_right" type="button">
+                                    <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
+                                    <span>Next Step</span>
+                                </button>
+                            </div>
+                        </div>
 
-		            <div id="link_step_2" class="step block">
-		                <div class="section">
-		                    <h2>2. Confirm Code</h2>
-		                    <p>A confirmation code should have been sent to you on Magic: Online. Please enter the code below.</p>
-		                </div>
-		                <div class="columns clearfix">
-		                    <fieldset class="label_side top">
-		                        <label>Code</label>
-		                        <div>
-		                            <input type="text" name="confirmkey" id="confirmkey" class="required number" minlength="4" maxlength="4">
-		                            <div class="required_tag"></div>
-		                        </div>
-		                    </fieldset>
-		                </div>
-		                <div class="button_bar clearfix">
-		                    <button class="next_step forward send_right" type="button">
-		                        <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
-		                        <span>Next Step</span>
-		                    </button>
-		                </div>
-		            </div>
+                        <div data-step="2" class="step block">
+                            <div class="section">
+                                <h2>2. Confirm Code</h2>
+                                <p>A confirmation code should have been sent to you on Magic: Online. Please enter the code below.</p>
+                            </div>
+                            <div class="columns clearfix">
+                                <fieldset class="label_side top">
+                                    <label>Code</label>
+                                    <div>
+                                        <input type="text" name="confirmkey" id="confirmkey" class="required number" minlength="4" maxlength="4">
+                                        <div class="required_tag"></div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="button_bar clearfix">
+                                <button class="next_step forward send_right" type="button">
+                                    <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
+                                    <span>Next Step</span>
+                                </button>
+                            </div>
+                        </div>
 
-				    <div id="link_step_3" class="step block">
-					    <div class="section">
-						    <h2>3. Finish</h2>
-						    <p>Thank you for confirming your username. Please click complete to signup for this draft.</p>
-					    </div>
+                        <div data-step="3" class="step block">
+                            <div class="section">
+                                <h2>3. Finish</h2>
+                                <p>Thank you for confirming your username. Please click complete to signup for this draft.</p>
+                            </div>
 
-					    <div class="button_bar clearfix">
-						    <button class="next_step green send_right submit_button" type="button">
-							    <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
-							    <span>Complete</span>
-						    </button>
-					    </div>
-				    </div>
-		            </form>
-			    </div>
+                            <div class="button_bar clearfix">
+                                <button class="finish green send_right submit_button" type="button">
+                                    <img height="24" width="24" alt="Bended Arrow Right" src="/Images/icons/small/white/bended_arrow_right.png">
+                                    <span>Complete</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
-		    </div>
-	    </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -344,28 +447,31 @@
 
 @section scripts {
     <!--Script references. -->
-    <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
+    @Scripts.Render("~/Scripts/knockout/knockout.js")
+    <!--The jQuery library is required and is referenced by default in _Layout.csshtml. -->
     <!--Reference the SignalR library. -->
     <script src="~/Scripts/jquery.signalR-1.0.1.js"></script>
     <!--Reference the autogenerated SignalR hub script. -->
     <script src="~/signalr/hubs"></script>
     <!--SignalR script to update the chat page and send messages.--> 
     <script>
-        var mtg;
         $(function() {
-            if (typeof window.console === "undefined") {
-                window.console = {
-                    log: function() {
-                    }
-                };
-            }
+            // Reference the auto-generated proxy for the hub.  
+            var mtg = $.connection.cubeHub;
+            $.connection.logging = true;
 
-            var max_players = @Math.Floor((double)Model.CubeDraftCards.Count/45);
-            
+            var draftId = @ViewContext.RouteData.Values["id"];
+            var readyCheckGuid = null;
+            // Create a function that the hub can call back to display messages.
+            /*mtg.client.addNewMessageToPage = function (name, message) {
+                // Add the message to the page. 
+                $('#discussion').append('<li><strong>' + htmlEncode(name) 
+                    + '</strong>: ' + htmlEncode(message) + '</li>');
+            };*/
+
             //Init data table
             var pendingDataTable = $('#pending_players').dataTable({
                 bJQueryUI: true,
-                sScrollX: "",
                 bSortClasses: false,
                 //bAutoWidth: true,
                 bInfo: true,
@@ -376,23 +482,31 @@
                 bFilter: false,
                 bLengthChange: false,
                 aoColumns: [
-                    {sClass: 'image'}, {sClass: 'username'}
+                    {
+                        sClass: 'image',
+                        mData: function(obj) {
+                            return $('<img alt="Player Image" />').attr('src', obj.smallImage).css({ width: 28, height: 28 })[0].outerHTML;
+                        }
+                    }, {
+                        sClass: 'username',
+                        mData: 'displayName'
+                    }
                 ],
                 oLanguage: {
                     sEmptyTable: "There are no players waiting! Send some players to this page to signup.",
-                    sInfo: "Showing _START_ to _END_ of _TOTAL_ players"
+                    sInfo: "Showing _START_ to _END_ of _TOTAL_ players.",
+                    sInfoEmpty: "No players signed up."
                 },
-                fnInitComplete: function () {
+                fnInitComplete: function() {
                     $("#pending_players .dataTables_length > label > select").uniform();
                     $("#pending_players .dataTables_filter input[type=text]").addClass("text");
                     $(".datatable").css("visibility", "visible");
                 }
             });
-            
+
             //Init data table
             var acceptedDataTable = $('#accepted_players').dataTable({
                 bJQueryUI: true,
-                sScrollX: "",
                 bSortClasses: false,
                 //bAutoWidth: true,
                 bInfo: true,
@@ -404,93 +518,496 @@
                 bLengthChange: false,
                 bPaginate: false,
                 aoColumns: [
-                    {sClass: 'image'}, {sClass: 'username'}, {sClass: 'mtgousername'}, null, null, null
+                    {
+                        sClass: 'image',
+                        mData: function(obj) {
+                            return $('<img alt="Player Image" />').attr('src', obj.smallImage).css({ width: 28, height: 28 })[0].outerHTML;
+                        }
+                    }, {
+                        sClass: 'username',
+                        mData: 'displayName'
+                    }, {
+                        sClass: 'mtgusername',
+                        mData: 'mtgoUsername'
+                    }, {
+                        sClass: 'collateral',
+                        mData: 'collateral'
+                    }, {
+                        mData: function(obj) {
+                            switch (obj.readyCheck) {
+                            case "pending":
+                                return '<div class="ui-icon ui-icon-help" title="Readycheck is pending"></div>';
+                            case "ready":
+                                return '<div class="ui-icon ui-icon-check"></div>';
+                            case "notready":
+                                return '<div class="ui-icon ui-icon-closethick"></div>';
+                            }
+
+                            return '';
+                        }
+                    }, {
+                        mData: function(obj) {
+                            switch (obj.tradeStatus) {
+                            case "trading":
+                                return '<div class="ui-icon ui-icon-transferthick-e-w" title="Currently trading with this player"></div>';
+                            //case "receiving":
+                            //    return '<div class="ui-icon ui-icon-arrowreturnthick-1-e" title="Currently receiving cards"></div>';
+                            }
+
+                            return '';
+                        }
+                    }, {
+                        mData: function(obj) {
+                            switch (obj.collectionStatus) {
+                            case "recieved":
+                                return '<img src="/Images/icons/small/white/blocks_images.png" title="This player currently has his full deck">';
+                            }
+
+                            return '';
+                        }
+                    }
                 ],
                 oLanguage: {
-                    sEmptyTable: @(ViewBag.IsBroadcaster ? Html.Raw("\"There are no accepted players! Add some by clicking on them from the right.\"") : Html.Raw("\"There are no accepted players yet.\"")),
-                    sInfo: "Showing _START_ to _END_ of _TOTAL_ players"
+                    sEmptyTable: "@(ViewBag.IsBroadcaster ? "There are no accepted players! Add some by clicking on them from the right." : "There are no accepted players yet.")",
+                    sInfo: "Showing _START_ to _END_ of _TOTAL_ players",
+                    sInfoEmpty: "No approved players."
                 },
-                fnInitComplete: function () {
+                fnInitComplete: function() {
                     $("#accepted_players .dataTables_length > label > select").uniform();
                     $("#accepted_players .dataTables_filter input[type=text]").addClass("text");
                     $(".datatable").css("visibility", "visible");
                 }
             });
-            
+
+            var viewModel = function() {
+                var self = this;
+                this.cards = ko.observableArray([]);
+                this.sortBy = ko.observable("color");
+                this.pendingPlayers = ko.observableArray([]);
+                this.acceptedPlayers = ko.observableArray([]);
+                this.status = ko.observable(@((int) Model.Status));
+                this.isBroadcaster = ko.observable(@ViewBag.IsBroadcaster.ToString().ToLower());
+                this.myUsername = "@Session["user_name"]";
+                this.readyCheck = null;
+                this.currentRound = ko.observable(0);
+                this.pairings = ko.observableArray([]);
+                this.standings = ko.observableArray([]);
+
+                this.supportedPlayers = ko.computed(function() {
+                    return Math.min(Math.floor(self.cards().length / 45), 10);
+                });
+
+                this.isApprovedPlayer = ko.computed(function() {
+                    return ko.utils.arrayFilter(self.acceptedPlayers(), function(player) {
+                        return player.twitchUsername == self.myUsername;
+                    }).length > 0;
+                });
+
+                this.statusText = ko.computed(function() {
+                    switch (self.status()) {
+                    case @((int) CubeDraftStatus.Init):
+                    case @((int) CubeDraftStatus.PreStart):
+                        return "Signups";
+                    case @((int) CubeDraftStatus.Drafting):
+                        return "Drafting";
+                    case @((int) CubeDraftStatus.ProductHandOut):
+                        return "Product Handout";
+                    case @((int) CubeDraftStatus.InMatches):
+                        return "Deck Construction/In Matches";
+                    case @((int) CubeDraftStatus.ProductHandIn):
+                    case @((int) CubeDraftStatus.Completed):
+                        return "Completed";
+                    }
+                    return "Unknown";
+                });
+
+                this.sortByColor = function() {
+                    self.sortBy("color");
+                };
+
+                this.sortByCost = function() {
+                    self.sortBy("cost");
+                };
+
+                this.columns = ko.computed(function() {
+                    var desiredType = self.sortBy();
+                    var cards = self.cards();
+                    var rowCards = [];
+                    var result = [];
+
+                    if (desiredType == "cost") {
+                        for (var i = 0; i <= 20; i++) {
+                            rowCards = ko.utils.arrayFilter(cards, function(card) {
+                                return card.CMC == i;
+                            });
+
+                            if (rowCards.length > 0)
+                                result.push(rowCards);
+                        }
+                    } else if (desiredType == "color") {
+                        //Match all the colors
+                        var colors = ['L', 'C', 'W', 'U', 'B', 'R', 'G'];
+
+                        $.each(colors, function(idx, color) {
+                            rowCards = ko.utils.arrayFilter(cards, function(card) {
+                                return card.Color == color;
+                            });
+
+                            if (rowCards.length > 0)
+                                result.push(rowCards);
+                        });
+
+                        //Match multicolored
+                        rowCards = ko.utils.arrayFilter(cards, function(card) {
+                            return $.inArray(card.Color, colors) == -1;
+                        });
+
+                        if (rowCards.length > 0)
+                            result.push(rowCards);
+                    }
+
+                    //console.log(result);
+                    return result;
+                });
+
+
+                //Hover over functions
+                var origz, origw;
+                this.enableDetails = function(item, event) {
+                    origz = $(event.target).parent().css('z-index');
+                    origw = $(event.target).css('width');
+
+                    $(event.target).parent().css('z-index', '1000');
+                    $(event.target).css('width', 'auto');
+                };
+                this.disableDetails = function(item, event) {
+                    $(event.target).css('width', origw);
+                    $(event.target).parent().css('z-index', origz);
+                };
+
+                this.performReadyCheck = function() {
+                    console.log("Performing Readycheck");
+                    if (this.readyCheck != null) {
+                        alert("You are already running a readycheck. Please wait before you start another");
+                        return;
+                    }
+
+                    this.readyCheck = true;
+                    mtg.server.initReadyCheck(draftId).done(function(guid) {
+                        self.readyCheck = guid;
+                        var rows = acceptedDataTable.fnGetData();
+                        for (var i = 0; i < rows.length; i++) {
+                            rows[i].readyCheck = rows[i].twitchUsername == self.myUsername ? "ready" : "pending";
+                            acceptedDataTable.fnUpdate(rows[i], i);
+                        }
+                    });
+
+                    setTimeout(function() {
+                        self.readyCheck = null;
+                        var rows = acceptedDataTable.fnGetData();
+                        for (var i = 0; i < rows.length; i++) {
+                            if (rows[i].readyCheck == "pending") {
+                                rows[i].readyCheck = "notready";
+                                acceptedDataTable.fnUpdate(rows[i], i);
+                            }
+                        }
+                    }, 30000);
+                };
+
+                this.startDraft = function() {
+                    console.log("Start Draft");
+                    mtg.server.startDraft(draftId).done(function(success) {
+                        if (!success)
+                            alert("An error occurred starting the draft. Please refresh and try again.");
+                        else if (self.isApprovedPlayer())
+                            location.href = '@Url.Action("Draft")/' + draftId;
+                        else
+                            self.status = @((int) CubeDraftStatus.Drafting);
+                    });
+                };
+
+                this.pairNextRound = function() {
+                    console.log("Pair Next Round");
+                    mtg.server.pairNextRound(draftId).done(function(status) {
+                        if (status.Success) {
+                            alert("The next round was sucessfully paired.");
+                        } else {
+                            alert(status.Message);
+                        }
+                    });
+                };
+                
+                this.endTournament = function() {
+                    if (confirm('Are you sure you wish to end this tournament?')) {
+                        mtg.server.endTournament(draftId).done(function(status) {
+                            if (status.Success) {
+                                alert("The tournament has successfully ended. Players should open trade with the bot, and start handing in their collection.");
+                            } else {
+                                alert(status.Message);
+                            }
+                        });
+                    }
+                }
+
+                mtg.client.draftStarted = function() {
+                    if (self.isApprovedPlayer())
+                        location.href = '@Url.Action("Draft")/' + draftId;
+                    else
+                        self.status = @((int) CubeDraftStatus.Drafting);
+                };
+
+                mtg.client.newPairings = function(round, pairings) {
+                    console.log(pairings);
+                    self.currentRound(round);
+                    self.pairings(pairings);
+                };
+
+                mtg.client.newStandings = function(standings) {
+                    self.standings(standings);
+                };
+
+                mtg.client.matchUpdate = function(match) {
+                    console.log(match);
+
+                    self.pairings.remove(function(pairing) {
+                        return pairing.Round == match.Round && comparePlayers(pairing.Player1, match.Player1) && comparePlayers(pairing.Player2, match.Player2);
+                    });
+                    
+                    self.pairings.push(match);
+                };
+
+                /*
+                 * Ready check functions
+                 */
+                mtg.client.readyCheck = function(guid) {
+                    readyCheckGuid = guid;
+                    $('<audio/>').attr('src', '/Content/warning.mp3').attr('autoplay', 'autoplay')[0].play();
+                    $('#dialog_readycheck').dialog('open');
+
+                    //After 30 seconds they are away
+                    setTimeout(function() {
+                        $('#dialog_readycheck').dialog('close');
+                    }, 30000);
+                };
+
+                mtg.client.readyCheckUpdate = function(guid, user, ready) {
+                    if (self.readyCheck != guid)
+                        return;
+
+                    var rows = acceptedDataTable.fnGetData();
+                    var finished = true;
+                    for (var i = 0; i < rows.length; i++) {
+                        console.log(rows[i].twitchUsername + " == " + rows[i].twitchUsername);
+                        if (rows[i].twitchUsername == user) {
+                            rows[i].readyCheck = ready ? "ready" : "notready";
+                            acceptedDataTable.fnUpdate(rows[i], i);
+                        }
+
+                        if (rows[i].readyCheck == "pending")
+                            finished = false;
+                    }
+
+                    if (finished)
+                        self.readyCheck = null;
+                };
+
+                //Subscribe to server events
+                mtg.client.addedCards = function(cards) {
+                    var selfCards = self.cards();
+                    $.each(cards, function(idx, card) {
+                        selfCards.push(card);
+                    });
+
+                    self.cards(selfCards);
+                };
+
+                mtg.client.statusUpdate = function(newStatus) {
+                    self.status(newStatus);
+                };
+
+                mtg.client.startedDraft = function() {
+                    if (self.isApprovedPlayer())
+                        location.href = '@Url.Action("Draft")/' + draftId;
+                };
+
+                mtg.client.playerUpdated = function(player) {
+                    console.log("Player updated");
+                    console.log(player);
+
+                    //Let's get some permission to send notifications if they've been accepted
+                    //let them know their draft is starting
+                    if (player.twitchUsername == self.myUsername && player.Confirmed) {
+                        try {
+                            if (window.webkitNotifications.checkPermission() == 0) {
+                                window.webkitNotifications.requestPermission();
+                            }
+                        } catch(e) {
+                        }
+                    }
+
+                    var obj = null;
+                    try {
+                        var rows = pendingDataTable.fnGetData();
+
+                        for (var i = 0; i < rows.length; i++) {
+                            if (rows[i].twitchUsername == player.MTGOUsername.TwitchUsername) {
+                                obj = rows[i];
+                                pendingDataTable.fnDeleteRow(i);
+                                break;
+                            }
+                        }
+
+                        if (obj == null) {
+                            rows = acceptedDataTable.fnGetData();
+                            for (i = 0; i < rows.length; i++) {
+                                if (rows[i].twitchUsername == player.MTGOUsername.TwitchUsername) {
+                                    obj = rows[i];
+                                    acceptedDataTable.fnDeleteRow(i);
+                                    break;
+                                }
+                            }
+                        }
+                    } catch(e) {
+
+                    }
+
+                    self.pendingPlayers.remove(function(item) {
+                        return item.twitchUsername == player.MTGOUsername.TwitchUsername;
+                    });
+
+                    self.acceptedPlayers.remove(function(item) {
+                        return item.twitchUsername == player.MTGOUsername.TwitchUsername;
+                    });
+
+                    if (obj == null) {
+                        $.getJSON('https://api.twitch.tv/kraken/users/' + player.MTGOUsername.TwitchUsername + '?callback=?', null,
+                            function(data) {
+                                var smallImage = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
+                                var largeImage = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
+
+                                if (data.logo != null) {
+                                    smallImage = data.logo.replace(/50x50/, '28x28');
+                                    largeImage = data.logo;
+                                }
+
+                                var newPlayer = {
+                                    twitchUsername: player.MTGOUsername.TwitchUsername,
+                                    mtgoUsername: player.MTGOUsername.MtgoUsername,
+                                    collateral: player.RequireCollateral,
+                                    displayName: data.display_name,
+                                    smallImage: smallImage,
+                                    largeImage: largeImage,
+                                    collectionStatus: player.HasDeck ? "recieved" : false
+                                };
+
+                                if (player.Confirmed) {
+                                    self.acceptedPlayers.push(newPlayer);
+                                    acceptedDataTable.fnAddData(newPlayer);
+                                } else {
+                                    self.pendingPlayers.push(newPlayer);
+                                    pendingDataTable.fnAddData(newPlayer);
+                                }
+                            }
+                        );
+                    } else {
+                        obj.mtgoUsername = player.MTGOUsername.MtgoUsername;
+                        obj.collateral = player.RequireCollateral;
+                        obj.collectionStatus = player.HasDeck ? "recieved" : false;
+
+                        if (player.Confirmed) {
+                            self.acceptedPlayers.push(obj);
+                            acceptedDataTable.fnAddData(obj);
+
+                        } else {
+                            self.pendingPlayers.push(obj);
+                            pendingDataTable.fnAddData(obj);
+                        }
+                    }
+                };
+            };
+
+            window.vm = new viewModel();
+            ko.applyBindings(vm);
+
             //if(ViewBag.IsBroadcaster) {
             //    <text>
             $(document).ready(function() {
-                    /* Add a click handler to the rows - this could be used as a callback */
-                    $("#pending_players tbody").click(function(event) {
-                        /*$(oTable.fnSettings().aoData).each(function (){
-                            $(this.nTr).removeClass('row_selected');
-                        });
-                        $(event.target.parentNode).addClass('row_selected');*/
+                /* Add a click handler to the rows - this could be used as a callback */
+                $("#pending_players tbody, #accepted_players tbody").click(function(event) {
+                    var data = $(event.target).parents('table').dataTable().fnGetData($(event.target).parents('tr')[0]);
 
-                        console.log($(event.target.parentNode).find('td.username').text());
-                        mtg.server.getPlayerInfo(draftId, $(event.target.parentNode).find('td.username').text()).done(function(player) {
-                            console.log('getPlayerInfo() done');
-                            console.log(player);
-                            player.Image = $(event.target.parentNode).find('td.image img').attr('src').replace(/28x28/, '50x50');
-                            var dialog = $('#user_dialog').tmpl(player);
+                    if (!data)
+                        return;
 
-                            dialog.find('button.approve').click(function() {
-                                mtg.server.approvePlayer(draftId, player.TwitchUsername);
-                                dialog.dialog('close');
-                            });
+                    showLoadingOverlay();
+                    console.log('getPlayerInfo(' + draftId + ', ' + data.twitchUsername + ')');
+                    mtg.server.getPlayerInfo(draftId, data.twitchUsername).done(function(player) {
+                        hideLoadingOverlay();
+                        console.log('getPlayerInfo() done');
+                        console.log(player);
+                        player.Image = $(event.target.parentNode).find('td.image img').attr('src').replace(/28x28/, '50x50');
+                        var dialog = $('#user_dialog').tmpl(player);
+                        dialog.find(".uniform input, .uniform, .uniform a, .time_picker_holder select").uniform();
 
-                            dialog.find('button.cancel').click(function() {
-                                dialog.dialog('close');
-                            });
-                            
-                            dialog.dialog({
-                                autoOpen: false,
-                                resizable: false,
-                                show: "fade",
-                                hide: "fade",
-                                modal: true,
-                                width: "500",
-                                show:{effect: "fade", duration: 500},
-                                hide:{effect: "fade", duration: 500},
-                                create: function(){
-                                    $( this ).dialog('option', 'dialogClass', 'no_dialog_titlebar');
-                                },
-                                open: function(){
-                                    setTimeout(columnHeight, 100);
+                        dialog.find('button.approve').click(function() {
+                            var val = dialog.find('input[name=collateral]').val();
+                            if (val == '')
+                                val = 0;
+                            else {
+                                val = parseInt(val);
+                                if (isNaN(val) || val < 0 || val > 500) {
+                                    alert('Invalid collateral.');
+                                    return false;
                                 }
-                            }).dialog('open');
+                            }
+                            if (acceptedDataTable.fnGetData().length >= vm.supportedPlayers()) {
+                                alert('You have reached your limit for supported players.');
+                                return false;
+                            }
+                            mtg.server.updatePlayer(draftId, player.TwitchUsername, true, val);
+                            dialog.dialog('close');
                         });
-                        console.log(event.target.parentNode);
+
+                        dialog.find('button.update').click(function() {
+                            var val = dialog.find('input[name=collateral]').val();
+                            if (val == '')
+                                val = 0;
+                            else {
+                                val = parseInt(val);
+                                if (isNaN(val) || val < 0 || val > 500) {
+                                    alert('Invalid collateral.');
+                                    return false;
+                                }
+                            }
+                            mtg.server.updatePlayer(draftId, player.TwitchUsername, $(dialog).find('input[name=approved]').is(':checked'), val);
+                            dialog.dialog('close');
+                            return false;
+                        });
+
+                        dialog.find('button.cancel').click(function() {
+                            dialog.dialog('close');
+                        });
+
+                        dialog.dialog({
+                            autoOpen: false,
+                            resizable: false,
+                            modal: true,
+                            width: "500",
+                            show: { effect: "fade", duration: 500 },
+                            hide: { effect: "fade", duration: 500 },
+                            create: function() {
+                                $(this).dialog('option', 'dialogClass', 'no_dialog_titlebar');
+                            },
+                            open: function() {
+                                setTimeout(columnHeight, 100);
+                            }
+                        }).dialog('open');
                     });
-                } );
-             //   </text>
+                    console.log(event.target.parentNode);
+                });
+            });
+            //   </text>
             //}
-            
-            // Reference the auto-generated proxy for the hub.  
-            var mtg = $.connection.cubeHub;
-
-            var draftId = @ViewContext.RouteData.Values["id"];
-            var readyCheckGuid = null;
-            // Create a function that the hub can call back to display messages.
-            /*mtg.client.addNewMessageToPage = function (name, message) {
-                // Add the message to the page. 
-                $('#discussion').append('<li><strong>' + htmlEncode(name) 
-                    + '</strong>: ' + htmlEncode(message) + '</li>');
-            };*/
-
-            function pad(n, width, z) {
-                z = z || '0';
-                n = n + '';
-                return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-            }
-
-            function thumbLink(card) {
-                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".thumb.jpg";
-            }
-
-            function fullLink(card) {
-                return "/Images/cards/" + card.CardSet.MagicCardsInfoSetShort + "/" + pad(card.MagicCardsInfoId, 3) + ".full.jpg";
-            }
 
             $('#dialog_readycheck button.green').click(function() {
                 mtg.server.readyCheck(readyCheckGuid, draftId, true);
@@ -503,291 +1020,113 @@
             $('#signup_button').click(function() {
                 mtg.server.signup(draftId).done(function(result) {
                     switch (result) {
-                        case 0:
-                            //Error
-                            alert("An error occurred signing up. Please refresh the page and try again");
-                            break;
-                        case 1:
-                            //Need to link mtgo username to twitch account
-                            $('#dialog_mtgolink').dialog('open');
-                            break;
-                        case 2:
-                            $('#dialog_mtgolink').dialog('open');
-                            $('#dialog_mtgolink input[name=mtgousername]').val('****');
-                            $('#dialog_mtgolink .wizard_steps ul li:nth-child(2) a').trigger('click');
-                            break;
+                    case 0:
+                        //Error
+                        alert("An error occurred signing up. Please refresh the page and try again");
+                        break;
+                    case 1:
+                        //Need to link mtgo username to twitch account
+                        $('#dialog_mtgolink').dialog('open');
+                        break;
+                    case 2:
+                        $('#dialog_mtgolink').dialog('open');
+                        //TODO: Fix this
+                        $('#dialog_mtgolink input[name=mtgousername]').val('****');
+                        $('#dialog_mtgolink .wizard_steps ul li:nth-child(2) a').trigger('click');
+                        break;
                     }
                 });
             });
 
-            $('#dialog_mtgolink #link_step_1 button').click(function() {
-                if (!$('#dialog_mtgolink .validate_form').valid())
-                    return;
+            var stepLinkMtgo = 1;
+            $('#dialog_mtgolink .step[data-step=\'1\'] button.next_step').data('next', function() {
+                if (stepLinkMtgo > 1)
+                    return true;
 
+                showLoadingOverlay();
                 mtg.server.linkUsername($('#dialog_mtgolink input[name=mtgousername]').val()).done(function(result) {
+                    hideLoadingOverlay();
                     console.log("linkUsername result = " + result);
                     switch (result) {
-                        case 0:
-                            alert("An unknown error occurred while signing up. Please refresh the page and try again.");
-                            break;
-                        case 1:
-                            //Unable to send message ingame
-                            alert("There was a problem sending the message to this user. Please make sure you are signed in. If this problem persists, please contact the webmaster.");
-                            break;
-                        case 2:
-                            $('#dialog_mtgolink form').validate().showErrors({
-                                mtgousername: "This username is already linked to another twitch user."
-                            });
-                            break;
-                        case 3:
-                            //Success
-                            $('#dialog_mtgolink .wizard_steps ul li:nth-child(2) a').trigger('click');
-                            break;
-                        }
+                    case 0:
+                        alert("An unknown error occurred while signing up. Please refresh the page and try again.");
+                        break;
+                    case 1:
+                        //Unable to send message ingame
+                        alert("There was a problem sending the message to this user. Please make sure you are signed in. If this problem persists, please contact the webmaster.");
+                        break;
+                    case 2:
+                        $('#dialog_mtgolink form').validate().showErrors({
+                            mtgousername: "This username is already linked to another twitch user."
+                        });
+                        break;
+                    case 3:
+                        stepLinkMtgo = 2;
+                        //Success
+                        $('#dialog_mtgolink .wizard_steps ul li:nth-child(2) a').trigger('click');
+                        break;
+                    }
                 });
+
+                return false;
             });
 
-            $('#dialog_mtgolink #link_step_2 button.next_step').click(function() {
-                if (!$('#dialog_mtgolink .validate_form').valid())
-                    return;
-                
+            $('#dialog_mtgolink .step[data-step=\'2\'] button.next_step').data('next', function() {
+                if (stepLinkMtgo > 2)
+                    return true;
+
                 mtg.server.confirmUsername($('#dialog_mtgolink input[name=confirmkey]').val()).done(function(result) {
                     console.log("confirmUsername result = " + result);
                     switch (result) {
-                        case 0:
-                            alert("An unknown error occurred while confirming your mtgo username. Please refresh the page and try again.");
-                            break;
-                        case 1:
-                            //Key is incorrect
-                            $('#dialog_mtgolink form').validate().showErrors({
-                                confirmkey: "Invalid Code"
-                            });
-                            break;
-                        case 2:
-                            //Trying more then 3 times within 5 minutes
-                            $('#dialog_mtgolink form').validate().showErrors({
-                                confirmkey: "Too many attempts. Please try again later."
-                            });
-                            break;
-                        case 3:   
-                            //MTGO already linked to another account
-                            $('#dialog_mtgolink form').validate().showErrors({
-                                confirmkey: "This mtgo account has already been linked to another account."
-                            });
-                            break;
-                        case 4:
-                            //Success
-                            $('#dialog_mtgolink .wizard_steps ul li:nth-child(3) a').trigger('click');
-                            break;
-                        }
+                    case 0:
+                        alert("An unknown error occurred while confirming your mtgo username. Please refresh the page and try again.");
+                        break;
+                    case 1:
+                        //Key is incorrect
+                        $('#dialog_mtgolink form').validate().showErrors({
+                            confirmkey: "Invalid Code"
+                        });
+                        break;
+                    case 2:
+                        //Trying more then 3 times within 5 minutes
+                        $('#dialog_mtgolink form').validate().showErrors({
+                            confirmkey: "Too many attempts. Please try again later."
+                        });
+                        break;
+                    case 3:
+                        //MTGO already linked to another account
+                        $('#dialog_mtgolink form').validate().showErrors({
+                            confirmkey: "This mtgo account has already been linked to another account."
+                        });
+                        break;
+                    case 4:
+                        //Success
+                        stepLinkMtgo = 3;
+                        $('#dialog_mtgolink .wizard_steps ul li:nth-child(3) a').trigger('click');
+                        break;
+                    }
+                });
+
+                return false;
+            });
+
+
+            $('#dialog_mtgolink .step[data-step=\'3\'] button.finish').bind('click', function() {
+                mtg.server.signup(draftId).done(function(result) {
+                    switch (result) {
+                    case 0:
+                    case 1:
+                    case 2:
+                        //Error
+                        alert("An error occurred signing up. Please refresh the page and try again");
+                        break;
+                    case 3:
+                        $('#dialog_mtgolink').dialog('close');
+                        break;
+                    }
                 });
             });
-            
-            mtg.client.readyCheck = function(guid) {
-                readyCheckGuid = guid;
-                var audio = new window.Audio("/Content/warning.wav");
-                audio.play();
-                $('#dialog_readycheck').dialog('open');
-            };
 
-            mtg.client.readyCheckUpdate = function() {
-
-            };
-
-            mtg.client.playerSignup = function(username) {
-                console.log("Signup from: " + username);
-                $.getJSON('https://api.twitch.tv/kraken/users/' + username + '?callback=?', null,
-                    function(data) {
-                        console.log(data);
-                        
-                        var image = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
-                        if (data.logo != null)
-                            image = data.logo.replace(/50x50/, '28x28');
-
-                        $('#pending_players').dataTable().fnAddData([
-                            $('<img alt="Player Image" />').attr('src', image).css({width: 28, height: 28})[0].outerHTML,
-                            data.display_name
-                        ]);
-                    }
-                );
-            };
-
-            mtg.client.playerApproved = function(player) {
-                console.log("Player approved");
-                console.log(player);
-                var image = null;
-                try {
-                    var rows = acceptedDataTable.fnGetNodes();
-                
-                    for (var i = 0; i < rows.length; i++) {
-                        if ($(rows[i]).find('td.username').text().toLowerCase() == player.MTGOUsername.MtgoUsername) {
-                            image = $(rows[i]).find('td.image').attr('src');
-                            dataTable.fnDeleteRow(rows[i]);
-                            break;
-                        }
-                    }
-                } catch(e) {
-
-                } 
-
-                if (image == null) {
-                    $.getJSON('https://api.twitch.tv/kraken/users/' + player.MTGOUsername.TwitchUsername + '?callback=?', null,
-                        function(data) {
-                            console.log(data);
-                        
-                            var image = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
-                            if (data.logo != null)
-                                image = data.logo.replace(/50x50/, '28x28');
-
-                            acceptedDataTable.fnAddData([
-                                $('<img alt="Player Image" />').attr('src', image).css({width: 28, height: 28})[0].outerHTML,
-                                player.MTGOUsername.TwitchUsername,
-                                player.MTGOUsername.MtgoUsername,
-                                "",
-                                "",
-                                ""
-                            ]);
-                        }
-                    );
-                } else {
-                    acceptedDataTable.fnAddData([
-                        $('<img alt="Player Image" />').attr('src', image).css({width: 28, height: 28})[0].outerHTML,
-                        player.MTGOUsername.TwitchUsername,
-                        player.MTGOUsername.MtgoUsername,
-                        "",
-                        "",
-                        ""
-                    ]);
-                }
-                
-            };
-
-            mtg.client.pendingSelection = function() {
-                window.href = "@Url.Action("Draft", Model.Id)";
-            };
-
-            mtg.client.addVote = function(pickId, card, username) {
-                console.log("Add Vote");
-                console.log({ pickId: pickId, card: card, username: username });
-                console.log(votes);
-
-                if (votes[pickId]) {
-                    if (!votes[pickId][card.Id]) {
-                        votes[pickId][card.Id] = {
-                            li: null,
-                            votes: 0
-                        };
-                    }
-                } else {
-                    votes[pickId] = {
-                        totalVotes: 0
-                    };
-                    votes[pickId][card.Id] = {
-                        li: null,
-                        votes: 0
-                    };
-                }
-
-                votes[pickId].totalVotes++;
-                votes[pickId][card.Id].votes++;
-
-                if (votes.currentVote == null || votes.currentVote != pickId) {
-                    return;
-                }
-
-                if (votes[pickId][card.Id].li != null) {
-                    /*$(votes[vote.Id].li).find('div.content table tbody').append(
-                        $('<tr />').append(
-                            $('<td />').text(username)
-                        )
-                    );*/
-                    votes[pickId][card.Id].li.find('span.vote').text(votes[pickId][card.Id].votes);
-                    //$('#votes').accordion('refresh');
-                } else {
-                    var li = $('<li />').append(
-                        $('<h3 class="bar" style="text-shadow: none" />').append(
-                            $('<span />').css('padding-left', 10).text(card.Name)
-                        ).append(
-                            $('<span class="vote" />').css({ 'padding-right': 10, 'float': 'right' }).text(votes[pickId][card.Id].votes)
-                        )
-                    )/*.append(
-                        $('<div class="content" />').append(
-                            $('<table class="static" />').append(
-                                $('<tbody />').append(
-                                    $('<tr />').append(
-                                        $('<td />').text(username)
-                                    )
-                                )
-                            )
-                        )
-                    )*/;
-
-                    $('#votes').isotope({
-                        getSortData: {
-                            votes: function($elem) {
-                                return parseInt($elem.data('votes'));
-                            }
-                        },
-                        sortBy: 'votes',
-                        sortAscending: false
-                    }).isotope('insert', li);
-                    //$('#votes').accordion('refresh');
-                    votes[pickId][card.Id].li = li;
-
-                    $(li).find('h3').progressbar({
-                        create: function() {
-                            $(this).find('div.ui-progressbar-value').removeClass('red yellow green');
-
-                            var value = this.getAttribute("aria-valuenow");
-                            if (value < 30) {
-                                $(this).find('div.ui-progressbar-value').addClass('red');
-                            } else if (value < 60) {
-                                $(this).find('div.ui-progressbar-value').addClass('yellow');
-                            } else {
-                                $(this).find('div.ui-progressbar-value').addClass('green');
-                            }
-                        },
-                        change: function() {
-                            $(this).find('div.ui-progressbar-value').removeClass('red yellow green');
-
-                            var value = this.getAttribute("aria-valuenow");
-                            if (value < 30) {
-                                $(this).find('div.ui-progressbar-value').addClass('red');
-                            } else if (value < 60) {
-                                $(this).find('div.ui-progressbar-value').addClass('yellow');
-                            } else {
-                                $(this).find('div.ui-progressbar-value').addClass('green');
-                            }
-                        },
-                        value: Math.floor(votes[pickId][card.Id].votes / votes[pickId].totalVotes * 100)
-                    });
-                }
-
-                $.each(votes[pickId], function(idx, vote) {
-                    if (!vote.li) return;
-                    $(vote.li).find('h3').progressbar('value', Math.floor(vote.votes / votes[pickId].totalVotes * 100));
-                    $(vote.li).data('votes', vote.votes);
-                });
-
-                $('#votes').isotope('reloadItems').isotope({ sortBy: 'votes' }).isotope('reLayout');
-                /*
-                var ul = $('#votes');
-                var li = ul.children('li');
-
-                li.sort(function(a, b) {
-                    return ( $(a).data('votes') < $(b).data('votes') ) ? 1 :
-                    ( $(a).data('votes') > $(b).data('votes') ) ? -1 : 0;
-                });
-                ul.append(li);
-                */
-
-                //<li><h3 class="bar">Blowfly Infestation</h3><div class="content" style="display: none" /></li>
-                //<li><h3 class="bar">Boon Reflection</h3><div class="content" style="display: none" /></li>
-            };
-
-            // Set initial focus to message input box.  
-            $('#tabs-pack1, #tabs-pack2, #tabs-pack3').find('ul').accordion('option', 'active', false);
-            
             // Start the connection.
             $.connection.hub.start().done(function() {
                 console.log(mtg.server);

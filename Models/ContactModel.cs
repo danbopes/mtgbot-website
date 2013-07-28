@@ -13,6 +13,9 @@ namespace MTGBotWebsite.Models
         [Display(Name = "E-mail")]
         public string Email { get; set; }
 
+        [Display(Name = "Stream Name")]
+        public string StreamName { get; set; }
+
         [Display(Name = "Subject")]
         public string Subject { get; set; }
 
