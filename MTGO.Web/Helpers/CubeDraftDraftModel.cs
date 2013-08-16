@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MTGO.Common.Models;
 
 namespace MTGO.Web.Helpers
 {

@@ -1,4 +1,6 @@
-﻿namespace MTGO.Web.App_Start
+﻿using System.Web.Optimization;
+
+namespace MTGO.Web.App_Start
 {
     public class BundleConfig
     {

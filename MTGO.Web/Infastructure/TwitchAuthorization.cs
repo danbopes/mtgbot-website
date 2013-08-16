@@ -12,6 +12,8 @@ using System.Text;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Security;
+using MTGO.Common.Models;
+using log4net;
 
 namespace MTGO.Web.Infastructure
 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using MTGO.Common.Models;
 
 namespace MTGO.Web.TournamentLibrary
 {

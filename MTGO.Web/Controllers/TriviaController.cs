@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using MTGO.Common.Models;
 using MTGO.Web.Helpers;
 using MTGO.Web.Infastructure;
 using MTGO.Web.Models;

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.ServiceModel;
+using MTGO.Common;
+using MTGO.Common.Models;
 using MTGO.Web.Hubs;
+using Microsoft.AspNet.SignalR;
 
 namespace MTGO.Web.TournamentLibrary
 {

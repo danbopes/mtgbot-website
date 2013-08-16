@@ -1,4 +1,6 @@
 ﻿using System;
+using MTGO.Common.Models;
+using System.Linq;
 
 namespace MTGO.Web.Helpers
 {

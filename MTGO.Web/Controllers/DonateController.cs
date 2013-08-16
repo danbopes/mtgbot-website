@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
+using MTGO.Common.Models;
 using MTGO.Web.Helpers;
 
 namespace MTGO.Web.Controllers

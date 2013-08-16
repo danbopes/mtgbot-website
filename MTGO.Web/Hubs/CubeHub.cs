@@ -10,6 +10,7 @@ using System.Web;
 using System.Web.Caching;
 using MTGO.Common;
 using MTGO.Common.Models;
+using MTGO.Common.TournamentLibrary;
 using MTGO.Web.Helpers;
 using MTGO.Web.Infastructure;
 using MTGO.Web.Services;

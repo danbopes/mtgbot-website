@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using System.Xml;
+using MTGO.Common.Models;
 using MTGO.Web.Helpers;
 using MTGO.Web.Infastructure;
 

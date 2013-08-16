@@ -1,9 +1,12 @@
 ﻿using System.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
+using MTGO.Common.Models;
 using MTGO.Web.Helpers;
 using MTGO.Web.Infastructure;
+using Microsoft.AspNet.SignalR;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace MTGO.Web.Hubs

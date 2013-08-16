@@ -172,7 +172,6 @@
     <Compile Include="Helpers\CubeDraftDraftModel.cs" />
     <Compile Include="Helpers\Email.cs" />
     <Compile Include="Helpers\LogParser.cs" />
-    <Compile Include="Helpers\MySql.cs" />
     <Compile Include="Helpers\Permutation.cs" />
     <Compile Include="Helpers\Pipe.cs" />
     <Compile Include="Helpers\PlayerUpdatedModel.cs" />
