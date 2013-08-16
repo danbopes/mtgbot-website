@@ -9,7 +9,6 @@
     <div class="block">
         @using (Html.BeginForm("Index", "Trivia", FormMethod.Post, new { @class = "validate_form" }))
         {
-            @Html.AntiForgeryToken()
             @Html.ValidationSummary(true)
             <h2 class="section">Trivia Game</h2>
             <div class="columns clearfix">

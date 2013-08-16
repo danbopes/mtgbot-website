@@ -9,13 +9,15 @@ namespace MTGBotWebsite.Helpers
     {
         public bool Success = true;
         public string Message = null;
+        public object Data { get; set; }
 
-        public static HubResponse SuccessResponse()
+        public static HubResponse SuccessResponse(object data = null)
         {
             return new HubResponse
                 {
                     Success = true,
-                    Message = null
+                    Message = null,
+                    Data = data
                 };
         }
 

@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Web;
 using System.Web.Mvc;
+using MTGBotWebsite.Infastructure;
 
 namespace MTGBotWebsite.Controllers
 {
     [HandleError]
     public class HomeController : Controller
     {
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public ActionResult Index()
         {
             return View();
@@ -19,8 +22,12 @@ namespace MTGBotWebsite.Controllers
             return View();
         }
 
-        public ActionResult Chat()
+        [TwitchAuthorize]
+        public ActionResult Test()
         {
+            log.Debug("Test();");
+            var userId = User.GetUserId();
+
             return View();
         }
 

@@ -9,7 +9,7 @@
     <div class="block">
         @using (Html.BeginForm("Bug", "Contact", FormMethod.Post, new { @class = "validate_form" }))
         {
-            @Html.AntiForgeryToken()
+            //@Html.AntiForgeryToken()
             @Html.ValidationSummary(true)
             <h2 class="section">So, you've found a bug?</h2>
             <fieldset class="label_top">

@@ -238,13 +238,13 @@
 
                 showLoadingOverlay();
                 mtg.server.createDraft($('input[name=tournament_name]').val(), parseInt($('select[name=round_limits]').val()), $('input[name=require_watchers]').is(":checked")).done(function(response) {
-                    //console.log(response);
-                    if (response.Error != undefined && response.Error != false) {
-                        alert(response.Error);
-                    } else if (response.Error == false && response.Username != null) {
-                        mtgBot = response.Username;
-                        draftId = response.DraftId;
-                        $('.mtgo_bot').text(response.Username);
+                    console.log(response);
+                    if (!response.Success) {
+                        alert(response.Message);
+                    } else {
+                        mtgBot = response.Data.Username;
+                        draftId = response.Data.DraftId;
+                        $('.mtgo_bot').text(response.Data.Username);
                         $('.wizard .step[data-step=\'1\'] button.next_step').trigger('click');
                     }
                     hideLoadingOverlay();

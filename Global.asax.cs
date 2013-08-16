@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using System.Web.Security;
 using System.Web.SessionState;
 using MTGBotWebsite.App_Start;
+using MTGBotWebsite.Infastructure;
+using MTGOLibrary.Models;
 using Microsoft.AspNet.SignalR;
 
 namespace MTGBotWebsite
@@ -47,22 +54,16 @@ namespace MTGBotWebsite
             // If the routeData isn't null then it's a SignalR request
             return routeData != null;
         }
-    }
 
-    public class CustomAuthorize : System.Web.Mvc.AuthorizeAttribute
-    {
-        protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
+        protected void Application_AuthenticateRequest(object sender, EventArgs e)
         {
-            /*if (!filterContext.HttpContext.User.Identity.IsAuthenticated)
-            {
-                base.HandleUnauthorizedRequest(filterContext);
-            }
-            else
-            {
-                filterContext.Result = new RedirectToRouteResult(new
-                RouteValueDictionary(new { controller = "Error", action = "AccessDenied" }));
-            }*/
-            throw new Exception("Testing");
+            TwitchAuthorization.TryAuth();
+        }
+
+        protected void Application_AuthorizeRequest(object sender, EventArgs e)
+        {
+            //if (!Context.User.IsAuthenticated())
+            //    TwitchAuthorization.RedirectToTwitch();
         }
     }
 }

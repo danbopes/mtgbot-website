@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Web;
 using MTGBotWebsite.Helpers;
+using MTGBotWebsite.Infastructure;
 using MTGOLibrary.Models;
 using Microsoft.AspNet.SignalR;
 using Microsoft.CSharp.RuntimeBinder;
@@ -13,6 +15,7 @@ namespace MTGBotWebsite.Hubs
     public class MtgHub : Hub
     {
         private readonly MainDbContext _db = new MainDbContext();
+        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public void ProxyMessage(dynamic message)
         {
@@ -61,9 +64,9 @@ namespace MTGBotWebsite.Hubs
                 if (message.Action != "start_draft")
                 {
                     if (mtgoDraftId > 0)
-                        draft = _db.Drafts.SingleOrDefault(d => d.DraftId == mtgoDraftId);
+                        draft = _db.Drafts.SingleOrDefault(d => d.DraftId == mtgoDraftId && d.BroadcasterId == broadcaster.Id);
                     else if (mtgoTournamentId > 0)
-                        draft = _db.Drafts.SingleOrDefault(d => d.TournamentId == mtgoTournamentId);
+                        draft = _db.Drafts.SingleOrDefault(d => d.TournamentId == mtgoTournamentId && d.BroadcasterId == broadcaster.Id);
 
                     if (draft == null)
                         throw new Exception(String.Format("Unable to find draft with draft_id='{0}'", mtgoDraftId));
@@ -72,6 +75,8 @@ namespace MTGBotWebsite.Hubs
                         draft.Id
                     ));
                 }
+
+                log.DebugFormat("Message from mtgo client broadcaster='{0}', mtgoDraftId='{1}', mtgoTournamentId='{2}', action='{3}'", broadcaster.Name, mtgoDraftId, mtgoTournamentId, message.Action);
 
                 switch ((string)message.Action)
                 {
@@ -124,7 +129,7 @@ namespace MTGBotWebsite.Hubs
                                     previousPicks.Add(new
                                         {
                                             PickId = previousPick.PickId,
-                                            Cards = _db.Cards.Where(c => previousPickCards.Contains(c.Id))
+                                            Cards = _db.Cards.Include("CardSet").Where(c => previousPickCards.Contains(c.Id)).ToArray()
                                         });
                                 }
                                 i += playerCount;
@@ -142,9 +147,14 @@ namespace MTGBotWebsite.Hubs
                             };
                             _db.DraftPicks.Add(draftPick);
 
-                            var cards = _db.Cards.Where(c => picks.Contains(c.Id));
+                            log.DebugFormat("Writing draft pick: {0}", draftPick);
+
+                            var cards = _db.Cards.Include("CardSet").Where(c => picks.Contains(c.Id)).ToArray();
 
                             _db.SaveChanges();
+
+                            log.DebugFormat("Calling pendingSelection: {0}, {1}, {2}, {3}, {4}, {5}", draftPick.Id, previousPicks, cards, draft.CurrentPack, dir, time);
+
                             clients.pendingSelection(
                                 draftPick.Id, previousPicks, cards, draft.CurrentPack, dir, time);
                         }
@@ -161,7 +171,7 @@ namespace MTGBotWebsite.Hubs
                                 _db.Entry(draftPick).State = EntityState.Modified;
                                 _db.SaveChanges();
                             }
-                            clients.draftSelection(_db.Cards.Find(pick), draft.CurrentPack);
+                            clients.draftSelection(_db.Cards.Include("CardSet").Single(p => p.Id == pick), draft.CurrentPack);
                         }
                         break;
                     case "draft_ended":
@@ -184,15 +194,21 @@ namespace MTGBotWebsite.Hubs
                         break;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                log.Error("Error on ProxyMessage: ", ex);
             }
         }
 
+        [AuthorizeClaim(MtgbotClaimTypes.Identifier)]
         public void SubscribeToDraft(int draftId)
         {
-            var draft = _db.Drafts.Find(draftId);
+            var draft = _db.Drafts
+                .Include("DraftPicks")
+                .Include("Broadcaster")
+                .Single(d => d.Id == draftId);
+
+            var user = _db.Users.Find(Context.User.GetUserId());
 
             int i = 0;
 
@@ -200,7 +216,7 @@ namespace MTGBotWebsite.Hubs
             {
                 i++;
 
-                Clients.Caller.draftSelection(_db.Cards.Find(pick.PickId), Math.Ceiling((double) i/15));
+                Clients.Caller.draftSelection(_db.Cards.Include("CardSet").Single(c => c.Id == pick.PickId), Math.Ceiling((double) i/15));
             }
 
             var lastPick = draft.DraftPicks.OrderByDescending(p => p.Id).FirstOrDefault();
@@ -208,7 +224,7 @@ namespace MTGBotWebsite.Hubs
             if (lastPick != null)
             {
                 var picks = lastPick.Picks.Split(',').Select(x => Convert.ToInt32(x)).ToArray();
-                var cards = _db.Cards.Where(c => picks.Contains(c.Id)).ToList();
+                var cards = _db.Cards.Include("CardSet").Where(c => picks.Contains(c.Id)).ToList();
                 var currentPick = 16 - picks.Length;
 
                 int playerCount = draft.Players.Split(',').Length;
@@ -228,7 +244,7 @@ namespace MTGBotWebsite.Hubs
                         previousPicks.Add(new
                             {
                                 PickId = previousPick.PickId,
-                                Cards = _db.Cards.Where(c => previousPickCards.Contains(c.Id))
+                                Cards = _db.Cards.Include("CardSet").Where(c => previousPickCards.Contains(c.Id))
                             });
                     }
                     i += playerCount;
@@ -241,7 +257,7 @@ namespace MTGBotWebsite.Hubs
 
             Groups.Add(Context.ConnectionId, string.Format("draft/{0}", draftId));
 
-            if (((string) HttpContext.Current.Session["user_name"]).ToLower() != draft.Broadcaster.Name.ToLower())
+            if (user.TwitchUsername.ToLower() != draft.Broadcaster.Name.ToLower())
                 return;
 
             Groups.Add(Context.ConnectionId, string.Format("broadcaster/{0}", draftId));
@@ -258,15 +274,17 @@ namespace MTGBotWebsite.Hubs
             {
                 Clients.Caller.draftCompleted();
             }
-    }
+        }
 
+        [AuthorizeClaim(MtgbotClaimTypes.Identifier)]
         public void SubmitVote(int draftId, int pickId, int cardId)
         {
             var draft = _db.Drafts.Find(draftId);
 
             if (draft == null) return;
 
-            var username = (string)HttpContext.Current.Session["user_name"];
+            var user = _db.Users.Find(Context.User.GetUserId());
+
             var pick = _db.DraftPicks.Find(pickId);
 
             if (pick == null) return;
@@ -274,9 +292,10 @@ namespace MTGBotWebsite.Hubs
             if (!pick.Picks.Split(',').Select(x => Convert.ToInt32(x)).Contains(cardId))
                 return;
 
+            //TODO: Change this to userId
             var vote =
                 _db.Votes.SingleOrDefault(
-                    v => v.DraftPickId == pickId && v.Username == username);
+                    v => v.DraftPickId == pickId && v.Username == user.TwitchUsername);
 
             Card previousCard = null;
             if (vote != null)
@@ -291,14 +310,14 @@ namespace MTGBotWebsite.Hubs
                 {
                     DraftPickId = pickId,
                     CardId = cardId,
-                    Username = username
+                    Username = user.TwitchUsername
                 });
             }
 
             _db.SaveChanges();
 
             Clients.Group(string.Format("broadcaster/{0}", draftId))
-                   .addVote(pickId, previousCard, _db.Cards.Find(cardId), username);
+                   .addVote(pickId, previousCard, _db.Cards.Include("CardSet").Single(c => c.Id == cardId), user.TwitchUsername);
 
 
             //For broadcasters, submit the pick

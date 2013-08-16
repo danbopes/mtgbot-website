@@ -1,4 +1,5 @@
 ﻿@using MTGOLibrary.Models
+@using MTGOLibrary
 @model MTGBotWebsite.Helpers.CubeDraftDraftModel
 
 @{
@@ -88,7 +89,45 @@
 
 <div class="box grid_16">
     <h2 class="box_head">Current Pick: <div data-bind="text: currentpick" style="display: inline;">&nbsp;</div>, Pack: <div data-bind="text: currentpack" style="display: inline;">&nbsp;</div></h2>
-    <div class="section block" data-bind="visible: !selections().length && !waiting().length" style="display: none; height: 141px;">
+    <div class="block lines" data-bind="visible: draftOver" style="display: none">
+		<div class="columns">
+			<div class="col_66">
+				<div class="col_50">
+					<div class="section">
+					    <h2>Your deck is on it's way!</h2>
+					    <p>Please be patient while cards make it out to you.</p>
+                        <img src="/Images/packbuilding.gif" alt="" />
+					</div>
+				</div>
+				<div class="col_50">
+					<div class="section">
+					    <p>While the bot packages and delivers cards, you can download your deck below with the green "Get Deck" button. When the bot open trades with you, simply click "Load Wish List" at the top to take the cards. This saves time, and makes the trading process a lot easier!</p>
+                        <img src="/Images/load_wish_list.jpg"/>
+					</div>
+				</div>
+			</div>
+			<div class="col_33 no_border_right">
+			    <div class="section" data-bind="visible: positionInQueue() != -1" style="display: none">
+			        <p data-bind="text: positionInQueueText"></p>
+			        <table class="static">
+			            <tbody data-bind="foreach: queue">
+			                <tr class="even">
+			                    <td data-bind="text: player.TwitchUsername"></td>
+			                    <td data-bind="text: $root.getStatusText(status)"></td>
+			                </tr>
+			            </tbody>
+			        </table>
+			    </div>
+			    <div class="section" style="text-align: center">
+			        <button class="green large large_icon has_text" data-bind="click: builtDeck" style="float: none;">
+						<img src="/Images/icons/large/white/blocks_images.png">
+						<span>I've built my deck</span>
+					</button>
+			    </div>
+			</div>
+		</div>
+    </div>
+    <div class="section block" data-bind="visible: !selections().length && !waiting().length && !draftOver()" style="display: none; height: 141px;">
         <h2><span data-bind="text: statusText"></span></h2>
     </div>
     <div data-bind="visible: waiting().length" class="section block" style="display: none">
@@ -100,7 +139,7 @@
     <div class="isotope_holder indented_area" style="margin: 0;" data-bind="foreach: selections">
         <div style="float: left; padding: 3px;">
             <img draggable="true" data-bind="attr: { src: fullLink($data), alt: Name }, event: {
-mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.addSelection
+mousemove: $root.enableDetails, mouseout: $root.disableDetails, click: $root.addSelection
                     , dragstart: function (data, event) {
                         event.originalEvent.dataTransfer.setData('Text', 'selections|' + data.Id);
                         return true;
@@ -121,7 +160,7 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
         <div data-bind="visible: draftOver" class="send_right" style="margin-right: 30px"><button class="green small has_text send_right" data-bind="click: downloadDeck">Get Deck</button></div>
     </h2>
     <div class="block">
-        <div class="section" style="min-height: 151px" data-bind="event: {
+        <div class="section" style="min-height: 151px; overflow-x: scroll;" data-bind="event: {
     dragover: function (data, event) { event.preventDefault(); },
     drop: function (data, event) {
                 var split = event.originalEvent.dataTransfer.getData('Text').split('|');
@@ -130,8 +169,8 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
         }">
             <table>
                 <tr class="cards" data-bind="foreach: columns">
-                    <td data-bind="foreach: $data, style: { height: (134 + 20 * $data.length) + 'px' }" style="width: 108px">
-                        <div style="padding: 0 2px 0 2px" data-bind="attr: { style: 'z-index: ' + $index() + '; position: absolute; margin-top: ' + $index() * 20 + 'px;' }, event: { /*mouseover: $root.enableDetails, mouseout: $root.disableDetails*/ }">
+                    <td data-bind="foreach: $data, style: { height: (134 + 20 * $data.length) + 'px' }" style="width: 108px; min-width: 108px; vertical-align: top">
+                        <div style="padding: 0 2px 0 2px;" data-bind="attr: { style: 'z-index: ' + $index() + '; ' + ($index() > 0 ? 'margin-top: -135px;' : '') }, event: { /*mouseover: $root.enableDetails, mouseout: $root.disableDetails*/ }">
                             <img data-bind="attr: { src: fullLink($data), alt: Name }, event: {
     dragstart: function(data, event) {
         event.originalEvent.dataTransfer.setData('Text', 'deck|' + data.Id);
@@ -158,7 +197,7 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
         $root.movePick(split[0], split[1], 'sideboard');
     }
 }">
-			<table>
+            <table>
                 <tr class="cards">
                     <td data-bind="foreach: sideboard, visible: sideboard().length > 0, style: { height: (134 + 20 * sideboard().length) + 'px' }">
                         <div data-bind="attr: { style: 'z-index: ' + $index() + '; position: absolute; margin-top: ' + $index()*20 + 'px;' }, event: {/* mouseover: enableDetails, mouseout: disableDetails*/ }">
@@ -194,6 +233,12 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
             function draftViewModel() {
                 var self = this;
                 var draftId = @Model.CubeDraft.Id;
+                var botName = "@Model.CubeDraft.BotName";
+
+                var cardPreview = $('<div/>').css({ position: 'absolute', 'z-index': 50 });
+                cardPreview.append($('<img/>').css('display', 'none'));
+                $('body').append(cardPreview);
+
                 self.packSize = ko.observable(15);
                 self.totalPicks = ko.observable(45);
                 self.timed = ko.observable(@Model.CubeDraft.Timed.ToString().ToLower());
@@ -201,11 +246,92 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
                 self.players = ko.observableArray(@Html.Raw(Json.Encode(Model.CubeDraft.CubeDraftPlayers.Where(p => p.Confirmed).Select(p => new
                                                       {
                                                           p.Id,
-                                                          p.MTGOUsername.TwitchUsername,
-                                                          p.MTGOUsername.MtgoUsername,
+                                                          p.MtgoLink.User.TwitchUsername,
+                                                          p.MtgoLink.MtgoUsername,
                                                           p.Position
                                                       }))));
+                var myPlayerId = @Model.PlayerId;
 
+                self.queue = ko.observableArray([]);
+
+                var numAddSuffix = function(i) {
+                    var j = i % 10;
+                    if (j == 1 && i != 11) {
+                        return i + "st";
+                    }
+                    if (j == 2 && i != 12) {
+                        return i + "nd";
+                    }
+                    if (j == 3 && i != 13) {
+                        return i + "rd";
+                    }
+                    return i + "th";
+                };
+
+                self.getStatusText = function(number) {
+                    switch (number) {
+                    case @((int)QueueStatus.Recieved):
+                        return "Recieved";
+                    case @((int)QueueStatus.Skipped):
+                        return "Skipped";
+                    case @((int)QueueStatus.Trading):
+                        return "Trading";
+                    case @((int)QueueStatus.Waiting):
+                        return "Waiting";
+                    }
+                    return "Unknown";
+                };
+
+                self.myQueueStatus = ko.computed(function() {
+                    var me = ko.utils.arrayFilter(self.queue(), function(player) {
+                        return player.player.Id == myPlayerId;
+                    })[0];
+                        
+                    return me ? me.status : -1;
+                });
+
+                self.positionInQueue = ko.computed(function() {
+                    var me = ko.utils.arrayFilter(self.queue(), function(player) {
+                        return player.player.Id == myPlayerId;
+                    })[0];
+
+                    var idx = self.queue.indexOf(me);
+                    
+                    if (idx > -1) {
+                        if (me.status == @((int)QueueStatus.Skipped))
+                            return -2;
+
+                        if (me.status == @((int)QueueStatus.Recieved))
+                            return -3;
+                    }
+
+                    
+
+                    /*var currentQueue = ko.utils.arrayFilter(self.queue(), function(player) {
+                        return player.status != ((int)QueueStatus.Skipped);
+                    });*/
+
+                    return ko.utils.arrayFilter(self.queue(), function(player) {
+                        return player.status != @((int)QueueStatus.Skipped) && player.status != @((int)QueueStatus.Recieved);
+                    }).indexOf(me);
+                });
+                
+                self.positionInQueueText = ko.computed(function() {
+                    var idx = self.positionInQueue();
+                    switch ( idx ) {
+                        case -3:
+                            return "You have recieved all your cards! When you are finished deck building, please hit the \"I've built my deck\" button below.";
+                        case -2:
+                            return "Whoops, it looks like you were skipped. (Most likely because you either declined the trade or didn't have the required collateral). Please wait until the bot runs through the queue and retrades with you.";
+                        case 0:
+                            return botName + " should be trading with you momentarily. Please be ready with your deck to make the trade as quickly as possible.";
+                        case 1:
+                            return "You are currently next. Please be ready with your deck to make the trade as quickly as possible.";
+                        default:
+                            return "You are currently " + numAddSuffix(idx) + " in the queue.";
+                    }
+                });
+                
 
                 self.waiting = ko.observableArray([]);
 
@@ -237,7 +363,7 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
 
                 self.dragsel = "init";
 
-                var timer, origz, origw;
+                var timer;
 
                 this.sortByColor = function() {
                     self.sortBy("color");
@@ -246,9 +372,9 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
                 this.sortByCost = function() {
                     self.sortBy("cost");
                 };
-                
+
                 this.statusText = ko.computed(function() {
-                    if ((self.deck().length+self.sideboard().length) % self.packSize() == 0) {
+                    if ((self.deck().length + self.sideboard().length) % self.packSize() == 0) {
                         return "Pick accepted. Waiting for all players to receive their last pick.";
                     }
                     return "Pick accepted. Waiting for adjacent player to pass your next booster.";
@@ -261,51 +387,52 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
                         //A bit more logic needs to go here;
                         self.selectPick('selections', data.Id);
                     }
-                    self.draftOver(self.deck().length + self.sideboard().length == 45);
                 };
 
                 this.movePick = function(from, pickId, where) {
                     //console.log([from, pickId, where]);
                     var obj = null;
                     switch (from) {
-                        case 'selections':
-                            obj = ko.utils.arrayFilter(self.selections(), function(card) {
-                                return card.Id == pickId;
-                            });
+                    case 'selections':
+                        obj = ko.utils.arrayFilter(self.selections(), function(card) {
+                            return card.Id == pickId;
+                        });
 
-                            if (obj.length == 0)
-                                return;
+                        if (obj.length == 0)
+                            return;
 
-                            obj = obj[0];
-                            obj.pickId = pickId;
-                            self.selections.removeAll();
+                        obj = obj[0];
+                        obj.pickId = pickId;
+                        self.selections.removeAll();
 
-                            console.log('Taking pick:');
-                            mtg.server.takePick(draftId, self.currentpick(), pickId);
-                            break;
-                        case 'deck':
-                            obj = ko.utils.arrayFilter(self.deck(), function(card) {
-                                return card.Id == pickId;
-                            });
-
-                            if (obj.length == 0)
-                                return;
-
-                            obj = obj[0];
-                            
-                            self.deck.remove(obj);
+                        console.log('Taking pick:');
+                        mtg.server.takePick(draftId, self.currentpick(), pickId).fail(function(e) {
+                            alert("An error occurred taking this pick. Try refreshing the page, and if danbopes is around, please take a screenshot of this error (If any follows): " + e);
+                        });
                         break;
-                        case 'sideboard':
-                            obj = ko.utils.arrayFilter(self.sideboard(), function(card) {
-                                return card.Id == pickId;
-                            });
+                    case 'deck':
+                        obj = ko.utils.arrayFilter(self.deck(), function(card) {
+                            return card.Id == pickId;
+                        });
 
-                            if (obj.length == 0)
-                                return;
-                            
-                            obj = obj[0];
+                        if (obj.length == 0)
+                            return;
 
-                            self.sideboard.remove(obj);
+                        obj = obj[0];
+
+                        self.deck.remove(obj);
+                        break;
+                    case 'sideboard':
+                        obj = ko.utils.arrayFilter(self.sideboard(), function(card) {
+                            return card.Id == pickId;
+                        });
+
+                        if (obj.length == 0)
+                            return;
+
+                        obj = obj[0];
+
+                        self.sideboard.remove(obj);
                         break;
                     }
 
@@ -317,6 +444,9 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
                     } else {
                         self.deck.push(obj);
                     }
+
+                    $(cardPreview).find('img').attr('src', '').css('display', 'none');
+                    self.draftOver(self.deck().length + self.sideboard().length == self.totalPicks());
                 };
 
                 this.columns = ko.computed(function() {
@@ -336,7 +466,7 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
                         }
                     } else if (desiredType == "color") {
                         //Match all the colors
-                        var colors = ['L', 'C', 'W', 'U', 'B', 'R', 'G'];
+                        var colors = ['L', 'C', 'A', 'W', 'U', 'B', 'R', 'G'];
 
                         $.each(colors, function(idx, color) {
                             rowCards = ko.utils.arrayFilter(cards, function(card) {
@@ -389,26 +519,46 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
                 };
 
                 this.enableDetails = function(item, event) {
-                    origz = $(event.target).css('z-index');
+                    /*origz = $(event.target).css('z-index');
                     origw = $(event.target).css('width');
                     $(event.target).css('position', 'absolute');
 
                     $(event.target).css('z-index', '1000');
-                    $(event.target).css('width', 'auto');
+                    $(event.target).css('width', 'auto');*/
+
+                    var img = $(cardPreview).find('img');
+
+                    img.attr('src', fullLink(item)).css('display', 'block');
+
+                    var left = event.pageX + 10;
+
+                    if (left + img.width() + 10 > $(window).width())
+                        left = $(window).width() - img.width() - 10;
+
+
+                    $(cardPreview).css({ top: event.pageY + 10, left: left });
+                    //console.log(event);
                 };
 
                 this.disableDetails = function(item, event) {
-                    $(event.target).css('width', origw);
+                    /*$(event.target).css('width', origw);
                     $(event.target).css('z-index', origz);
-                    $(event.target).css('position', 'static');
+                    $(event.target).css('position', 'static');*/
+                    $(cardPreview).find('img').attr('src', '').css('display', 'none');
                 };
-                
+
                 this.downloadDeck = function() {
                     /*var mysideboard = JSON.stringify(self.sideboard());*/
                     var sideboardIds = ko.utils.arrayMap(this.sideboard(), function(card) {
                         return card.Id;
                     });
                     $("body").append("<iframe src='" + "/CubeDraft/Deck/" + draftId + "?sideboard=" + sideboardIds.join(',') + "' style='display: none;' ></iframe>");
+                };
+
+                this.builtDeck = function() {
+                    mtg.server.builtDeck(draftId).done(function() {
+                        location.href = "/CubeDraft/View/" + draftId;
+                    });
                 };
 
                 //Let's attach to some events
@@ -437,6 +587,28 @@ mouseover: $root.enableDetails, mouseout: $root.disableDetails, click: $root.add
                 mtg.client.draftSelection = function(card, pickId) {
                     //TODO
                     console.log(card, pickId);
+                };
+
+                mtg.client.queueUpdate = function(queue) {
+                    self.queue.removeAll();
+                    console.log("Queue Update");
+                    console.log(queue);
+                    $.each(queue, function(idx, queueStatus) {
+                        var player = ko.utils.arrayFilter(self.players(), function(player) {
+                            return player.Id == queueStatus.PlayerId;
+                        })[0];
+                        
+                        self.queue.push({
+                            status: queueStatus.Status,
+                            player: player
+                        });
+                    });
+                    
+                    if (self.positionInQueue() == 0 && self.myQueueStatus() == @((int)QueueStatus.Trading) && window.webkitNotifications && window.webkitNotifications.checkPermission() == 0) {
+                        window.webkitNotifications.createNotification("/Images/logo-notification.png", "MTGBot.tv", botName + " should be trading you with your deck momentarily.").show();
+                    }
+
+                    console.log("My position in the queue: " + self.positionInQueue());
                 };
 
 

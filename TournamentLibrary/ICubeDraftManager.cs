@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MTGOLibrary.Models;
 
 namespace MTGBotWebsite.TournamentLibrary
 {
@@ -6,9 +7,9 @@ namespace MTGBotWebsite.TournamentLibrary
     {
         List<Drafter> Players { get; set; }
         void StartDraft();
-        void PlayerSubscribe(string username, string connectionId);
-        void PlayerUnSubscribe(string username, string connectionId);
+        void PlayerSubscribe(User username, string connectionId);
+        void PlayerUnSubscribe(User username, string connectionId);
         void Recover();
-        void Pick(string drafterName, int pickNumber, int pickId);
+        void Pick(int playerId, int pickNumber, int pickId);
     }
 }

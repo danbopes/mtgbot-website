@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web.Mvc;
 using MTGBotWebsite.Helpers;
+using MTGBotWebsite.Infastructure;
 using MTGOLibrary.Models;
 
 namespace MTGBotWebsite.Controllers
@@ -15,10 +16,9 @@ namespace MTGBotWebsite.Controllers
             return View(_db.Drafts.OrderByDescending(d => d.Id).Take(10).ToList());
         }
 
+        [TwitchAuthorize]
         public ActionResult Draft(int id = 0)
         {
-            Authorization.Authorize();
-
             var draft = _db.Drafts.Find(id);
 
             if (draft == null)

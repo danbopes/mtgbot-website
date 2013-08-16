@@ -1,10 +1,10 @@
 ﻿@using MTGOLibrary.Models
+@using MTGBotWebsite.Infastructure
 @model CubeDraft
 
 @{
     ViewBag.Title = "Cube Draft";
     ViewBag.Description = Model.Name;
-    ViewBag.IsBroadcaster = Model.Broadcaster.Name.ToLower() == ((string) Session["user_name"]).ToLower();
 }
 
 <style type="text/css">
@@ -99,7 +99,7 @@
 	<div class="toggle_container">
 	    <div id="tabs-players" class="container_16 clearfix" style="display: none">
 	        <div class="box grid_8" style="opacity: 1;">
-	            <h2 class="box_head grad_green">Players &nbsp;Accepted &nbsp;(Max #<span id="max_players">@Math.Floor((double)Model.CubeDraftCards.Count/45))</span></h2>
+	            <h2 class="box_head grad_green">Players &nbsp;Accepted &nbsp;(Max #<span data-bind="text: supportedPlayers"></span>)</h2>
 	            <div class="controls">
 	                <a href="#" class="grabber"></a>
 	            </div>
@@ -119,14 +119,14 @@
 	                    <tbody></tbody>
 	                </table>
 	            </div>
-	            <div class="button_bar clearfix" data-bind="visible: isBroadcaster">
+	            <div class="button_bar clearfix" data-bind="visible: isBroadcaster" style="display: none">
 	                <button class="red text_only has_text send_right" data-bind="click: endTournament, visible: status() == @((int)CubeDraftStatus.InMatches)">
 	                    <span>End Tournament</span>
 	                </button>
 	                <button class="green text_only has_text send_right" data-bind="click: pairNextRound, visible: status() == @((int)CubeDraftStatus.InMatches)">
 	                    <span>Pair Next Round</span>
 	                </button>
-	                <button class="text_only has_text send_right" data-bind="click: startDraft, css: { red: acceptedPlayers().length < 2, green: acceptedPlayers().length > 1 }, visible: status() == @((int)CubeDraftStatus.PreStart)">
+	                <button class="text_only has_text send_right" data-bind="click: startDraft, enable: acceptedPlayers().length > 1, css: { red: acceptedPlayers().length < 2, green: acceptedPlayers().length > 1 }, visible: status() == @((int)CubeDraftStatus.PreStart)">
 	                    <span>Start Draft</span>
 	                </button>
 	                <button class="green text_only has_text send_right" data-bind="click: performReadyCheck">
@@ -152,8 +152,11 @@
 	                </table>
 	            </div>
 	            <div class="button_bar clearfix">
-	                <button class="green text_only has_text send_right" id="signup_button">
+	                <button class="green text_only has_text send_right" data-bind="visible: !isPlayer(), click: signUp">
 	                    <span>Signup for this Draft</span>
+	                </button>
+	                <button class="green text_only has_text send_right" data-bind="visible: isBroadcaster, click: approveRandom" style="display: none">
+	                    <span>Choose a Random Player</span>
 	                </button>
 	            </div>
 	        </div>
@@ -161,7 +164,7 @@
 		<div id="tabs-cards" style="opacity: 1;">
 		    <div class="box grid_16">
 		        <h2 class="box_head">
-		            Cards:&nbsp; <div data-bind="text: cards().length" style="display: inline;">&nbsp;</div>&nbsp;&nbsp;&nbsp; (Supported Players:&nbsp; <div data-bind="    text: supportedPlayers()" style="display: inline;">&nbsp;</div>)
+		            Cards:&nbsp; <div data-bind="text: cards().length" style="display: inline;">&nbsp;</div>&nbsp;&nbsp;&nbsp; (Supported Players:&nbsp; <div data-bind="text: supportedPlayers()" style="display: inline;">&nbsp;</div>)
 		            <button class="light small has_text send_right" data-bind="click: sortByCost">Cost</button>
 		            <button class="light small has_text send_right" data-bind="click: sortByColor">Color</button>
 		            <div class="send_right">Sort By: &nbsp;</div>
@@ -481,6 +484,7 @@
                 bRetrieve: true,
                 bFilter: false,
                 bLengthChange: false,
+                aaSorting: [[1, 'asc']],
                 aoColumns: [
                     {
                         sClass: 'image',
@@ -517,6 +521,7 @@
                 bFilter: false,
                 bLengthChange: false,
                 bPaginate: false,
+                aaSorting: [[1, 'asc']],
                 aoColumns: [
                     {
                         sClass: 'image',
@@ -547,22 +552,19 @@
                         }
                     }, {
                         mData: function(obj) {
-                            switch (obj.tradeStatus) {
-                            case "trading":
+                            if ( obj.tradeStatus )
                                 return '<div class="ui-icon ui-icon-transferthick-e-w" title="Currently trading with this player"></div>';
-                            //case "receiving":
-                            //    return '<div class="ui-icon ui-icon-arrowreturnthick-1-e" title="Currently receiving cards"></div>';
-                            }
-
+                            
                             return '';
                         }
                     }, {
                         mData: function(obj) {
                             switch (obj.collectionStatus) {
-                            case "recieved":
+                            case "full":
                                 return '<img src="/Images/icons/small/white/blocks_images.png" title="This player currently has his full deck">';
+                            case "partial":
+                                return '<img src="/Images/icons/small/white/blocks_images_partial.png" title="This player currently has his some cards">';
                             }
-
                             return '';
                         }
                     }
@@ -587,7 +589,7 @@
                 this.acceptedPlayers = ko.observableArray([]);
                 this.status = ko.observable(@((int) Model.Status));
                 this.isBroadcaster = ko.observable(@ViewBag.IsBroadcaster.ToString().ToLower());
-                this.myUsername = "@Session["user_name"]";
+                this.myUserid = @Context.User.GetUserId();
                 this.readyCheck = null;
                 this.currentRound = ko.observable(0);
                 this.pairings = ko.observableArray([]);
@@ -599,7 +601,13 @@
 
                 this.isApprovedPlayer = ko.computed(function() {
                     return ko.utils.arrayFilter(self.acceptedPlayers(), function(player) {
-                        return player.twitchUsername == self.myUsername;
+                        return player.userId == self.myUserid;
+                    }).length > 0;
+                });
+
+                this.isPlayer = ko.computed(function() {
+                    return self.isApprovedPlayer() || ko.utils.arrayFilter(self.pendingPlayers(), function(player) {
+                        return player.userId == self.myUserid;
                     }).length > 0;
                 });
 
@@ -613,8 +621,9 @@
                     case @((int) CubeDraftStatus.ProductHandOut):
                         return "Product Handout";
                     case @((int) CubeDraftStatus.InMatches):
-                        return "Deck Construction/In Matches";
+                        return self.currentRound() > 0 ? "In Matches" : "Deck Construction";
                     case @((int) CubeDraftStatus.ProductHandIn):
+                        return "Product Handin";
                     case @((int) CubeDraftStatus.Completed):
                         return "Completed";
                     }
@@ -685,267 +694,14 @@
                     $(event.target).parent().css('z-index', origz);
                 };
 
-                this.performReadyCheck = function() {
-                    console.log("Performing Readycheck");
-                    if (this.readyCheck != null) {
-                        alert("You are already running a readycheck. Please wait before you start another");
-                        return;
-                    }
-
-                    this.readyCheck = true;
-                    mtg.server.initReadyCheck(draftId).done(function(guid) {
-                        self.readyCheck = guid;
-                        var rows = acceptedDataTable.fnGetData();
-                        for (var i = 0; i < rows.length; i++) {
-                            rows[i].readyCheck = rows[i].twitchUsername == self.myUsername ? "ready" : "pending";
-                            acceptedDataTable.fnUpdate(rows[i], i);
-                        }
-                    });
-
-                    setTimeout(function() {
-                        self.readyCheck = null;
-                        var rows = acceptedDataTable.fnGetData();
-                        for (var i = 0; i < rows.length; i++) {
-                            if (rows[i].readyCheck == "pending") {
-                                rows[i].readyCheck = "notready";
-                                acceptedDataTable.fnUpdate(rows[i], i);
-                            }
-                        }
-                    }, 30000);
-                };
-
-                this.startDraft = function() {
-                    console.log("Start Draft");
-                    mtg.server.startDraft(draftId).done(function(success) {
-                        if (!success)
-                            alert("An error occurred starting the draft. Please refresh and try again.");
-                        else if (self.isApprovedPlayer())
-                            location.href = '@Url.Action("Draft")/' + draftId;
-                        else
-                            self.status = @((int) CubeDraftStatus.Drafting);
-                    });
-                };
-
-                this.pairNextRound = function() {
-                    console.log("Pair Next Round");
-                    mtg.server.pairNextRound(draftId).done(function(status) {
-                        if (status.Success) {
-                            alert("The next round was sucessfully paired.");
-                        } else {
-                            alert(status.Message);
-                        }
-                    });
-                };
-                
-                this.endTournament = function() {
-                    if (confirm('Are you sure you wish to end this tournament?')) {
-                        mtg.server.endTournament(draftId).done(function(status) {
-                            if (status.Success) {
-                                alert("The tournament has successfully ended. Players should open trade with the bot, and start handing in their collection.");
-                            } else {
-                                alert(status.Message);
-                            }
-                        });
-                    }
-                }
-
-                mtg.client.draftStarted = function() {
-                    if (self.isApprovedPlayer())
-                        location.href = '@Url.Action("Draft")/' + draftId;
-                    else
-                        self.status = @((int) CubeDraftStatus.Drafting);
-                };
-
-                mtg.client.newPairings = function(round, pairings) {
-                    console.log(pairings);
-                    self.currentRound(round);
-                    self.pairings(pairings);
-                };
-
-                mtg.client.newStandings = function(standings) {
-                    self.standings(standings);
-                };
-
-                mtg.client.matchUpdate = function(match) {
-                    console.log(match);
-
-                    self.pairings.remove(function(pairing) {
-                        return pairing.Round == match.Round && comparePlayers(pairing.Player1, match.Player1) && comparePlayers(pairing.Player2, match.Player2);
-                    });
-                    
-                    self.pairings.push(match);
-                };
-
-                /*
-                 * Ready check functions
-                 */
-                mtg.client.readyCheck = function(guid) {
-                    readyCheckGuid = guid;
-                    $('<audio/>').attr('src', '/Content/warning.mp3').attr('autoplay', 'autoplay')[0].play();
-                    $('#dialog_readycheck').dialog('open');
-
-                    //After 30 seconds they are away
-                    setTimeout(function() {
-                        $('#dialog_readycheck').dialog('close');
-                    }, 30000);
-                };
-
-                mtg.client.readyCheckUpdate = function(guid, user, ready) {
-                    if (self.readyCheck != guid)
-                        return;
-
-                    var rows = acceptedDataTable.fnGetData();
-                    var finished = true;
-                    for (var i = 0; i < rows.length; i++) {
-                        console.log(rows[i].twitchUsername + " == " + rows[i].twitchUsername);
-                        if (rows[i].twitchUsername == user) {
-                            rows[i].readyCheck = ready ? "ready" : "notready";
-                            acceptedDataTable.fnUpdate(rows[i], i);
-                        }
-
-                        if (rows[i].readyCheck == "pending")
-                            finished = false;
-                    }
-
-                    if (finished)
-                        self.readyCheck = null;
-                };
-
-                //Subscribe to server events
-                mtg.client.addedCards = function(cards) {
-                    var selfCards = self.cards();
-                    $.each(cards, function(idx, card) {
-                        selfCards.push(card);
-                    });
-
-                    self.cards(selfCards);
-                };
-
-                mtg.client.statusUpdate = function(newStatus) {
-                    self.status(newStatus);
-                };
-
-                mtg.client.startedDraft = function() {
-                    if (self.isApprovedPlayer())
-                        location.href = '@Url.Action("Draft")/' + draftId;
-                };
-
-                mtg.client.playerUpdated = function(player) {
-                    console.log("Player updated");
-                    console.log(player);
-
-                    //Let's get some permission to send notifications if they've been accepted
-                    //let them know their draft is starting
-                    if (player.twitchUsername == self.myUsername && player.Confirmed) {
-                        try {
-                            if (window.webkitNotifications.checkPermission() == 0) {
-                                window.webkitNotifications.requestPermission();
-                            }
-                        } catch(e) {
-                        }
-                    }
-
-                    var obj = null;
-                    try {
-                        var rows = pendingDataTable.fnGetData();
-
-                        for (var i = 0; i < rows.length; i++) {
-                            if (rows[i].twitchUsername == player.MTGOUsername.TwitchUsername) {
-                                obj = rows[i];
-                                pendingDataTable.fnDeleteRow(i);
-                                break;
-                            }
-                        }
-
-                        if (obj == null) {
-                            rows = acceptedDataTable.fnGetData();
-                            for (i = 0; i < rows.length; i++) {
-                                if (rows[i].twitchUsername == player.MTGOUsername.TwitchUsername) {
-                                    obj = rows[i];
-                                    acceptedDataTable.fnDeleteRow(i);
-                                    break;
-                                }
-                            }
-                        }
-                    } catch(e) {
-
-                    }
-
-                    self.pendingPlayers.remove(function(item) {
-                        return item.twitchUsername == player.MTGOUsername.TwitchUsername;
-                    });
-
-                    self.acceptedPlayers.remove(function(item) {
-                        return item.twitchUsername == player.MTGOUsername.TwitchUsername;
-                    });
-
-                    if (obj == null) {
-                        $.getJSON('https://api.twitch.tv/kraken/users/' + player.MTGOUsername.TwitchUsername + '?callback=?', null,
-                            function(data) {
-                                var smallImage = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
-                                var largeImage = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
-
-                                if (data.logo != null) {
-                                    smallImage = data.logo.replace(/50x50/, '28x28');
-                                    largeImage = data.logo;
-                                }
-
-                                var newPlayer = {
-                                    twitchUsername: player.MTGOUsername.TwitchUsername,
-                                    mtgoUsername: player.MTGOUsername.MtgoUsername,
-                                    collateral: player.RequireCollateral,
-                                    displayName: data.display_name,
-                                    smallImage: smallImage,
-                                    largeImage: largeImage,
-                                    collectionStatus: player.HasDeck ? "recieved" : false
-                                };
-
-                                if (player.Confirmed) {
-                                    self.acceptedPlayers.push(newPlayer);
-                                    acceptedDataTable.fnAddData(newPlayer);
-                                } else {
-                                    self.pendingPlayers.push(newPlayer);
-                                    pendingDataTable.fnAddData(newPlayer);
-                                }
-                            }
-                        );
-                    } else {
-                        obj.mtgoUsername = player.MTGOUsername.MtgoUsername;
-                        obj.collateral = player.RequireCollateral;
-                        obj.collectionStatus = player.HasDeck ? "recieved" : false;
-
-                        if (player.Confirmed) {
-                            self.acceptedPlayers.push(obj);
-                            acceptedDataTable.fnAddData(obj);
-
-                        } else {
-                            self.pendingPlayers.push(obj);
-                            pendingDataTable.fnAddData(obj);
-                        }
-                    }
-                };
-            };
-
-            window.vm = new viewModel();
-            ko.applyBindings(vm);
-
-            //if(ViewBag.IsBroadcaster) {
-            //    <text>
-            $(document).ready(function() {
-                /* Add a click handler to the rows - this could be used as a callback */
-                $("#pending_players tbody, #accepted_players tbody").click(function(event) {
-                    var data = $(event.target).parents('table').dataTable().fnGetData($(event.target).parents('tr')[0]);
-
+                var approvePlayer = function(data) {
                     if (!data)
                         return;
 
                     showLoadingOverlay();
-                    console.log('getPlayerInfo(' + draftId + ', ' + data.twitchUsername + ')');
-                    mtg.server.getPlayerInfo(draftId, data.twitchUsername).done(function(player) {
+                    mtg.server.getPlayerInfo(draftId, data.id).done(function(player) {
                         hideLoadingOverlay();
-                        console.log('getPlayerInfo() done');
-                        console.log(player);
-                        player.Image = $(event.target.parentNode).find('td.image img').attr('src').replace(/28x28/, '50x50');
+                        player.Image = data.largeImage;
                         var dialog = $('#user_dialog').tmpl(player);
                         dialog.find(".uniform input, .uniform, .uniform a, .time_picker_holder select").uniform();
 
@@ -964,7 +720,7 @@
                                 alert('You have reached your limit for supported players.');
                                 return false;
                             }
-                            mtg.server.updatePlayer(draftId, player.TwitchUsername, true, val);
+                            mtg.server.updatePlayer(draftId, player.Id, true, val);
                             dialog.dialog('close');
                         });
 
@@ -979,7 +735,7 @@
                                     return false;
                                 }
                             }
-                            mtg.server.updatePlayer(draftId, player.TwitchUsername, $(dialog).find('input[name=approved]').is(':checked'), val);
+                            mtg.server.updatePlayer(draftId, player.Id, $(dialog).find('input[name=approved]').is(':checked'), val);
                             dialog.dialog('close');
                             return false;
                         });
@@ -1003,40 +759,338 @@
                             }
                         }).dialog('open');
                     });
-                    console.log(event.target.parentNode);
-                });
-            });
-            //   </text>
-            //}
+                };
 
-            $('#dialog_readycheck button.green').click(function() {
-                mtg.server.readyCheck(readyCheckGuid, draftId, true);
-            });
+                /* Add a click handler to the rows - this could be used as a callback */
+                if (this.isBroadcaster()) {
+                    $("#pending_players tbody, #accepted_players tbody").click(function(event) {
+                        var data = $(event.target).parents('table').dataTable().fnGetData($(event.target).parents('tr')[0]);
+                        approvePlayer(data);
+                    });
+                }
 
-            $('#dialog_readycheck button.red').click(function() {
-                mtg.server.readyCheck(readyCheckGuid, draftId, false);
-            });
-
-            $('#signup_button').click(function() {
-                mtg.server.signup(draftId).done(function(result) {
-                    switch (result) {
-                    case 0:
-                        //Error
-                        alert("An error occurred signing up. Please refresh the page and try again");
-                        break;
-                    case 1:
-                        //Need to link mtgo username to twitch account
-                        $('#dialog_mtgolink').dialog('open');
-                        break;
-                    case 2:
-                        $('#dialog_mtgolink').dialog('open');
-                        //TODO: Fix this
-                        $('#dialog_mtgolink input[name=mtgousername]').val('****');
-                        $('#dialog_mtgolink .wizard_steps ul li:nth-child(2) a').trigger('click');
-                        break;
+                this.signUp = function() {
+                    try {
+                        if (window.webkitNotifications.checkPermission() == 1) {
+                            console.log("Requesting Permission to Send Notifications");
+                            window.webkitNotifications.requestPermission();
+                        }
+                    } catch(e) {
                     }
+                    mtg.server.signup(draftId).done(function(result) {
+                        switch (result) {
+                        case 0:
+                            //Error
+                            alert("An error occurred signing up. Please refresh the page and try again");
+                            break;
+                        case 1:
+                            //Need to link mtgo username to twitch account
+                            $('#dialog_mtgolink').dialog('open');
+                            break;
+                        case 2:
+                            $('#dialog_mtgolink').dialog('open');
+                            //TODO: Fix this
+                            $('#dialog_mtgolink input[name=mtgousername]').val('****');
+                            $('#dialog_mtgolink .wizard_steps ul li:nth-child(2) a').trigger('click');
+                            break;
+                        }
+                    });
+                };
+
+                this.approveRandom = function() {
+                    var data = pendingDataTable.fnGetData();
+
+                    if (!data || data.length <= 0)
+                        return;
+                    
+                    approvePlayer(data[Math.floor(Math.random() * data.length)]);
+                };
+
+                this.performReadyCheck = function() {
+                    console.log("Performing Readycheck");
+                    if (this.readyCheck != null) {
+                        alert("You are already running a readycheck. Please wait before you start another");
+                        return;
+                    }
+
+                    this.readyCheck = true;
+                    mtg.server.initReadyCheck(draftId).done(function(guid) {
+                        self.readyCheck = guid;
+                        var rows = acceptedDataTable.fnGetData();
+                        for (var i = 0; i < rows.length; i++) {
+                            rows[i].readyCheck = rows[i].userId == self.myUserid ? "ready" : "pending";
+                            acceptedDataTable.fnUpdate(rows[i], i);
+                        }
+
+                        setTimeout(function() {
+                            if (self.readyCheck != null && self.readyCheck != guid)
+                                return;
+                            
+                            self.readyCheck = null;
+                            var rows = acceptedDataTable.fnGetData();
+                            for (var i = 0; i < rows.length; i++) {
+                                if (rows[i].readyCheck == "pending") {
+                                    rows[i].readyCheck = "notready";
+                                    acceptedDataTable.fnUpdate(rows[i], i);
+                                }
+                            }
+                        }, 30000);
+                    });
+                };
+
+                this.startDraft = function() {
+                    console.log("Start Draft");
+                    mtg.server.startDraft(draftId).done(function(success) {
+                        if (!success)
+                            alert("An error occurred starting the draft. Please refresh and try again.");
+                        else if (self.isApprovedPlayer())
+                            location.href = '@Url.Action("Draft")/' + draftId;
+                        else
+                            self.status(@((int) CubeDraftStatus.Drafting));
+                    });
+                };
+
+                this.pairNextRound = function() {
+                    console.log("Pair Next Round");
+                    mtg.server.pairNextRound(draftId).done(function(status) {
+                        if (status.Success) {
+                            alert("The next round was sucessfully paired.");
+                        } else {
+                            alert(status.Message);
+                        }
+                    });
+                };
+
+                this.endTournament = function() {
+                    if (confirm('Are you sure you wish to end this tournament?')) {
+                        mtg.server.endTournament(draftId).done(function(status) {
+                            if (status.Success) {
+                                alert("The tournament has successfully ended. Players should open trade with the bot, and start handing in their collection.");
+                            } else {
+                                alert(status.Message);
+                            }
+                        });
+                    }
+                };
+
+                mtg.client.draftStarted = function() {
+                    if (self.isApprovedPlayer())
+                        location.href = '@Url.Action("Draft")/' + draftId;
+                    else
+                        self.status(@((int) CubeDraftStatus.Drafting));
+                };
+
+                mtg.client.newPairings = function(round, pairings) {
+                    self.currentRound(round);
+                    self.pairings(pairings);
+                };
+
+                mtg.client.newStandings = function(standings) {
+                    self.standings(standings);
+                };
+
+                mtg.client.matchUpdate = function(match) {
+                    console.log(match);
+
+                    self.pairings.remove(function(pairing) {
+                        return pairing.Round == match.Round && comparePlayers(pairing.Player1, match.Player1) && comparePlayers(pairing.Player2, match.Player2);
+                    });
+
+                    self.pairings.push(match);
+                };
+
+                /*
+                 * Ready check functions
+                 */
+                mtg.client.readyCheck = function(guid) {
+                    self.readyCheck = guid;
+                    console.log("ReadyCheck: " + self.readyCheck);
+                    var rows = acceptedDataTable.fnGetData();
+                    for (var i = 0; i < rows.length; i++) {
+                        rows[i].readyCheck = "pending";
+                        acceptedDataTable.fnUpdate(rows[i], i);
+                    }
+
+                    setTimeout(function() {
+                        if (self.readyCheck != null && self.readyCheck != guid)
+                            return;
+                        
+                        self.readyCheck = null;
+                        var rows = acceptedDataTable.fnGetData();
+                        for (var i = 0; i < rows.length; i++) {
+                            if (rows[i].readyCheck == "pending") {
+                                rows[i].readyCheck = "notready";
+                                acceptedDataTable.fnUpdate(rows[i], i);
+                            }
+                        }
+                    }, 30000);
+                    
+                    $('<audio/>').attr('src', '/Content/warning.mp3').attr('autoplay', 'autoplay')[0].play();
+                    $('#dialog_readycheck').dialog('open');
+
+                    //After 30 seconds they are away
+                    setTimeout(function() {
+                        if (self.readyCheck == guid)
+                            $('#dialog_readycheck').dialog('close');
+                    }, 30000);
+                };
+
+                mtg.client.readyCheckUpdate = function(guid, user, ready) {
+                    if (self.readyCheck != guid)
+                        return;
+
+                    var rows = acceptedDataTable.fnGetData();
+                    var finished = true;
+                    for (var i = 0; i < rows.length; i++) {
+                        if (rows[i].id == user) {
+                            rows[i].readyCheck = ready ? "ready" : "notready";
+                            acceptedDataTable.fnUpdate(rows[i], i);
+                        }
+
+                        if (rows[i].readyCheck == "pending")
+                            finished = false;
+                    }
+
+                    if (finished)
+                        self.readyCheck = null;
+                };
+                
+                $('#dialog_readycheck button.green').click(function() {
+                    mtg.server.readyCheck(self.readyCheck, draftId, true);
                 });
-            });
+
+                $('#dialog_readycheck button.red').click(function() {
+                    mtg.server.readyCheck(self.readyCheck, draftId, false);
+                });
+
+                //Subscribe to server events
+                mtg.client.addedCards = function(cards) {
+                    var selfCards = self.cards();
+                    $.each(cards, function(idx, card) {
+                        selfCards.push(card);
+                    });
+
+                    self.cards(selfCards);
+                };
+
+                mtg.client.statusUpdate = function(newStatus) {
+                    self.status(newStatus);
+                };
+
+                mtg.client.startedDraft = function() {
+                    if (self.isApprovedPlayer())
+                        location.href = '@Url.Action("Draft")/' + draftId;
+                };
+
+                mtg.client.allDecksBuilt = function() {
+                    if (window.webkitNotifications && window.webkitNotifications.checkPermission() == 0) {
+                        window.webkitNotifications.createNotification("/Images/logo-notification.png", "MTGBot.tv", "All players have reported ready for deck building.").show();
+                    } else {
+                        alert("All players have reported ready for deck building.");
+                    }
+                };
+
+                mtg.client.playerUpdated = function(player) {
+                    console.log("Player updated");
+                    console.log(player);
+
+                    var obj = null;
+                    try {
+                        var rows = pendingDataTable.fnGetData();
+                        console.log(rows);
+
+                        for (var i = 0; i < rows.length; i++) {
+                            if (rows[i].id == player.Id) {
+                                obj = rows[i];
+                                pendingDataTable.fnDeleteRow(i);
+                                break;
+                            }
+                        }
+
+                        if (obj == null) {
+                            rows = acceptedDataTable.fnGetData();
+                            console.log(rows);
+                            for (i = 0; i < rows.length; i++) {
+                                if (rows[i].id == player.Id) {
+                                    obj = rows[i];
+                                    acceptedDataTable.fnDeleteRow(i);
+                                    break;
+                                }
+                            }
+                        }
+                    } catch(e) {
+
+                    }
+
+                    self.pendingPlayers.remove(function(item) {
+                        return item.id == player.Id;
+                    });
+
+                    self.acceptedPlayers.remove(function(item) {
+                        return item.id == player.Id;
+                    });
+
+                    if (obj == null) {
+                        $.getJSON('https://api.twitch.tv/kraken/users/' + player.Username + '?callback=?', null,
+                            function(data) {
+                                var smallImage = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
+                                var largeImage = 'http://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_50x50.png';
+
+                                if (data.logo != null) {
+                                    smallImage = data.logo.replace(/50x50/, '28x28');
+                                    largeImage = data.logo;
+                                }
+
+                                var newPlayer = {
+                                    id: player.Id,
+                                    userId: player.UserId,
+                                    username: player.Username,
+                                    mtgoUsername: player.MtgoUsername,
+                                    collateral: player.RequireCollateral,
+                                    displayName: data.display_name,
+                                    smallImage: smallImage,
+                                    largeImage: largeImage,
+                                    collectionStatus: player.DeckStatus,
+                                    tradeStatus: player.Trading
+                                };
+                                
+                                if ((self.status() == @((int) CubeDraftStatus.InMatches) || self.status() == @((int) CubeDraftStatus.ProductHandOut)) && self.pairings().length == 0 && self.isBroadcaster()) {
+                                    newPlayer.readyCheck = player.DeckBuilt ? "ready" : "notready";
+                                }
+
+                                if (player.Confirmed) {
+                                    self.acceptedPlayers.push(newPlayer);
+                                    acceptedDataTable.fnAddData(newPlayer);
+                                } else {
+                                    self.pendingPlayers.push(newPlayer);
+                                    pendingDataTable.fnAddData(newPlayer);
+                                }
+                            }
+                        );
+                    } else {
+                        obj.mtgoUsername = player.MtgoUsername;
+                        obj.collateral = player.RequireCollateral;
+                        obj.collectionStatus = player.DeckStatus;
+                        obj.tradeStatus = player.Trading;
+                        
+                        if ((self.status() == @((int) CubeDraftStatus.InMatches) || self.status() == @((int) CubeDraftStatus.ProductHandOut)) && self.pairings().length == 0 && self.isBroadcaster()) {
+                            obj.readyCheck = player.DeckBuilt ? "ready" : "notready";
+                        }
+
+                        if (player.Confirmed) {
+                            self.acceptedPlayers.push(obj);
+                            acceptedDataTable.fnAddData(obj);
+
+                        } else {
+                            self.pendingPlayers.push(obj);
+                            pendingDataTable.fnAddData(obj);
+                        }
+                    }
+                };
+            };
+
+            window.vm = new viewModel();
+            ko.applyBindings(vm);
 
             var stepLinkMtgo = 1;
             $('#dialog_mtgolink .step[data-step=\'1\'] button.next_step').data('next', function() {
@@ -1129,7 +1183,6 @@
 
             // Start the connection.
             $.connection.hub.start().done(function() {
-                console.log(mtg.server);
                 mtg.server.subscribeToDraft(@ViewContext.RouteData.Values["id"]);
 
                 /*$('#sendmessage').click(function () {

@@ -108,7 +108,7 @@
     </div>
 }
 
-@if (Model.Broadcaster.Name.ToLower() == ((string)Session["user_name"]).ToLower())
+@if (Model.Broadcaster.Name.ToLower() == Context.User.Identity.Name.ToLower())
 {
     <div class="box grid_4">
         <h2 class="box_head">Current Votes</h2>

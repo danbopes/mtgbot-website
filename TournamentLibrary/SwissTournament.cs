@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MTGBotWebsite.Helpers;
 using MTGOLibrary;
 using MTGOLibrary.TournamentLibrary;
 
@@ -16,6 +17,9 @@ namespace MTGBotWebsite.TournamentLibrary
         public TournPlayerArray Players { get; internal set; }
         public int CurrentRound { get; internal set; }
         public TournMatchArray Matches = new TournMatchArray();
+        private List<TournMatch> _pairings;
+        private int _nextRound;
+        private List<ITournPlayer> _tempPlayers;
 
         public bool OutstandingMatches { get { return Matches.GetByRound(CurrentRound).Any(m => !m.ReportedResult); } }
 
@@ -36,13 +40,23 @@ namespace MTGBotWebsite.TournamentLibrary
             Matches.AddMatch(match);
             CurrentRound = Matches.Count == 0 ? 0 : Matches.Max(m => m.Round);
         }
-
-        public void UpdateMatch(TournMatch matchToUpdate)
+        
+        public TournMatch UpdateMatch(int round, int player1Id, int player2Id, int currentGame, int player1Wins, int player2Wins, int ties)
         {
-            var match = Matches.FindIndex(matchToUpdate.Equals);
+            var player1 = Players.Single(c => c.PlayerId == player1Id);
+            var player2 = Players.Single(c => c.PlayerId == player2Id);
+            var match = Matches.FirstOrDefault(m => m.Round == round && Equals(m.Player1, player1) &&
+                                                    Equals(m.Player2, player2));
 
-            if (match > -1)
-                Matches[match] = matchToUpdate;
+            if (match == null)
+                return null;
+
+            match.CurrentGame = currentGame;
+            match.Player1Wins = player1Wins;
+            match.Player2Wins = player2Wins;
+            match.Ties = ties;
+
+            return match;
         }
 
         public object GetStandings()
@@ -136,7 +150,12 @@ namespace MTGBotWebsite.TournamentLibrary
                     }).ToArray();
         }
 
-        public TournMatchArray PairNextRound()
+        public void DropPlayer(int playerId)
+        {
+            Players.Single(p => p.PlayerId == playerId).DropRound = CurrentRound;
+        }
+
+        /*public TournMatchArray PairNextRound()
         {
             if (Players.Count < 2)
                 throw new InvalidOperationException("Need more then 2 players to pair.");
@@ -157,15 +176,13 @@ namespace MTGBotWebsite.TournamentLibrary
                                               .Select(p => p.Player1 == player ? p.Player2 : p.Player1);
 
                 //Find the best player
-                var match = tempPlayers.FirstOrDefault(p => !previousOpponents.Contains(player) && p != player);
-
-
+                var match = tempPlayers.FirstOrDefault(p => p != player);
 
                 if (match == null)
                     throw new InvalidOperationException("Unable to find match for player.");
 
                 TournMatch thispair = new TournMatch(player, match, nextRound);
-                if (!previousOpponents.Contains(player))
+                if (!previousOpponents.Contains(match))
                 {
                     pairings.Add(thispair);
                     tempPlayers.Remove(player);
@@ -173,13 +190,14 @@ namespace MTGBotWebsite.TournamentLibrary
                 }
                 else
                 {
-                    //Console.WriteLine("Played Previously: {0}", thispair.ToString());
+                    Console.WriteLine("Played Previously: {0}", thispair);
                     int samepoints = player.Wins;
+                    int samepoints2 = match.Wins;
                     var playertier =
                         pairings.Where(
-                            tierpair => (tierpair.Player1.Wins == samepoints || tierpair.Player2.Wins == samepoints));
+                            tierpair => (tierpair.Player1.Wins == samepoints || tierpair.Player2.Wins == samepoints || tierpair.Player1.Wins == samepoints2 || tierpair.Player2.Wins == samepoints2)).ToArray();
 
-                    foreach (TournMatch thistierpair in playertier)
+                    foreach (var thistierpair in playertier)
                     {
                         pairings.Remove(thistierpair);
                         tempPlayers.Add(thistierpair.Player1);
@@ -198,21 +216,130 @@ namespace MTGBotWebsite.TournamentLibrary
             }
 
             return new TournMatchArray(pairings);
+        }*/
+
+
+        public TournMatchArray PairNextRound()
+        {
+            if (Players.Count < 2)
+                throw new InvalidOperationException("Need more then 2 players to pair.");
+
+            if (CurrentRound > 0 && Matches.GetByRound(CurrentRound).Any(c => !c.ReportedResult))
+                throw new InvalidOperationException("There are still outstanding results.");
+
+            _pairings = new List<TournMatch>();
+            _nextRound = CurrentRound + 1;
+
+            _tempPlayers = Players.Where(p => p.DropRound == -1).Shuffle().OrderByDescending(p => p.Wins).ThenBy(p => Guid.NewGuid()).ToList();
+
+            //var tempPlayers = ((TournPlayer[])Players.Clone).Shuffle().OrderByDescending(p => p.Points).ToList();
+            while (_tempPlayers.Count > 1)
+            {
+                NextPair();
+            }
+
+            if (_tempPlayers.Count > 0)
+                _pairings.Add(new TournMatch(_tempPlayers.First(), null, _nextRound));
+
+            foreach (var pairing in _pairings)
+            {
+                AddMatch(pairing);
+            }
+
+            return new TournMatchArray(_pairings);
         }
 
-        private float MatchWinPercentage(Player player)
+        private void NextPair()
         {
-            return 0f;
+            var player = _tempPlayers.Shuffle().OrderByDescending(p => p.Wins).First();
+
+            var previousOpponents = Matches.Where(p => p.Player1 == player || p.Player2 == player)
+                                          .Select(p => p.Player1 == player ? p.Player2 : p.Player1);
+
+            //Find the best player
+            //can't add ThenBy points as it can create infinte loops
+            var match = _tempPlayers.OrderByDescending(p => p.Wins).ThenBy(p => Guid.NewGuid()).ToList().FirstOrDefault(p => !previousOpponents.Contains(player) && p != player);
+
+
+
+            if (match == null)
+                throw new InvalidOperationException("Unable to find match for player:" + player.PlayerName + "tempPlayers: " + _tempPlayers.Count + " " + _tempPlayers[0].PlayerName + " " + _tempPlayers[1].PlayerName);
+
+            TournMatch thispair = new TournMatch(player, match, _nextRound);
+            if (!previousOpponents.Contains(match))
+            {
+                _pairings.Add(thispair);
+                _tempPlayers.Remove(player);
+                _tempPlayers.Remove(match);
+            }
+            else
+            {
+                Console.WriteLine("Caught a Re-pair: {0}", thispair.ToString());
+                /*if (cycle >= 10)
+                {
+                    Thread.Sleep(5000);
+                }*/
+                int samepoints = player.Wins;
+                var playertier =
+                    _pairings.Where(
+                        tierpair => (tierpair.Player1.Wins == samepoints || tierpair.Player2.Wins == samepoints)).ToArray();
+
+                foreach (TournMatch thistierpair in playertier)
+                {
+                    _pairings.Remove(thistierpair);
+                    _tempPlayers.Add(thistierpair.Player1);
+                    _tempPlayers.Add(thistierpair.Player2);
+                }
+
+                var equals = _tempPlayers.Where(equalplayer => equalplayer.Wins == player.Wins).ToArray();
+                if (equals.Length == 2)
+                {
+                    Console.WriteLine("Pair Down");
+                    _tempPlayers.Remove(player);
+                    NextPair();
+                    _tempPlayers.Add(player);
+                }
+            }
+            return;
         }
 
-        private float GameWinPercentage(Player player)
+        /*private TournMatchArray ResolveSwaps(List<PlayerWithOpponents> players, TournMatchArray pairings, TournMatch badMatch, int lowerPointTier, int upperPointTier)
         {
-            return 0f;
-        }
+            foreach (var pair in pairings.Where(pair => pair.Player2 != null &&
+                                                        (pair.Player1.Points >= lowerPointTier ||
+                                                         pair.Player2.Points >= lowerPointTier) &&
+                                                        (pair.Player2.Points <= upperPointTier ||
+                                                         pair.Player2.Points >= upperPointTier)))
+            {
+                //See if we can't swap
+                if (Opponents(badMatch.Player1).Contains(pair.Player1) ||
+                    Opponents(badMatch.Player2).Contains(pair.Player2)) continue;
 
-        private float OponentGameWinPercentage(Player player)
-        {
-            return 0f;
-        }
+                //These two can be swapped safely
+                var tempPlayer = badMatch.Player1;
+                badMatch.Player1 = pair.Player1;
+                pair.Player1 = tempPlayer;
+                return pairings;
+            }
+
+            foreach (var pair in pairings.Where(pair => pair.Player2 != null &&
+                                                        (pair.Player1.Points >= lowerPointTier ||
+                                                         pair.Player2.Points >= lowerPointTier) &&
+                                                        (pair.Player2.Points <= upperPointTier ||
+                                                         pair.Player2.Points >= upperPointTier)))
+            {
+
+            }
+
+            if ( lowerPointTier == 0 && upperPointTier == Players.Max(p => p.Points) )
+                throw new Exception("Unable to find match");
+
+            /*foreach (var pair in pairings.Where(pair => pair.Player2 != null && players.Single(p => p.Player == pair.Player1).Opponents.Contains(pair.Player2)))
+            {
+                //Bad Pair
+            }
+
+            return pairings;
+        }*/
     }
 }

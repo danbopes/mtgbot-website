@@ -1,6 +1,8 @@
 ﻿using System.Web.Mvc;
 using MTGBotWebsite.Helpers;
+using MTGBotWebsite.Infastructure;
 using MTGBotWebsite.Models;
+using MTGOLibrary.Models;
 
 namespace MTGBotWebsite.Controllers
 {
@@ -8,22 +10,23 @@ namespace MTGBotWebsite.Controllers
     {
         //
         // GET: /Trivia/
+        private MainDbContext _db = new MainDbContext();
 
+        [TwitchAuthorize]
         public ActionResult Index()
         {
-            Authorization.Authorize();
             return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [TwitchAuthorize]
         public ActionResult Index(TriviaModel model)
         {
-            Authorization.Authorize();
             if (ModelState.IsValid)
             {
+                var user = _db.Users.Find(User.GetUserId());
                 Pipe.SendMessage("{0}|TriviaGame|{1}",
-                    Session["user_name"],
+                    user.TwitchUsername,
                     model.Name);
             }
             return View();

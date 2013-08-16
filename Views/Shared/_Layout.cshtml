@@ -175,6 +175,18 @@
                     </ul>
                 </div><!-- #user_box -->
             -->
+            @if(Context.User.Identity.IsAuthenticated) {
+            <div class="user_box dark_box clearfix">
+                <img src="/Images/interface/profile.jpg" width="55" alt="Profile Pic">
+                <h2>@Context.User.Identity.Name</h2>
+                <h3><a class="text_shadow" href="#">via twitch</a></h3>
+                <ul>
+                    <!--<li><a href="/AccountProfile">profile</a><span class="divider">|</span></li>
+                    <li><a href="#">settings</a><span class="divider">|</span></li>-->
+                    <li><a href="/Account/Logout">Logout</a></li>
+                </ul>
+            </div>
+            }
         </div><!-- #topbar -->
         <div id="main_container" class="main_container container_16 clearfix">
             <div id="nav_top" class="dropdown_menu clearfix round_top">
@@ -243,7 +255,6 @@
                             </div>
                             <div class="float-right">
                                 <section id="login">
-                                    @Html.Partial("_LoginPartial")
                                 </section>
                                 <nav>
                                     <ul id="menu">

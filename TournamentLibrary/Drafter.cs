@@ -30,6 +30,9 @@ namespace MTGBotWebsite.TournamentLibrary
         //PlayerId in the Database
         public readonly int PlayerId;
 
+        //UserId int the Database
+        public readonly int UserId;
+
         //PlayerName (Twitch username)
         public readonly string PlayerName;
 
@@ -73,7 +76,8 @@ namespace MTGBotWebsite.TournamentLibrary
             QueuedPicks.Enqueue(draftCollection.GetNextPack().Cards.ToList());
             DraftId = draft.Id;
             PlayerId = player.Id;
-            PlayerName = player.MTGOUsername.TwitchUsername;
+            UserId = player.MtgoLink.UserId;
+            PlayerName = player.MtgoLink.User.TwitchUsername;
             Position = position;
             Packs = draftCollection;
             _isTimed = draft.Timed;
@@ -86,11 +90,14 @@ namespace MTGBotWebsite.TournamentLibrary
 
             DraftId = draft.Id;
             PlayerId = player.Id;
-            PlayerName = player.MTGOUsername.TwitchUsername;
+            UserId = player.MtgoLink.UserId;
+            PlayerName = player.MtgoLink.User.TwitchUsername;
             Position = position;
             _isTimed = draft.Timed;
             Packs = draftCollection;
-            //QueuedPicks.Enqueue(draftCollection.GetNextPack().Cards.ToList());
+            if ( picks.Count == 0 )
+                QueuedPicks.Enqueue(draftCollection.GetNextPack().Cards.ToList());
+
             Picks = picks;
             CurrentPick = picks.Count + 1;
         }
@@ -113,6 +120,12 @@ namespace MTGBotWebsite.TournamentLibrary
                 QueuedPicks.Enqueue(pack.Cards.ToList());
                 NotifyPick();
             }
+        }
+
+        //When recovered, needs to push the currentpicks without inserting a new entry
+        public void FixQueuedPicks()
+        {
+            CurrentPicks = QueuedPicks.Dequeue();
         }
 
         public void NotifyPick(bool force = false)

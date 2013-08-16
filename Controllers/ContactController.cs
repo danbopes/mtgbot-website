@@ -1,8 +1,8 @@
 ﻿using System.Text;
 using System.Web.Mvc;
 using MTGBotWebsite.Helpers;
+using MTGBotWebsite.Infastructure;
 using MTGBotWebsite.Models;
-using Authorization = MTGBotWebsite.Helpers.Authorization;
 
 namespace MTGBotWebsite.Controllers
 {
@@ -17,7 +17,6 @@ namespace MTGBotWebsite.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public ActionResult Index(ContactModel model)
         {
             if (ModelState.IsValid)
@@ -28,17 +27,16 @@ namespace MTGBotWebsite.Controllers
             return View();
         }
 
+        [TwitchAuthorize]
         public ActionResult Bug()
         {
-            Authorization.Authorize();
             return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [TwitchAuthorize]
         public ActionResult Bug(BugReportModel model)
         {
-            Authorization.Authorize();
             if (ModelState.IsValid)
             {
                 if (SendMail(model))

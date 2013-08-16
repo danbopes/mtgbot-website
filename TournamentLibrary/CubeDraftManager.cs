@@ -21,7 +21,6 @@ namespace MTGBotWebsite.TournamentLibrary
         private readonly CubeDraft _draft;
         private readonly object _threadLock = new object();
         private readonly IHubContext _hubContext = GlobalHost.ConnectionManager.GetHubContext<CubeHub>();
-        public EventLog MyEventLog;
         private static IBotService BotService
         {
             get
@@ -36,7 +35,7 @@ namespace MTGBotWebsite.TournamentLibrary
         public void StartDraft()
         {
             var cardIds = _draft.CubeDraftCards.Select(c => c.CardId).ToArray();
-            var cardObjects = _db.Cards.Where(c => cardIds.Contains(c.Id)).ToArray();
+            var cardObjects = _db.Cards.Include("CardSet").Where(c => cardIds.Contains(c.Id)).ToArray();
             var cards = cardIds.Select(c => cardObjects.Single(co => co.Id == c)).Shuffle().ToArray();
 
             var players = _draft.CubeDraftPlayers.Where(p => p.Confirmed).ToList();
@@ -80,12 +79,12 @@ namespace MTGBotWebsite.TournamentLibrary
             _hubContext.Clients.Group(String.Format("draft/{0}/clients", _draft.Id)).draftStarted();
         }
 
-        public void PlayerSubscribe(string username, string connectionId)
+        public void PlayerSubscribe(User username, string connectionId)
         {
-            var player = Players.Single(p => p.PlayerName == username);
+            var player = Players.Single(p => p.PlayerName == username.TwitchUsername);
             player.ClientIds.Add(connectionId);
 
-            MyEventLog.WriteEntry(player + " connected.", EventLogEntryType.Information);
+            //MyEventLog.WriteEntry(player + " connected.", EventLogEntryType.Information);
             
             lock (_threadLock)
             {
@@ -113,7 +112,7 @@ namespace MTGBotWebsite.TournamentLibrary
         }
 
         //TODO: Later...much later
-        public void PlayerUnSubscribe(string username, string connectionId)
+        public void PlayerUnSubscribe(User username, string connectionId)
         {
             
         }
@@ -121,17 +120,17 @@ namespace MTGBotWebsite.TournamentLibrary
         //If a draft is in progress and failed for whatever reason, get back to original state
         public void Recover()
         {
-            MyEventLog.WriteEntry("Recovery for draft id '" + _draft.Id + "' started", EventLogEntryType.Warning);
+            //MyEventLog.WriteEntry("Recovery for draft id '" + _draft.Id + "' started", EventLogEntryType.Warning);
 
-            var picks = _draft.CubeDraftPicks.Where(p => p.Pick == 1 || p.Pick == 16 || p.Pick == 31).Select(p => p.Picks);
+            var allPicks = _draft.CubeDraftPicks.Where(p => p.Pick == 1 || p.Pick == 16 || p.Pick == 31).Select(p => p.Picks);
             var cardIds = _draft.CubeDraftCards.Select(c => c.CardId).ToList();
 
-            var allCardObjects = _db.Cards.Where(c => cardIds.Contains(c.Id)).ToArray();
+            var allCardObjects = _db.Cards.Include("CardSet").Where(c => cardIds.Contains(c.Id)).ToArray();
 
-            foreach (var pick in picks.SelectMany(c => c.Split(',')))
+            foreach (var pick in allPicks.SelectMany(c => c.Split(',')))
                 cardIds.Remove(Convert.ToInt32(pick));
 
-            var cardObjects = _db.Cards.Where(c => cardIds.Contains(c.Id)).ToArray();
+            var cardObjects = _db.Cards.Include("CardSet").Where(c => cardIds.Contains(c.Id)).ToArray();
             var cards = cardIds.Select(c => cardObjects.Single(co => co.Id == c)).Shuffle().ToArray();
 
             var players = _draft.CubeDraftPlayers.Where(p => p.Confirmed).ToList();
@@ -147,11 +146,11 @@ namespace MTGBotWebsite.TournamentLibrary
             foreach (var player in players.Shuffle())
             {
                 var playerPicks = player.CubeDraftPicks.Where(p => p.PickId != null).Select(p => p.PickId);
-                var playerCardObjects = _db.Cards.Where(c => playerPicks.Contains(c.Id)).ToArray();
+                var playerCardObjects = _db.Cards.Include("CardSet").Where(c => playerPicks.Contains(c.Id)).ToArray();
 
                 var packs = new List<Pack>();
 
-                for (var i = playerPicks.Count(); i <= 45; i += 15)
+                for (var i = player.CubeDraftPicks.Count(); i <= 30; i += 15)
                 {
                     packs.Add(new Pack(cards.Skip(++packPosition*15).Take(15).ToArray(), "Cube Draft"));
                 }
@@ -165,14 +164,24 @@ namespace MTGBotWebsite.TournamentLibrary
                     );
 
                 //Add Queued Picks to Drafters
-                foreach (var pickIds in player.CubeDraftPicks.Where(p => p.PickId == null).OrderBy(p => p.Pick).Select(pick => pick.Picks.Split(',').Select(p => Convert.ToInt32(p))))
+                var picks =
+                    player.CubeDraftPicks.Where(p => p.PickId == null)
+                          .OrderBy(p => p.Pick)
+                          .Select(pick => pick.Picks.Split(',').Select(p => Convert.ToInt32(p))).ToArray();
+
+                foreach (var pickIds in picks)
                 {
                     newDrafter.QueuedPicks.Enqueue(pickIds.Select(c => allCardObjects.Single(co => co.Id == c)).ToList());
                 }
 
+                //TODO: Check queued picks here
+
+                if ( picks.Length > 0 )
+                    newDrafter.FixQueuedPicks();
+
                 Players.Add(newDrafter);
             }
-
+            
             var max = _draft.CubeDraftPicks.Select(c => c.Pick).DefaultIfEmpty().Max();
 
             _currentPack = (int)Math.Ceiling((decimal)max/15);
@@ -200,12 +209,9 @@ namespace MTGBotWebsite.TournamentLibrary
         }
 
         //Overrideables
-        public void Pick(string drafterName, int pickNumber, int pickId)
+        public void Pick(int userId, int pickNumber, int pickId)
         {
-            var drafter = Players.FirstOrDefault(p => p.PlayerName == drafterName);
-            
-            if ( drafter == null )
-                throw new Exception("Unable to find drafter");
+            var drafter = Players.Single(p => p.UserId == userId);
 
             lock (_threadLock)
             {
@@ -254,16 +260,6 @@ namespace MTGBotWebsite.TournamentLibrary
 
         public CubeDraftManager(ref MainDbContext db, CubeDraft draft)
         {
-            try
-            {
-                if (!EventLog.SourceExists("CubeDraftManager"))
-                    EventLog.CreateEventSource("CubeDraftManager", "Application");
-            }
-            catch (SecurityException)
-            {
-            }
-
-            MyEventLog = new EventLog("Application", ".", "CubeDraftManager");
 
             Players = new List<Drafter>();
             _db = db;
