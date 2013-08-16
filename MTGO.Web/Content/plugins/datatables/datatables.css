@@ -1,0 +1,192 @@
+/*--------------------------------
+DataTable
+--------------------------------*/
+.datatable {
+  visibility: hidden;
+}
+.dataTables_scroll {
+  overflow: hidden;
+}
+.dataTables_scrollBody {
+  width: auto !important;
+  overflow: auto !important;
+}
+.dataTables_wrapper {
+  margin: 0px 0 !important;
+}
+.dataTables_wrapper .ui-widget-header {
+  font-weight: normal;
+  background: #4C5766;
+  border: 1px solid #000;
+  position: relative;
+  padding: 10px;
+  text-shadow: 0px 1px 0px #000;
+  color: #fff;
+}
+.block .dataTables_wrapper .ui-widget-header.ui-corner-tl {
+  font-weight: normal;
+  background: #fff !important;
+  filter: none;
+  border: 1px solid #fff;
+  border-bottom: 1px solid #ccc;
+  position: relative;
+  padding: 10px;
+  text-shadow: 0px 1px 0px #fff;
+  color: #333;
+  border-radius: 0px;
+}
+.dataTables_length {
+  float: left;
+  line-height: 20px;
+}
+.dataTables_length .selector {
+  background-position: -483px -224px;
+  display: inline-block;
+  margin-bottom: -11px;
+  margin-left: 0px;
+}
+.dataTables_filter {
+  float: right;
+  line-height: 20px;
+  width: 180px;
+  display: block;
+}
+.dataTables_filter label {
+  float: right;
+}
+.dataTables_wrapper .dataTables_filter input {
+  display: inline;
+  width: 120px !important;
+  height: 28px;
+  line-height: 28px;
+}
+.single_datatable .dataTables_filter input {
+  border: 0px solid #000;
+  margin-left: 5px;
+  color: #fff;
+  box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.5);
+}
+.single_datatable .dataTables_filter input:focus {
+  background: none;
+}
+.dataTables_scrollHeadInner {
+  border-top: 1px solid #FFFFFF;
+  border-bottom: 1px solid #AAAAAA;
+}
+.block .dataTables_scrollHeadInner {
+  border-top: 0;
+}
+.dataTables_scrollHeadInner table {
+  margin-bottom: 0;
+  margin-top: 0px;
+}
+.dataTables_scrollHeadInner table thead tr {
+  margin-right: 0px;
+}
+.dataTables_scrollHeadInner table thead tr th {
+  border: none !important;
+  background: none;
+  position: relative;
+}
+.DataTables_sort_wrapper {
+  background: none;
+  padding: 10px 5px 10px 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #333;
+  text-shadow: 0 1px 0 #FFFFFF;
+  position: relative;
+  font-weight: normal;
+}
+.DataTables_sort_wrapper:hover {
+  color: #000000;
+  cursor: pointer;
+}
+.DataTables_sort_wrapper span {
+  position: absolute;
+  left: 5px;
+  top: 8px;
+}
+.dataTables_scrollBody table {
+  margin-bottom: 0;
+  margin-top: 0px;
+}
+.dataTables_scrollBody > .datatable > thead {
+  visibility: hidden;
+}
+.dataTables_scrollBody > .datatable > thead .ui-state-default {
+  border: none;
+}
+.dataTables_scrollBody tbody tr td {
+  line-height: 20px;
+}
+table td {
+  padding: 3px 5px;
+}
+table tr.odd {
+  background-color: #fafafa;
+  border-bottom: 1px solid #d8dcde;
+}
+table tr.even {
+  border-bottom: 1px solid #e1e5e7;
+}
+table tr.even:hover,
+table tr.odd:hover {
+  background-color: #E6ECEF;
+}
+.dataTables_info {
+  float: left;
+  line-height: 17px;
+}
+.dataTables_paginate {
+  float: right;
+  margin: 0 !important;
+  line-height: 15px;
+}
+.dataTables_wrapper .dataTables_paginate span.fg-button {
+  background-image: none;
+  background-color: #DFE2E4;
+  text-shadow: 0 1px 0 #FFF;
+  color: #333;
+  border-bottom: 1px solid #aaa;
+  border-left: 1px solid #fff;
+  border-top: 1px solid #fff;
+  border-right: 1px solid #aaa;
+  padding: 0px 10px;
+  margin: 0;
+  filter: none!important;
+  line-height: 15px;
+}
+.dataTables_wrapper .dataTables_paginate span.first {
+  border-left: 1px solid #fff;
+  border-radius: 3px 0 0 3px;
+}
+.dataTables_wrapper .dataTables_paginate span.last {
+  border-right: 1px solid #fff;
+}
+.dataTables_wrapper .dataTables_paginate span.ui-state-disabled {
+  /* margin-left:-1px; */
+
+  opacity: 1;
+  color: #888!important;
+}
+.dataTables_wrapper .dataTables_paginate span span.ui-state-disabled {
+  background-image: none;
+  text-shadow: 0 1px 0 #000;
+  background-color: #313841;
+  border: 1px solid #000;
+  color: #FFF!important;
+  opacity: 1;
+}
+.dataTables_scroll .checkbox {
+  margin: -8px 0;
+}
+table td button {
+  display: inline;
+  float: none;
+  margin-right: 0;
+  margin-bottom: 0;
+}
+table .actions {
+  text-align: right;
+}

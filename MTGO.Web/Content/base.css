@@ -1,0 +1,152 @@
+/* Coloured Header Gradients, eg. Sortable Boxes, Tab Boxes, Date-picker, etc. */
+.grad_skin,
+.grad_black,
+button,
+.button,
+.alert,
+.calendar_grad,
+.dark_box,
+.dropdown_menu > ul > li.current > a,
+.box_head,
+.tab_header,
+.tab_sider,
+#login_box #bar,
+.user_box,
+#search_side,
+.wizard .wizard_steps ul,
+.dataTables_wrapper .ui-widget-header,
+.ui-button .ui-state-active,
+.ui-widget-header .ui-state-active,
+.ui-buttonset .ui-button.ui-state-active,
+.ui-multiselect .ui-widget-header,
+.ui-slider .ui-slider-range,
+.slider-content .selected .title,
+.fc-header .fc-state-active,
+.fc-header .ui-state-active,
+.ui-progressbar .ui-progressbar-value,
+.stackbar.stack_view > ul > li > a > span,
+div.stackbar.stack_view > ul > li > a > span::before {
+  background-color: #4c5766;
+  border-color: #313841 #313841 #000 #313841;
+  color: #fff;
+  text-shadow: 0 1px 0 #000;
+  background-image: linear-gradient(top, #4c5766, #313841);
+}
+.grad_black_reverse,
+button:hover,
+.button:hover {
+  background-color: #313841;
+  background-image: linear-gradient(top, #313841, #4c5766);
+}
+/* Grey Header Gradients eg. Nav, Sidebar, Accordion, etc. */
+.grad_grey,
+button.light,
+.button.light,
+.alert_light,
+.shade,
+.ui-multiselect li,
+.side_accordion > li,
+.dropdown_menu > ul > li,
+.dropdown_menu > ul > li > ul.dropdown li,
+.breadcrumb,
+.toggle_all,
+.content_accordion h3.bar,
+.dataTables_scrollHead,
+.dataTables_paginate span.fg-button,
+.list_slider .slider-nav,
+.slider-content .title,
+.list_slider .slide-up,
+.list_slider .slide-down,
+.side_links li a,
+.tabs ul.tab_header li a,
+.tabs ul.tab_sider li a,
+.fc .fc-agenda-slots tr th,
+table.static thead tr th,
+.wizard .wizard_steps ul li.current,
+.alert_light,
+div.main_container .box.light h2.box_head,
+div.main_container .box.white h2.box_head,
+.ui-datepicker-header,
+.ui-button,
+.fc-button,
+.button_bar,
+.slider_title,
+.ui-dialog-titlebar,
+ul.breadcrumb,
+.toggle_all,
+.info_box > .value_tag > span {
+  color: #333;
+  border-color: #bac5cc;
+  text-shadow: 0 1px 0 #fff;
+  background-color: #E6ECEF;
+  background-image: linear-gradient(top, #e6ecef, #d0d6da);
+}
+.grad_grey_reverse,
+button.light:hover,
+.button.light:hover,
+.alert_light:hover {
+  background-color: #D0D6DA;
+  background-image: linear-gradient(top, #d0d6da, #e6ecef);
+}
+.grad_grey_light,
+.el-finder-toolbar ul,
+.el-finder-statusbar,
+.dropdown_menu ul li:hover,
+.dropdown_menu ul li ul.dropdown li:hover,
+.side_accordion > li:hover,
+div.stackbar > ul > li,
+div.stackbar ul ul li.current {
+  background-color: #E6ECEF;
+  border-color: #959BA2;
+  text-shadow: 0 1px 0 #fff;
+  background-color: #eee;
+  background-image: linear-gradient(top, #e6ecef, #d9e1e5);
+}
+.grad_grey_light_reverse {
+  background-color: #d9e1e5;
+  background-image: linear-gradient(top, #d9e1e5, #e6ecef);
+}
+.grad_indented,
+.indented_area,
+.indented_button_bar,
+.wizard_progressbar {
+  background: #d2d7dc;
+  background: linear-gradient(top, #d2d7dc 0%, #b1b9c3 99%) !important;
+  zoom: 1;
+  border: 1px solid #7d90a6 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+button,
+.button {
+  color: #fff;
+  border: 1px solid #000;
+  text-shadow: 0 1px 0 #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: background 5000ms ease-in;
+  border-radius: 2px;
+}
+.stacked_buttons button,
+.stacked_buttons a.button {
+  margin-bottom: 5px;
+}
+.stacked_buttons_large button,
+.stacked_buttons_large a.button {
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+button.light,
+.button.light {
+  z-index: 1;
+  color: #666;
+  border-color: #aaa;
+  text-shadow: 0 1px 0 #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+button.on_dark,
+.button.on_dark {
+  box-shadow: 0 2px 0 1px rgba(0, 0, 0, 0.06), 0 1px 0 rgba(255, 255, 255, 0.2) inset;
+}
+#bg_light {
+  display: none !important;
+}

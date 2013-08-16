@@ -1,0 +1,59 @@
+﻿@using MTGOLibrary.Models;
+@model IEnumerable<Draft>
+
+@{
+    ViewBag.Title = "Draft Viewer";
+    ViewBag.Description = "Vote on drafts currently in progress on twitch.tv";
+}
+
+<div class="flat_area grid_12">
+	<h3>What is the Draft Viewer?</h3>
+    <p>MTGBot's Draft Viewer provides a portal for broadcasters to allow their viewers to view and vote on possible picks during an online draft. Users will be able to view in real time draft picks, and submit their votes which are then relayed back to broadcasters.</p>
+    <h3>I'm a broadcaster, how to I use Draft Viewer?</h3>
+    <p>Please send me an email @Html.ActionLink("here", "Index", "Contact") if you wish to utilize the Draft Viewer functionality.</p>
+</div>
+
+<div class="box grid_4">
+    <h2 class="box_head">Previous Drafts</h2>
+	<div class="controls">
+        <a href="#" class="toggle"></a>
+	</div>
+	<div class="toggle_container">
+	    <div class="block">
+	        <div class="section">
+	            <table class="static">
+	                <thead>
+	                    <tr>
+	                        <th>Broadcaster</th>
+	                        <th>Status</th>
+	                    </tr>
+	                </thead>
+                    <tbody>
+	                @foreach (var item in Model) {
+	                    <tr>
+	                        <td>
+	                            <a href="@Url.Action("draft", new { item.Id })">@Html.DisplayFor(modelItem => item.Broadcaster.Name)</a>
+	                        </td>
+	                        <td>
+	                            @{
+	                                string draftStatus = "Unknown";
+	                                switch (item.DraftStatus)
+	                                {
+	                                    case DraftStatus.Drafting:
+	                                        draftStatus = "Drafting";
+	                                        break;
+                                        case DraftStatus.Completed:
+	                                        draftStatus = "Completed";
+	                                        break;
+	                                }
+	                            }
+	                            @Html.DisplayFor(modelItem => draftStatus)
+	                        </td>
+	                    </tr>
+	                }
+                    </tbody>
+	            </table>
+	        </div>
+	    </div>
+	</div>
+</div>

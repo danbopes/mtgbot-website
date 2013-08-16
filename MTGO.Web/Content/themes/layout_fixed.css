@@ -1,0 +1,19 @@
+#wrapper{
+	position:relative;
+	margin: auto;
+	width: 960px !important;
+	}
+
+
+#wrapper .sidebar{
+	position:absolute;
+	}
+
+
+.dropdown_menu ul{
+}
+
+.sidebar{
+	top:0;
+	position: fixed;
+}
