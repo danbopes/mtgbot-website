@@ -21,6 +21,8 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <WebGreaseLibPath>..\packages\WebGrease.1.5.2\lib</WebGreaseLibPath>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -165,7 +167,6 @@
     <Compile Include="Controllers\TournamentCenterController.cs" />
     <Compile Include="Controllers\TriviaController.cs" />
     <Compile Include="Helpers\HubResponse.cs" />
-    <Compile Include="Filters\InitializeSimpleMembershipAttribute.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -2160,9 +2161,7 @@
     <Content Include="Views\Home\Test.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
     <Folder Include="Content\_themes\base\images\" />
-    <Folder Include="CubeDrafts\" />
     <Folder Include="Scripts\elfinder\filemanager\videos\" />
   </ItemGroup>
   <ItemGroup>
@@ -2245,9 +2244,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\MTGO.Common\MTGO.Common.csproj">
       <Project>{EDB95E6A-F870-451E-ABB8-805C6F350203}</Project>
       <Name>MTGO.Common</Name>
@@ -2281,6 +2277,7 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

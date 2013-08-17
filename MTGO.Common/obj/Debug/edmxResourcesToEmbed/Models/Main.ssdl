@@ -1,0 +1,366 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="Models.Store" Alias="Self" Provider="MySql.Data.MySqlClient" ProviderManifestToken="5.5" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="ModelsStoreContainer">
+    <EntitySet Name="bans" EntityType="Models.Store.bans" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="broadcasters" EntityType="Models.Store.broadcasters" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="cards" EntityType="Models.Store.cards" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="cardsets" EntityType="Models.Store.cardsets" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="cubedraftcards" EntityType="Models.Store.cubedraftcards" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="cubedraftpicks" EntityType="Models.Store.cubedraftpicks" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="cubedraftplayers" EntityType="Models.Store.cubedraftplayers" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="cubedraftresults" EntityType="Models.Store.cubedraftresults" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="cubedrafts" EntityType="Models.Store.cubedrafts" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="donations" EntityType="Models.Store.donations" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="draftpicks" EntityType="Models.Store.draftpicks" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="drafts" EntityType="Models.Store.drafts" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="mtgo_link" EntityType="Models.Store.mtgo_link" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="ncards" EntityType="Models.Store.ncards" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="nsets" EntityType="Models.Store.nsets" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="twitch_oauth" EntityType="Models.Store.twitch_oauth" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="users" EntityType="Models.Store.users" store:Type="Tables" Schema="mtgbot" />
+    <EntitySet Name="votes" EntityType="Models.Store.votes" store:Type="Tables" Schema="mtgbot" />
+    <AssociationSet Name="FK_BroadcasterDraft" Association="Models.Store.FK_BroadcasterDraft">
+      <End Role="broadcasters" EntitySet="broadcasters" />
+      <End Role="drafts" EntitySet="drafts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardSetCards" Association="Models.Store.FK_CardSetCards">
+      <End Role="cardsets" EntitySet="cardsets" />
+      <End Role="cards" EntitySet="cards" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CubeDraftBroadcaster" Association="Models.Store.FK_CubeDraftBroadcaster">
+      <End Role="broadcasters" EntitySet="broadcasters" />
+      <End Role="cubedrafts" EntitySet="cubedrafts" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CubeDraftCubeDraftCard" Association="Models.Store.FK_CubeDraftCubeDraftCard">
+      <End Role="cubedrafts" EntitySet="cubedrafts" />
+      <End Role="cubedraftcards" EntitySet="cubedraftcards" />
+    </AssociationSet>
+    <AssociationSet Name="FK_DraftDraftPick" Association="Models.Store.FK_DraftDraftPick">
+      <End Role="drafts" EntitySet="drafts" />
+      <End Role="draftpicks" EntitySet="draftpicks" />
+    </AssociationSet>
+    <AssociationSet Name="FK_DraftPickVotes" Association="Models.Store.FK_DraftPickVotes">
+      <End Role="draftpicks" EntitySet="draftpicks" />
+      <End Role="votes" EntitySet="votes" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="bans">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="user_id" Type="int" />
+    <Property Name="ip_address" Type="varchar" MaxLength="15" />
+    <Property Name="ban_type" Type="int" />
+    <Property Name="expires" Type="datetime" Nullable="false" />
+    <Property Name="reason" Type="mediumtext" Nullable="false" />
+  </EntityType>
+  <EntityType Name="broadcasters">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="varchar" MaxLength="255" />
+    <Property Name="MtgoUsername" Type="varchar" MaxLength="255" />
+    <Property Name="MtgoId" Type="int" Nullable="false" />
+    <Property Name="Key" Type="varchar" MaxLength="32" />
+    <Property Name="IrcSettings" Type="mediumtext" />
+  </EntityType>
+  <EntityType Name="cards">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="MagicCardsInfoId" Type="varchar" MaxLength="5" />
+    <Property Name="Foil" Type="bool" Nullable="false" />
+    <Property Name="CardTextureNumber" Type="int" Nullable="false" />
+    <Property Name="ManaCost" Type="varchar" Nullable="false" MaxLength="30" />
+    <Property Name="CMC" Type="int" Nullable="false" />
+    <Property Name="Color" Type="varchar" Nullable="false" MaxLength="5" />
+    <Property Name="Rarity" Type="varchar" Nullable="false" MaxLength="1" />
+    <Property Name="CardSetId" Type="int" />
+  </EntityType>
+  <EntityType Name="cardsets">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="varchar" MaxLength="255" />
+    <Property Name="Short" Type="varchar" MaxLength="5" />
+    <Property Name="GathererSet" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="MagicCardsInfoSetShort" Type="varchar" MaxLength="5" />
+    <Property Name="MtgoBoosterId" Type="int" Nullable="false" />
+    <Property Name="Completed" Type="bit" Nullable="false" />
+  </EntityType>
+  <EntityType Name="cubedraftcards">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="cubedraft_id" Type="int" Nullable="false" />
+    <Property Name="card_id" Type="int" Nullable="false" />
+    <Property Name="location" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="cubedraftpicks">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="cubedraft_id" Type="int" Nullable="false" />
+    <Property Name="player_id" Type="int" Nullable="false" />
+    <Property Name="picks" Type="longtext" Nullable="false" />
+    <Property Name="pick" Type="int" Nullable="false" />
+    <Property Name="pickid" Type="int" />
+  </EntityType>
+  <EntityType Name="cubedraftplayers">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="cubedraft_id" Type="int" Nullable="false" />
+    <Property Name="user_id" Type="int" Nullable="false" />
+    <Property Name="confirmed" Type="bool" Nullable="false" />
+    <Property Name="team" Type="int" Nullable="false" />
+    <Property Name="require_collateral" Type="int" Nullable="false" />
+    <Property Name="product_given" Type="bool" Nullable="false" />
+    <Property Name="position" Type="int" Nullable="false" />
+    <Property Name="drop_round" Type="int" Nullable="false" />
+    <Property Name="deck_built" Type="bool" Nullable="false" />
+  </EntityType>
+  <EntityType Name="cubedraftresults">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="draft_id" Type="int" Nullable="false" />
+    <Property Name="round" Type="int" Nullable="false" />
+    <Property Name="player1_id" Type="int" Nullable="false" />
+    <Property Name="player2_id" Type="int" />
+    <Property Name="player1_wins" Type="int" Nullable="false" />
+    <Property Name="player2_wins" Type="int" Nullable="false" />
+    <Property Name="ties" Type="int" Nullable="false" />
+    <Property Name="current_game" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="cubedrafts">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="name" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="created" Type="datetime" Nullable="false" />
+    <Property Name="broadcaster_id" Type="int" Nullable="false" />
+    <Property Name="status" Type="int" Nullable="false" />
+    <Property Name="timed" Type="bool" Nullable="false" />
+    <Property Name="round_time" Type="int" Nullable="false" />
+    <Property Name="require_watchers" Type="bool" Nullable="false" />
+    <Property Name="bot_name" Type="varchar" MaxLength="255" />
+  </EntityType>
+  <EntityType Name="donations">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="TxnId" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="Email" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="Username" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="Amount" Type="double" Nullable="false" />
+    <Property Name="DateTime" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="draftpicks">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="DraftId" Type="int" Nullable="false" />
+    <Property Name="Picks" Type="longtext" />
+    <Property Name="Pick" Type="int" Nullable="false" />
+    <Property Name="Pack" Type="int" Nullable="false" />
+    <Property Name="PickId" Type="int" />
+    <Property Name="Direction" Type="int" />
+    <Property Name="Time" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="drafts">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="DraftId" Type="int" Nullable="false" />
+    <Property Name="TournamentId" Type="int" Nullable="false" />
+    <Property Name="BroadcasterId" Type="int" Nullable="false" />
+    <Property Name="Players" Type="longtext" Nullable="false" />
+    <Property Name="FinalDeck" Type="longtext" />
+    <Property Name="DraftStatus" Type="int" />
+    <Property Name="CurrentPack" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="mtgo_link">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="user_id" Type="int" Nullable="false" />
+    <Property Name="mtgo_username" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="mtgo_id" Type="int" Nullable="false" />
+    <Property Name="confirmed" Type="bool" Nullable="false" />
+    <Property Name="confirm_key" Type="varchar" MaxLength="4" />
+  </EntityType>
+  <EntityType Name="ncards">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="varchar" Nullable="false" MaxLength="11" />
+    <Property Name="name" Type="varchar" MaxLength="255" />
+    <Property Name="set" Type="varchar" MaxLength="4" />
+    <Property Name="type" Type="varchar" MaxLength="255" />
+    <Property Name="rarity" Type="varchar" MaxLength="255" />
+    <Property Name="manacost" Type="varchar" MaxLength="255" />
+    <Property Name="converted_manacost" Type="varchar" MaxLength="255" />
+    <Property Name="power" Type="varchar" MaxLength="10" />
+    <Property Name="toughness" Type="varchar" MaxLength="10" />
+    <Property Name="loyalty" Type="tinyint" />
+    <Property Name="ability" Type="text" />
+    <Property Name="flavor" Type="text" />
+    <Property Name="variation" Type="tinyint" />
+    <Property Name="artist" Type="varchar" MaxLength="255" />
+    <Property Name="number" Type="varchar" MaxLength="4" />
+    <Property Name="rating" Type="varchar" MaxLength="5" />
+    <Property Name="ruling" Type="text" />
+    <Property Name="color" Type="varchar" MaxLength="10" />
+    <Property Name="generated_mana" Type="varchar" MaxLength="255" />
+    <Property Name="pricing_low" Type="double" />
+    <Property Name="pricing_mid" Type="double" />
+    <Property Name="pricing_high" Type="double" />
+    <Property Name="back_id" Type="varchar" MaxLength="11" />
+    <Property Name="watermark" Type="varchar" MaxLength="255" />
+    <Property Name="name_CN" Type="varchar" MaxLength="255" />
+    <Property Name="name_TW" Type="varchar" MaxLength="255" />
+    <Property Name="name_FR" Type="varchar" MaxLength="255" />
+    <Property Name="name_DE" Type="varchar" MaxLength="255" />
+    <Property Name="name_IT" Type="varchar" MaxLength="255" />
+    <Property Name="name_JP" Type="varchar" MaxLength="255" />
+    <Property Name="name_PT" Type="varchar" MaxLength="255" />
+    <Property Name="name_RU" Type="varchar" MaxLength="255" />
+    <Property Name="name_ES" Type="varchar" MaxLength="255" />
+    <Property Name="name_KO" Type="varchar" MaxLength="255" />
+    <Property Name="legality_Block" Type="text" />
+    <Property Name="legality_Standard" Type="text" />
+    <Property Name="legality_Extended" Type="text" />
+    <Property Name="legality_Modern" Type="text" />
+    <Property Name="legality_Legacy" Type="text" />
+    <Property Name="legality_Vintage" Type="text" />
+    <Property Name="legality_Highlander" Type="text" />
+    <Property Name="legality_French_Commander" Type="text" />
+    <Property Name="legality_Commander" Type="text" />
+    <Property Name="legality_Peasant" Type="text" />
+    <Property Name="legality_Pauper" Type="text" />
+  </EntityType>
+  <EntityType Name="nsets">
+    <Key>
+      <PropertyRef Name="code" />
+    </Key>
+    <Property Name="name" Type="varchar" MaxLength="255" />
+    <Property Name="code" Type="varchar" Nullable="false" MaxLength="10" />
+    <Property Name="code_magiccards" Type="varchar" MaxLength="10" />
+    <Property Name="date" Type="text" />
+    <Property Name="is_promo" Type="text" />
+  </EntityType>
+  <EntityType Name="twitch_oauth">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="oauth" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="username" Type="varchar" Nullable="false" MaxLength="255" />
+  </EntityType>
+  <EntityType Name="users">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="admin" Type="bool" Nullable="false" />
+    <Property Name="twitch_username" Type="varchar" Nullable="false" MaxLength="255" />
+    <Property Name="signup_ip_address" Type="varchar" Nullable="false" MaxLength="45" />
+    <Property Name="created" Type="datetime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="votes">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="DraftPickId" Type="int" Nullable="false" />
+    <Property Name="CardId" Type="int" Nullable="false" />
+    <Property Name="Username" Type="varchar" Nullable="false" MaxLength="255" />
+  </EntityType>
+  <Association Name="FK_BroadcasterDraft">
+    <End Role="broadcasters" Type="Models.Store.broadcasters" Multiplicity="1" />
+    <End Role="drafts" Type="Models.Store.drafts" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="broadcasters">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="drafts">
+        <PropertyRef Name="BroadcasterId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardSetCards">
+    <End Role="cardsets" Type="Models.Store.cardsets" Multiplicity="0..1" />
+    <End Role="cards" Type="Models.Store.cards" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="cardsets">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="cards">
+        <PropertyRef Name="CardSetId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CubeDraftBroadcaster">
+    <End Role="broadcasters" Type="Models.Store.broadcasters" Multiplicity="1" />
+    <End Role="cubedrafts" Type="Models.Store.cubedrafts" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="broadcasters">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="cubedrafts">
+        <PropertyRef Name="broadcaster_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CubeDraftCubeDraftCard">
+    <End Role="cubedrafts" Type="Models.Store.cubedrafts" Multiplicity="1" />
+    <End Role="cubedraftcards" Type="Models.Store.cubedraftcards" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="cubedrafts">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="cubedraftcards">
+        <PropertyRef Name="cubedraft_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_DraftDraftPick">
+    <End Role="drafts" Type="Models.Store.drafts" Multiplicity="1" />
+    <End Role="draftpicks" Type="Models.Store.draftpicks" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="drafts">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="draftpicks">
+        <PropertyRef Name="DraftId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_DraftPickVotes">
+    <End Role="draftpicks" Type="Models.Store.draftpicks" Multiplicity="1" />
+    <End Role="votes" Type="Models.Store.votes" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="draftpicks">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="votes">
+        <PropertyRef Name="DraftPickId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>

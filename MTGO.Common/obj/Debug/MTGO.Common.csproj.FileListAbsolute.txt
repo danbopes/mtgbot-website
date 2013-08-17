@@ -1,0 +1,10 @@
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\bin\Debug\MTGO.Common.dll.config
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\bin\Debug\MTGO.Common.dll
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\bin\Debug\MTGO.Common.pdb
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\bin\Debug\EntityFramework.dll
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\bin\Debug\MySql.Data.dll
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\bin\Debug\MySql.Data.Entity.dll
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\bin\Debug\EntityFramework.xml
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\obj\Debug\MTGO.Common.dll
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\obj\Debug\MTGO.Common.pdb
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Common\obj\Debug\MTGO.Common.csprojResolveAssemblyReference.cache

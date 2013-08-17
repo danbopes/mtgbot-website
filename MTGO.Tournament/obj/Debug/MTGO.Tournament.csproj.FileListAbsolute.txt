@@ -1,0 +1,5 @@
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Tournament\bin\Debug\MTGO.Tournament.dll
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Tournament\bin\Debug\MTGO.Tournament.pdb
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Tournament\obj\Debug\MTGO.Tournament.csprojResolveAssemblyReference.cache
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Tournament\obj\Debug\MTGO.Tournament.dll
+C:\Users\admin\Source\Repos\MTGO\mtgbot\MTGO.Tournament\obj\Debug\MTGO.Tournament.pdb

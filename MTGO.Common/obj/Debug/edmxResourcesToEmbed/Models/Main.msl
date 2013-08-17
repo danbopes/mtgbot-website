@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="ModelsStoreContainer" CdmEntityContainer="MainDbContext">
+    <EntitySetMapping Name="Donations">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Donation)">
+        <MappingFragment StoreEntitySet="donations">
+          <ScalarProperty Name="TxnId" ColumnName="TxnId" />
+          <ScalarProperty Name="DateTime" ColumnName="DateTime" />
+          <ScalarProperty Name="Amount" ColumnName="Amount" />
+          <ScalarProperty Name="Username" ColumnName="Username" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Cards">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Card)">
+        <MappingFragment StoreEntitySet="cards">
+          <ScalarProperty Name="CardTextureNumber" ColumnName="CardTextureNumber" />
+          <ScalarProperty Name="Color" ColumnName="Color" />
+          <ScalarProperty Name="CMC" ColumnName="CMC" />
+          <ScalarProperty Name="ManaCost" ColumnName="ManaCost" />
+          <ScalarProperty Name="Rarity" ColumnName="Rarity" />
+          <ScalarProperty Name="CardSetId" ColumnName="CardSetId" />
+          <ScalarProperty Name="Foil" ColumnName="Foil" />
+          <ScalarProperty Name="MagicCardsInfoId" ColumnName="MagicCardsInfoId" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CardSets">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.CardSet)">
+        <MappingFragment StoreEntitySet="cardsets">
+          <ScalarProperty Name="GathererSet" ColumnName="GathererSet" />
+          <ScalarProperty Name="Completed" ColumnName="Completed" />
+          <ScalarProperty Name="MtgoBoosterId" ColumnName="MtgoBoosterId" />
+          <ScalarProperty Name="MagicCardsInfoSetShort" ColumnName="MagicCardsInfoSetShort" />
+          <ScalarProperty Name="Short" ColumnName="Short" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Broadcasters">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Broadcaster)">
+        <MappingFragment StoreEntitySet="broadcasters">
+          <ScalarProperty Name="IrcSettings" ColumnName="IrcSettings" />
+          <ScalarProperty Name="MtgoId" ColumnName="MtgoId" />
+          <ScalarProperty Name="MtgoUsername" ColumnName="MtgoUsername" />
+          <ScalarProperty Name="Key" ColumnName="Key" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Drafts">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.Draft)">
+        <MappingFragment StoreEntitySet="drafts">
+          <ScalarProperty Name="TournamentId" ColumnName="TournamentId" />
+          <ScalarProperty Name="FinalDeck" ColumnName="FinalDeck" />
+          <ScalarProperty Name="Players" ColumnName="Players" />
+          <ScalarProperty Name="CurrentPack" ColumnName="CurrentPack" />
+          <ScalarProperty Name="DraftStatus" ColumnName="DraftStatus" />
+          <ScalarProperty Name="BroadcasterId" ColumnName="BroadcasterId" />
+          <ScalarProperty Name="DraftId" ColumnName="DraftId" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="DraftPicks">
+      <EntityTypeMapping TypeName="IsTypeOf(Models.DraftPick)">
+        <MappingFragment StoreEntitySet="draftpicks">
+          <ScalarProperty Name="Pack" ColumnName="Pack" />
+          <ScalarProperty Name="Pick" ColumnName="Pick" />
+          <ScalarProperty Name="Time" ColumnName="Time" />
+          <ScalarProperty Name="Direction" ColumnName="Direction" />
+          <ScalarProperty Name="PickId" ColumnName="PickId" />
+          <ScalarProperty Name="Picks" ColumnName="Picks" />
+          <ScalarProperty Name="DraftId" ColumnName="DraftId" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Votes">
+      <EntityTypeMapping TypeName="Models.Vote">
+        <MappingFragment StoreEntitySet="votes">
+          <ScalarProperty Name="CardId" ColumnName="CardId" />
+          <ScalarProperty Name="Username" ColumnName="Username" />
+          <ScalarProperty Name="DraftPickId" ColumnName="DraftPickId" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="TwitchOAuths">
+      <EntityTypeMapping TypeName="Models.TwitchOAuth">
+        <MappingFragment StoreEntitySet="twitch_oauth">
+          <ScalarProperty Name="Username" ColumnName="username" />
+          <ScalarProperty Name="OAuth" ColumnName="oauth" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CubeDraftCards">
+      <EntityTypeMapping TypeName="Models.CubeDraftCard">
+        <MappingFragment StoreEntitySet="cubedraftcards">
+          <ScalarProperty Name="Location" ColumnName="location" />
+          <ScalarProperty Name="CardId" ColumnName="card_id" />
+          <ScalarProperty Name="CubedraftId" ColumnName="cubedraft_id" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CubeDraftPicks">
+      <EntityTypeMapping TypeName="Models.CubeDraftPick">
+        <MappingFragment StoreEntitySet="cubedraftpicks">
+          <ScalarProperty Name="PickId" ColumnName="pickid" />
+          <ScalarProperty Name="Pick" ColumnName="pick" />
+          <ScalarProperty Name="Picks" ColumnName="picks" />
+          <ScalarProperty Name="PlayerId" ColumnName="player_id" />
+          <ScalarProperty Name="CubedraftId" ColumnName="cubedraft_id" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CubeDraftPlayers">
+      <EntityTypeMapping TypeName="Models.CubeDraftPlayer">
+        <MappingFragment StoreEntitySet="cubedraftplayers">
+          <ScalarProperty Name="DropRound" ColumnName="drop_round" />
+          <ScalarProperty Name="DeckBuilt" ColumnName="deck_built" />
+          <ScalarProperty Name="Position" ColumnName="position" />
+          <ScalarProperty Name="ProductGiven" ColumnName="product_given" />
+          <ScalarProperty Name="RequireCollateral" ColumnName="require_collateral" />
+          <ScalarProperty Name="Team" ColumnName="team" />
+          <ScalarProperty Name="Confirmed" ColumnName="confirmed" />
+          <ScalarProperty Name="MtgoLinkId" ColumnName="user_id" />
+          <ScalarProperty Name="CubedraftId" ColumnName="cubedraft_id" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CubeDrafts">
+      <EntityTypeMapping TypeName="Models.CubeDraft">
+        <MappingFragment StoreEntitySet="cubedrafts">
+          <ScalarProperty Name="Created" ColumnName="created" />
+          <ScalarProperty Name="BotName" ColumnName="bot_name" />
+          <ScalarProperty Name="Timed" ColumnName="timed" />
+          <ScalarProperty Name="RequireWatchers" ColumnName="require_watchers" />
+          <ScalarProperty Name="RoundTime" ColumnName="round_time" />
+          <ScalarProperty Name="Status" ColumnName="status" />
+          <ScalarProperty Name="BroadcasterId" ColumnName="broadcaster_id" />
+          <ScalarProperty Name="Name" ColumnName="name" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="NCards">
+      <EntityTypeMapping TypeName="Models.NCard">
+        <MappingFragment StoreEntitySet="ncards">
+          <ScalarProperty Name="legality_Pauper" ColumnName="legality_Pauper" />
+          <ScalarProperty Name="legality_Peasant" ColumnName="legality_Peasant" />
+          <ScalarProperty Name="legality_Commander" ColumnName="legality_Commander" />
+          <ScalarProperty Name="legality_French_Commander" ColumnName="legality_French_Commander" />
+          <ScalarProperty Name="legality_Highlander" ColumnName="legality_Highlander" />
+          <ScalarProperty Name="legality_Vintage" ColumnName="legality_Vintage" />
+          <ScalarProperty Name="legality_Legacy" ColumnName="legality_Legacy" />
+          <ScalarProperty Name="legality_Modern" ColumnName="legality_Modern" />
+          <ScalarProperty Name="legality_Extended" ColumnName="legality_Extended" />
+          <ScalarProperty Name="legality_Standard" ColumnName="legality_Standard" />
+          <ScalarProperty Name="legality_Block" ColumnName="legality_Block" />
+          <ScalarProperty Name="name_KO" ColumnName="name_KO" />
+          <ScalarProperty Name="name_ES" ColumnName="name_ES" />
+          <ScalarProperty Name="name_RU" ColumnName="name_RU" />
+          <ScalarProperty Name="name_PT" ColumnName="name_PT" />
+          <ScalarProperty Name="name_JP" ColumnName="name_JP" />
+          <ScalarProperty Name="name_IT" ColumnName="name_IT" />
+          <ScalarProperty Name="name_DE" ColumnName="name_DE" />
+          <ScalarProperty Name="name_FR" ColumnName="name_FR" />
+          <ScalarProperty Name="name_TW" ColumnName="name_TW" />
+          <ScalarProperty Name="name_CN" ColumnName="name_CN" />
+          <ScalarProperty Name="watermark" ColumnName="watermark" />
+          <ScalarProperty Name="back_id" ColumnName="back_id" />
+          <ScalarProperty Name="pricing_high" ColumnName="pricing_high" />
+          <ScalarProperty Name="pricing_mid" ColumnName="pricing_mid" />
+          <ScalarProperty Name="pricing_low" ColumnName="pricing_low" />
+          <ScalarProperty Name="GeneratedMana" ColumnName="generated_mana" />
+          <ScalarProperty Name="Color" ColumnName="color" />
+          <ScalarProperty Name="Ruling" ColumnName="ruling" />
+          <ScalarProperty Name="Rating" ColumnName="rating" />
+          <ScalarProperty Name="Number" ColumnName="number" />
+          <ScalarProperty Name="Artist" ColumnName="artist" />
+          <ScalarProperty Name="Variation" ColumnName="variation" />
+          <ScalarProperty Name="Flavor" ColumnName="flavor" />
+          <ScalarProperty Name="Ability" ColumnName="ability" />
+          <ScalarProperty Name="Loyalty" ColumnName="loyalty" />
+          <ScalarProperty Name="Toughness" ColumnName="toughness" />
+          <ScalarProperty Name="Power" ColumnName="power" />
+          <ScalarProperty Name="ConvertedManacost" ColumnName="converted_manacost" />
+          <ScalarProperty Name="Manacost" ColumnName="manacost" />
+          <ScalarProperty Name="Rarity" ColumnName="rarity" />
+          <ScalarProperty Name="Type" ColumnName="type" />
+          <ScalarProperty Name="Set" ColumnName="set" />
+          <ScalarProperty Name="Name" ColumnName="name" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="NSets">
+      <EntityTypeMapping TypeName="Models.NSet">
+        <MappingFragment StoreEntitySet="nsets">
+          <ScalarProperty Name="IsPromo" ColumnName="is_promo" />
+          <ScalarProperty Name="Date" ColumnName="date" />
+          <ScalarProperty Name="CodeMagiccards" ColumnName="code_magiccards" />
+          <ScalarProperty Name="Code" ColumnName="code" />
+          <ScalarProperty Name="Name" ColumnName="name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="CubeDraftResults">
+      <EntityTypeMapping TypeName="Models.CubeDraftResult">
+        <MappingFragment StoreEntitySet="cubedraftresults">
+          <ScalarProperty Name="Round" ColumnName="round" />
+          <ScalarProperty Name="DraftId" ColumnName="draft_id" />
+          <ScalarProperty Name="CurrentGame" ColumnName="current_game" />
+          <ScalarProperty Name="Ties" ColumnName="ties" />
+          <ScalarProperty Name="Player2Wins" ColumnName="player2_wins" />
+          <ScalarProperty Name="Player1Wins" ColumnName="player1_wins" />
+          <ScalarProperty Name="Player2Id" ColumnName="player2_id" />
+          <ScalarProperty Name="Player1Id" ColumnName="player1_id" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Bans">
+      <EntityTypeMapping TypeName="Models.Ban">
+        <MappingFragment StoreEntitySet="bans">
+          <ScalarProperty Name="Reason" ColumnName="reason" />
+          <ScalarProperty Name="Expires" ColumnName="expires" />
+          <ScalarProperty Name="BanType" ColumnName="ban_type" />
+          <ScalarProperty Name="IpAddress" ColumnName="ip_address" />
+          <ScalarProperty Name="UserId" ColumnName="user_id" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MtgoLink">
+      <EntityTypeMapping TypeName="Models.MtgoLink">
+        <MappingFragment StoreEntitySet="mtgo_link">
+          <ScalarProperty Name="ConfirmKey" ColumnName="confirm_key" />
+          <ScalarProperty Name="Confirmed" ColumnName="confirmed" />
+          <ScalarProperty Name="MtgoId" ColumnName="mtgo_id" />
+          <ScalarProperty Name="MtgoUsername" ColumnName="mtgo_username" />
+          <ScalarProperty Name="UserId" ColumnName="user_id" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Users">
+      <EntityTypeMapping TypeName="Models.User">
+        <MappingFragment StoreEntitySet="users">
+          <ScalarProperty Name="Created" ColumnName="created" />
+          <ScalarProperty Name="SignupIpAddress" ColumnName="signup_ip_address" />
+          <ScalarProperty Name="TwitchUsername" ColumnName="twitch_username" />
+          <ScalarProperty Name="Admin" ColumnName="admin" />
+          <ScalarProperty Name="Id" ColumnName="id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

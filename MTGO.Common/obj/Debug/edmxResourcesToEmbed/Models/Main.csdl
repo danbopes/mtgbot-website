@@ -1,0 +1,583 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="Models" Alias="Self" p1:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:p1="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityContainer Name="MainDbContext" p1:LazyLoadingEnabled="false">
+    <EntitySet Name="Broadcasters" EntityType="Models.Broadcaster" />
+    <EntitySet Name="Cards" EntityType="Models.Card" />
+    <EntitySet Name="CardSets" EntityType="Models.CardSet" />
+    <EntitySet Name="DraftPicks" EntityType="Models.DraftPick" />
+    <EntitySet Name="Drafts" EntityType="Models.Draft" />
+    <AssociationSet Name="CardSetCards" Association="Models.CardSetCards">
+      <End Role="cardsets" EntitySet="CardSets" />
+      <End Role="cards" EntitySet="Cards" />
+    </AssociationSet>
+    <AssociationSet Name="BroadcasterDraft" Association="Models.BroadcasterDraft">
+      <End Role="Broadcaster" EntitySet="Broadcasters" />
+      <End Role="Draft" EntitySet="Drafts" />
+    </AssociationSet>
+    <AssociationSet Name="DraftDraftPick" Association="Models.DraftDraftPick">
+      <End Role="Draft" EntitySet="Drafts" />
+      <End Role="DraftPick" EntitySet="DraftPicks" />
+    </AssociationSet>
+    <EntitySet Name="Donations" EntityType="Models.Donation" />
+    <EntitySet Name="Votes" EntityType="Models.Vote" />
+    <AssociationSet Name="FK_DraftPickVotes" Association="Models.FK_DraftPickVotes">
+      <End Role="DraftPick" EntitySet="DraftPicks" />
+      <End Role="vote" EntitySet="Votes" />
+    </AssociationSet>
+    <AssociationSet Name="VoteCard" Association="Models.VoteCard">
+      <End Role="Vote" EntitySet="Votes" />
+      <End Role="Card" EntitySet="Cards" />
+    </AssociationSet>
+    <EntitySet Name="TwitchOAuths" EntityType="Models.TwitchOAuth" />
+    <EntitySet Name="CubeDraftCards" EntityType="Models.CubeDraftCard" />
+    <EntitySet Name="CubeDraftPicks" EntityType="Models.CubeDraftPick" />
+    <EntitySet Name="CubeDraftPlayers" EntityType="Models.CubeDraftPlayer" />
+    <EntitySet Name="CubeDrafts" EntityType="Models.CubeDraft" />
+    <AssociationSet Name="FK_CubeDraftBroadcaster" Association="Models.FK_CubeDraftBroadcaster">
+      <End Role="Broadcaster" EntitySet="Broadcasters" />
+      <End Role="CubeDraft" EntitySet="CubeDrafts" />
+    </AssociationSet>
+    <AssociationSet Name="CubeDraftCubeDraftCard" Association="Models.CubeDraftCubeDraftCard">
+      <End Role="CubeDraft" EntitySet="CubeDrafts" />
+      <End Role="CubeDraftCard" EntitySet="CubeDraftCards" />
+    </AssociationSet>
+    <AssociationSet Name="CubeDraftCubeDraftPlayer" Association="Models.CubeDraftCubeDraftPlayer">
+      <End Role="CubeDraft" EntitySet="CubeDrafts" />
+      <End Role="CubeDraftPlayer" EntitySet="CubeDraftPlayers" />
+    </AssociationSet>
+    <EntitySet Name="NCards" EntityType="Models.NCard" />
+    <EntitySet Name="NSets" EntityType="Models.NSet" />
+    <AssociationSet Name="NSetNCard" Association="Models.NSetNCard">
+      <End Role="NSet" EntitySet="NSets" />
+      <End Role="NCard" EntitySet="NCards" />
+    </AssociationSet>
+    <AssociationSet Name="CubeDraftCubeDraftPick" Association="Models.CubeDraftCubeDraftPick">
+      <End Role="CubeDraft" EntitySet="CubeDrafts" />
+      <End Role="CubeDraftPick" EntitySet="CubeDraftPicks" />
+    </AssociationSet>
+    <AssociationSet Name="CubeDraftPlayerCubeDraftPick" Association="Models.CubeDraftPlayerCubeDraftPick">
+      <End Role="CubeDraftPlayer" EntitySet="CubeDraftPlayers" />
+      <End Role="CubeDraftPick" EntitySet="CubeDraftPicks" />
+    </AssociationSet>
+    <EntitySet Name="CubeDraftResults" EntityType="Models.CubeDraftResult" />
+    <AssociationSet Name="CubeDraftResultCubeDraftPlayer" Association="Models.CubeDraftResultCubeDraftPlayer">
+      <End Role="CubeDraftResult" EntitySet="CubeDraftResults" />
+      <End Role="CubeDraftPlayer" EntitySet="CubeDraftPlayers" />
+    </AssociationSet>
+    <AssociationSet Name="CubeDraftResultCubeDraftPlayer1" Association="Models.CubeDraftResultCubeDraftPlayer1">
+      <End Role="CubeDraftResult" EntitySet="CubeDraftResults" />
+      <End Role="CubeDraftPlayer" EntitySet="CubeDraftPlayers" />
+    </AssociationSet>
+    <AssociationSet Name="CubeDraftCubeDraftResult" Association="Models.CubeDraftCubeDraftResult">
+      <End Role="CubeDraft" EntitySet="CubeDrafts" />
+      <End Role="CubeDraftResult" EntitySet="CubeDraftResults" />
+    </AssociationSet>
+    <EntitySet Name="Bans" EntityType="Models.Ban" />
+    <EntitySet Name="MtgoLink" EntityType="Models.MtgoLink" />
+    <EntitySet Name="Users" EntityType="Models.User" />
+    <AssociationSet Name="CubeDraftPlayerUsers" Association="Models.CubeDraftPlayerUsers">
+      <End Role="CubeDraftPlayer" EntitySet="CubeDraftPlayers" />
+      <End Role="Users" EntitySet="Users" />
+    </AssociationSet>
+    <AssociationSet Name="CubeDraftPlayerMtgoLink" Association="Models.CubeDraftPlayerMtgoLink">
+      <End Role="CubeDraftPlayer" EntitySet="CubeDraftPlayers" />
+      <End Role="MtgoLink" EntitySet="MtgoLink" />
+    </AssociationSet>
+    <AssociationSet Name="UsersMtgoLink" Association="Models.UsersMtgoLink">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="MtgoLink" EntitySet="MtgoLink" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Broadcaster">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="255" Unicode="false" FixedLength="false" />
+    <Property Type="String" Name="MtgoUsername" Nullable="true" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="Key" Type="String" MaxLength="32" Unicode="false" FixedLength="false" />
+    <NavigationProperty Name="Drafts" Relationship="Models.BroadcasterDraft" FromRole="Broadcaster" ToRole="Draft" />
+    <Property Type="Int32" Name="MtgoId" Nullable="false" />
+    <Property Type="String" Name="IrcSettings" Nullable="false" MaxLength="16777215" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="Card">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="255" Unicode="false" FixedLength="false" />
+    <Property Name="MagicCardsInfoId" Type="String" MaxLength="5" Unicode="false" FixedLength="false" />
+    <Property Name="Foil" Type="Boolean" Nullable="false" />
+    <Property Type="Int32" Name="CardTextureNumber" Nullable="false" />
+    <Property Name="CardSetId" Type="Int32" />
+    <NavigationProperty Name="CardSet" Relationship="Models.CardSetCards" FromRole="cards" ToRole="cardsets" />
+    <Property Type="String" Name="Rarity" Nullable="false" MaxLength="1" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="ManaCost" Nullable="false" MaxLength="30" FixedLength="false" Unicode="false" />
+    <Property Type="Int32" Name="CMC" Nullable="false" />
+    <Property Type="String" Name="Color" Nullable="false" MaxLength="5" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="CardSet">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" MaxLength="255" Unicode="false" FixedLength="false" />
+    <Property Name="Short" Type="String" MaxLength="5" Unicode="false" FixedLength="false" />
+    <Property Type="String" Name="GathererSet" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Name="MagicCardsInfoSetShort" Type="String" MaxLength="5" Unicode="false" FixedLength="false" />
+    <Property Type="Int32" Name="MtgoBoosterId" Nullable="false" />
+    <Property Type="Boolean" Name="Completed" Nullable="false" />
+  </EntityType>
+  <EntityType Name="DraftPick">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+    <Property Name="DraftId" Type="Int32" Nullable="false" />
+    <Property Name="Picks" Type="String" MaxLength="1073741823" Unicode="false" FixedLength="false" />
+    <Property Type="Int32" Name="Pick" Nullable="false" />
+    <Property Type="Int32" Name="Pack" Nullable="false" />
+    <Property Name="PickId" Type="Int32" />
+    <Property Name="Direction" Type="Models.Direction" Nullable="false" />
+    <Property Name="Time" Type="Int32" Nullable="false" />
+    <NavigationProperty Name="Draft" Relationship="Models.DraftDraftPick" FromRole="DraftPick" ToRole="Draft" />
+  </EntityType>
+  <EntityType Name="Draft">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" p1:StoreGeneratedPattern="Identity" />
+    <Property Name="DraftId" Type="Int32" Nullable="false" />
+    <Property Type="Int32" Name="TournamentId" Nullable="false" />
+    <Property Name="BroadcasterId" Type="Int32" Nullable="false" />
+    <Property Type="String" Name="Players" Nullable="false" MaxLength="1073741823" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="FinalDeck" MaxLength="1073741823" FixedLength="false" Unicode="false" />
+    <Property Name="DraftStatus" Type="Models.DraftStatus" />
+    <NavigationProperty Name="Broadcaster" Relationship="Models.BroadcasterDraft" FromRole="Draft" ToRole="Broadcaster" />
+    <NavigationProperty Name="DraftPicks" Relationship="Models.DraftDraftPick" FromRole="Draft" ToRole="DraftPick" />
+    <Property Type="Int32" Name="CurrentPack" Nullable="false" DefaultValue="0" />
+  </EntityType>
+  <Association Name="CardSetCards">
+    <End Role="cardsets" Type="Models.CardSet" Multiplicity="0..1" />
+    <End Role="cards" Type="Models.Card" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="cardsets">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="cards">
+        <PropertyRef Name="CardSetId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="BroadcasterDraft">
+    <End Type="Models.Broadcaster" Role="Broadcaster" Multiplicity="1" />
+    <End Type="Models.Draft" Role="Draft" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Broadcaster">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Draft">
+        <PropertyRef Name="BroadcasterId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="DraftDraftPick">
+    <End Type="Models.Draft" Role="Draft" Multiplicity="1" />
+    <End Type="Models.DraftPick" Role="DraftPick" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Draft">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="DraftPick">
+        <PropertyRef Name="DraftId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EnumType Name="Direction" UnderlyingType="Int32">
+    <Member Name="Left" Value="0" />
+    <Member Name="Right" Value="1" />
+  </EnumType>
+  <EnumType Name="DraftStatus">
+    <Member Name="Drafting" Value="0" />
+    <Member Name="Completed" Value="1" />
+  </EnumType>
+  <EntityType Name="Donation">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="TxnId" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Email" Nullable="false" />
+    <Property Type="String" Name="Username" Nullable="false" />
+    <Property Type="Double" Name="Amount" Nullable="false" DefaultValue="0" />
+    <Property Type="DateTime" Name="DateTime" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Vote">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="DraftPickId" Nullable="false" />
+    <Property Type="String" Name="Username" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="Int32" Name="CardId" Nullable="false" />
+    <NavigationProperty Name="Card" Relationship="Models.VoteCard" FromRole="Vote" ToRole="Card" />
+  </EntityType>
+  <Association Name="FK_DraftPickVotes">
+    <End Type="Models.DraftPick" Role="DraftPick" Multiplicity="1" />
+    <End Type="Models.Vote" Role="vote" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="DraftPick">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="vote">
+        <PropertyRef Name="DraftPickId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="VoteCard">
+    <End Type="Models.Vote" Role="Vote" Multiplicity="*" />
+    <End Type="Models.Card" Role="Card" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="Vote">
+        <PropertyRef Name="CardId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="TwitchOAuth">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="OAuth" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Username" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="CubeDraftCard">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="CubedraftId" Nullable="false" />
+    <Property Type="Int32" Name="CardId" Nullable="false" />
+    <Property Type="Int32" Name="Location" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CubeDraftPick">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="CubedraftId" Nullable="false" />
+    <Property Type="Int32" Name="PlayerId" Nullable="false" />
+    <Property Type="String" Name="Picks" Nullable="false" MaxLength="1073741823" FixedLength="false" Unicode="false" />
+    <Property Type="Int32" Name="Pick" Nullable="false" />
+    <Property Type="Int32" Name="PickId" Nullable="true" />
+  </EntityType>
+  <EntityType Name="CubeDraftPlayer">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="CubedraftId" Nullable="false" />
+    <Property Type="Int32" Name="MtgoLinkId" Nullable="false" />
+    <Property Type="Boolean" Name="Confirmed" Nullable="false" />
+    <Property Type="Int32" Name="Team" Nullable="false" />
+    <Property Type="Int32" Name="RequireCollateral" Nullable="false" />
+    <Property Type="Boolean" Name="ProductGiven" Nullable="false" />
+    <Property Type="Int32" Name="Position" Nullable="false" />
+    <NavigationProperty Name="CubeDraftPicks" Relationship="Models.CubeDraftPlayerCubeDraftPick" FromRole="CubeDraftPlayer" ToRole="CubeDraftPick" />
+    <NavigationProperty Name="MtgoLink" Relationship="Models.CubeDraftPlayerMtgoLink" FromRole="CubeDraftPlayer" ToRole="MtgoLink" />
+    <Property Type="Int32" Name="DropRound" Nullable="false" />
+    <Property Type="Boolean" Name="DeckBuilt" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CubeDraft">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="Name" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="DateTime" Name="Created" Nullable="false" annotation:StoreGeneratedPattern="None" />
+    <Property Type="Int32" Name="BroadcasterId" Nullable="false" />
+    <Property Type="Models.CubeDraftStatus" Name="Status" Nullable="false" />
+    <Property Type="Int32" Name="RoundTime" Nullable="false" />
+    <Property Type="Boolean" Name="RequireWatchers" Nullable="false" />
+    <NavigationProperty Name="Broadcaster" Relationship="Models.FK_CubeDraftBroadcaster" FromRole="CubeDraft" ToRole="Broadcaster" />
+    <NavigationProperty Name="CubeDraftCards" Relationship="Models.CubeDraftCubeDraftCard" FromRole="CubeDraft" ToRole="CubeDraftCard" />
+    <Property Type="Boolean" Name="Timed" Nullable="false" />
+    <NavigationProperty Name="CubeDraftPlayers" Relationship="Models.CubeDraftCubeDraftPlayer" FromRole="CubeDraft" ToRole="CubeDraftPlayer" />
+    <Property Type="String" Name="BotName" MaxLength="255" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="CubeDraftPicks" Relationship="Models.CubeDraftCubeDraftPick" FromRole="CubeDraft" ToRole="CubeDraftPick" />
+    <NavigationProperty Name="CubeDraftResults" Relationship="Models.CubeDraftCubeDraftResult" FromRole="CubeDraft" ToRole="CubeDraftResult" />
+  </EntityType>
+  <EnumType Name="CubeDraftStatus">
+    <Member Name="Init" Value="0" />
+    <Member Name="PreStart" Value="1" />
+    <Member Name="Drafting" Value="2" />
+    <Member Name="ProductHandOut" Value="3" />
+    <Member Name="InMatches" Value="4" />
+    <Member Name="ProductHandIn" Value="5" />
+    <Member Name="Exception" Value="6" />
+    <Member Name="Completed" Value="7" />
+  </EnumType>
+  <Association Name="FK_CubeDraftBroadcaster">
+    <End Type="Models.Broadcaster" Role="Broadcaster" Multiplicity="1" />
+    <End Type="Models.CubeDraft" Role="CubeDraft" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Broadcaster">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraft">
+        <PropertyRef Name="BroadcasterId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CubeDraftCubeDraftCard">
+    <End Type="Models.CubeDraft" Role="CubeDraft" Multiplicity="1" />
+    <End Type="Models.CubeDraftCard" Role="CubeDraftCard" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="CubeDraft">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftCard">
+        <PropertyRef Name="CubedraftId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CubeDraftCubeDraftPlayer">
+    <End Type="Models.CubeDraft" Role="CubeDraft" Multiplicity="1" />
+    <End Type="Models.CubeDraftPlayer" Role="CubeDraftPlayer" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="CubeDraft">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftPlayer">
+        <PropertyRef Name="CubedraftId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="NCard">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="String" Name="Id" Nullable="false" MaxLength="11" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Name" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Set" MaxLength="4" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Type" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Rarity" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Manacost" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="ConvertedManacost" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Power" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Toughness" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Type="SByte" Name="Loyalty" />
+    <Property Type="String" Name="Ability" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Flavor" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="SByte" Name="Variation" />
+    <Property Type="String" Name="Artist" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Number" MaxLength="4" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Rating" MaxLength="5" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Ruling" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Color" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="GeneratedMana" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="Double" Name="pricing_low" />
+    <Property Type="Double" Name="pricing_mid" />
+    <Property Type="Double" Name="pricing_high" />
+    <Property Type="String" Name="back_id" MaxLength="11" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="watermark" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_CN" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_TW" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_FR" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_DE" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_IT" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_JP" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_PT" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_RU" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_ES" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="name_KO" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Block" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Standard" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Extended" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Modern" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Legacy" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Vintage" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Highlander" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_French_Commander" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Commander" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Peasant" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="legality_Pauper" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="NSet" Relationship="Models.NSetNCard" FromRole="NCard" ToRole="NSet" />
+  </EntityType>
+  <EntityType Name="NSet">
+    <Key>
+      <PropertyRef Name="Code" />
+    </Key>
+    <Property Type="String" Name="Name" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Code" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="CodeMagiccards" MaxLength="10" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="Date" MaxLength="65535" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="IsPromo" MaxLength="65535" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <Association Name="NSetNCard">
+    <End Type="Models.NSet" Role="NSet" Multiplicity="0..1" />
+    <End Type="Models.NCard" Role="NCard" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="NSet">
+        <PropertyRef Name="Code" />
+      </Principal>
+      <Dependent Role="NCard">
+        <PropertyRef Name="Set" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CubeDraftCubeDraftPick">
+    <End Type="Models.CubeDraft" Role="CubeDraft" Multiplicity="1" />
+    <End Type="Models.CubeDraftPick" Role="CubeDraftPick" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="CubeDraft">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftPick">
+        <PropertyRef Name="CubedraftId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CubeDraftPlayerCubeDraftPick">
+    <End Type="Models.CubeDraftPlayer" Role="CubeDraftPlayer" Multiplicity="1" />
+    <End Type="Models.CubeDraftPick" Role="CubeDraftPick" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="CubeDraftPlayer">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftPick">
+        <PropertyRef Name="PlayerId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="CubeDraftResult">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="DraftId" Nullable="false" />
+    <Property Type="Int32" Name="Round" Nullable="false" />
+    <Property Type="Int32" Name="Player1Id" Nullable="false" />
+    <Property Type="Int32" Name="Player2Id" Nullable="true" />
+    <Property Type="Int32" Name="Player1Wins" Nullable="false" />
+    <Property Type="Int32" Name="Player2Wins" Nullable="false" />
+    <Property Type="Int32" Name="Ties" Nullable="false" />
+    <NavigationProperty Name="CubeDraftPlayer1" Relationship="Models.CubeDraftResultCubeDraftPlayer" FromRole="CubeDraftResult" ToRole="CubeDraftPlayer" />
+    <NavigationProperty Name="CubeDraftPlayer2" Relationship="Models.CubeDraftResultCubeDraftPlayer1" FromRole="CubeDraftResult" ToRole="CubeDraftPlayer" />
+    <Property Type="Int32" Name="CurrentGame" Nullable="false" />
+  </EntityType>
+  <Association Name="CubeDraftResultCubeDraftPlayer">
+    <End Type="Models.CubeDraftResult" Role="CubeDraftResult" Multiplicity="*" />
+    <End Type="Models.CubeDraftPlayer" Role="CubeDraftPlayer" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="CubeDraftPlayer">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftResult">
+        <PropertyRef Name="Player1Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CubeDraftResultCubeDraftPlayer1">
+    <End Type="Models.CubeDraftResult" Role="CubeDraftResult" Multiplicity="*" />
+    <End Type="Models.CubeDraftPlayer" Role="CubeDraftPlayer" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="CubeDraftPlayer">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftResult">
+        <PropertyRef Name="Player2Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CubeDraftCubeDraftResult">
+    <End Type="Models.CubeDraft" Role="CubeDraft" Multiplicity="1" />
+    <End Type="Models.CubeDraftResult" Role="CubeDraftResult" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="CubeDraft">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftResult">
+        <PropertyRef Name="DraftId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EnumType Name="BanType">
+    <Member Name="Global" />
+    <Member Name="DraftViewer" />
+    <Member Name="CubeDraft" />
+  </EnumType>
+  <EntityType Name="Ban">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="UserId" />
+    <Property Type="String" Name="IpAddress" MaxLength="15" FixedLength="false" Unicode="false" />
+    <Property Type="Int32" Name="BanType" />
+    <Property Type="DateTime" Name="Expires" Nullable="false" />
+    <Property Type="String" Name="Reason" Nullable="false" MaxLength="16777215" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="MtgoLink">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="UserId" Nullable="false" />
+    <Property Type="String" Name="MtgoUsername" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="Int32" Name="MtgoId" Nullable="false" />
+    <Property Type="Boolean" Name="Confirmed" Nullable="false" />
+    <Property Type="String" Name="ConfirmKey" MaxLength="4" FixedLength="false" Unicode="false" />
+    <NavigationProperty Name="User" Relationship="Models.UsersMtgoLink" FromRole="MtgoLink" ToRole="Users" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Boolean" Name="Admin" Nullable="false" />
+    <Property Type="String" Name="TwitchUsername" Nullable="false" MaxLength="255" FixedLength="false" Unicode="false" />
+    <Property Type="String" Name="SignupIpAddress" Nullable="false" MaxLength="45" FixedLength="false" Unicode="false" />
+    <Property Type="DateTime" Name="Created" Nullable="false" />
+    <NavigationProperty Name="MtgoLinks" Relationship="Models.UsersMtgoLink" FromRole="Users" ToRole="MtgoLink" />
+  </EntityType>
+  <Association Name="CubeDraftPlayerUsers">
+    <End Type="Models.CubeDraftPlayer" Role="CubeDraftPlayer" Multiplicity="*" />
+    <End Type="Models.User" Role="Users" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftPlayer">
+        <PropertyRef Name="MtgoLinkId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CubeDraftPlayerMtgoLink">
+    <End Type="Models.CubeDraftPlayer" Role="CubeDraftPlayer" Multiplicity="*" />
+    <End Type="Models.MtgoLink" Role="MtgoLink" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="MtgoLink">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CubeDraftPlayer">
+        <PropertyRef Name="MtgoLinkId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="UsersMtgoLink">
+    <End Type="Models.User" Role="Users" Multiplicity="1" />
+    <End Type="Models.MtgoLink" Role="MtgoLink" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="MtgoLink">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>
