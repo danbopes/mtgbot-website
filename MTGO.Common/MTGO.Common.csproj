@@ -33,11 +33,20 @@
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="FluentNHibernate">
+      <HintPath>..\packages\FluentNHibernate.1.3.0.733\lib\FluentNHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="MySql.Data, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySql.Data.6.7.4\lib\net40\MySql.Data.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data.Entity, Version=6.7.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>..\packages\MySQL.Data.Entities.6.7.4.1\lib\net45\MySql.Data.Entity.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.3.3.3.4001\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -53,92 +62,99 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EnumerableExtension.cs" />
-    <Compile Include="IBotService.cs">
+    <Compile Include="Entities\Ban.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ModelExtensions\CubeDraft.cs" />
-    <Compile Include="Models\Ban.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\Broadcaster.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\BanType.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\CubeDrafting\CubeDraft.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Broadcaster.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\CubeDrafting\CubeDraftCard.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Card.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\CubeDrafting\CubeDraftPick.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\CardSet.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\CubeDrafting\CubeDraftPlayer.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\CubeDraft.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\CubeDrafting\CubeDraftResult.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\CubeDraftCard.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Enums\CubeDraftStatus.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\CubeDraftPick.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\DeckCard.cs" />
+    <Compile Include="Entities\Donation.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\CubeDraftPlayer.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\Draft.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\CubeDraftResult.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\Mtgo\MtgoDraft.cs" />
+    <Compile Include="Entities\Mtgo\MtgoGame.cs" />
+    <Compile Include="Entities\MtgoLink.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\CubeDraftStatus.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\Mtgo\MtgoMatch.cs" />
+    <Compile Include="Entities\Mtgo\MtgoPlayer.cs" />
+    <Compile Include="Entities\Mtgo\MtgoTournament.cs" />
+    <Compile Include="Entities\NCard.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Direction.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\NSet.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Donation.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\User.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Draft.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\Vote.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\DraftPick.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="EnumerableExtension.cs" />
+    <Compile Include="Entities\DraftPick.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\DraftStatus.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Entities\Card.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Main.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Main.Context.tt</DependentUpon>
+    <Compile Include="Entities\CardSet.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Main.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
+    <Compile Include="Enums\Direction.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\Main2.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Main.edmx</DependentUpon>
+    <Compile Include="Enums\DraftStatus.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\MtgoLink.cs">
-      <DependentUpon>Main.tt</DependentUpon>
+    <Compile Include="Mappings\BanMap.cs" />
+    <Compile Include="Mappings\BroadcasterMap.cs" />
+    <Compile Include="Mappings\CardMap.cs" />
+    <Compile Include="Mappings\CardSetMap.cs" />
+    <Compile Include="Mappings\CubeDrafting\CubeDraftCardMap.cs" />
+    <Compile Include="Mappings\CubeDrafting\CubeDraftMap.cs" />
+    <Compile Include="Mappings\CubeDrafting\CubeDraftPickMap.cs" />
+    <Compile Include="Mappings\CubeDrafting\CubeDraftPlayerMap.cs" />
+    <Compile Include="Mappings\CubeDrafting\CubeDraftResultMap.cs" />
+    <Compile Include="Mappings\DeckCardMap.cs" />
+    <Compile Include="Mappings\DonationMap.cs" />
+    <Compile Include="Mappings\DraftMap.cs" />
+    <Compile Include="Mappings\DraftPickMap.cs" />
+    <Compile Include="Mappings\MtgoLinkMap.cs" />
+    <Compile Include="Mappings\Mtgo\MtgoDraftMap.cs" />
+    <Compile Include="Mappings\Mtgo\MtgoGameMap.cs" />
+    <Compile Include="Mappings\Mtgo\MtgoMatchMap.cs" />
+    <Compile Include="Mappings\Mtgo\MtgoPlayerMap.cs" />
+    <Compile Include="Mappings\Mtgo\MtgoTournamentMap.cs" />
+    <Compile Include="Mappings\NCardMap.cs" />
+    <Compile Include="Mappings\NSetMap.cs" />
+    <Compile Include="Mappings\UserMap.cs" />
+    <Compile Include="Enums\BanType.cs">
+      <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Models\NCard.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\NSet.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\TwitchOAuth.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\User.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Vote.cs">
-      <DependentUpon>Main.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Mappings\VoteMap.cs" />
     <Compile Include="MTGOCallbacks\PrivateChatMessageCallback.cs" />
     <Compile Include="MTGORating.cs" />
     <Compile Include="MTGOUser.cs" />
@@ -146,39 +162,17 @@
     <Compile Include="QueueStatus.cs" />
     <Compile Include="SafeCollection.cs" />
     <Compile Include="TournamentLibrary\IPlayer.cs" />
-    <Compile Include="TournamentLibrary\ITournMatch.cs" />
-    <Compile Include="TournamentLibrary\ITournPlayer.cs" />
-    <Compile Include="TournamentLibrary\Player.cs" />
-    <Compile Include="TournamentLibrary\TournMatch.cs" />
-    <Compile Include="TournamentLibrary\TournMatchArray.cs" />
-    <Compile Include="TournamentLibrary\TournPlayer.cs" />
-    <Compile Include="TournamentLibrary\TournPlayerArray.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.Config" />
-    <EntityDeploy Include="Models\Main.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>Main2.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="Models\Main.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Main.Context.cs</LastGenOutput>
-      <DependentUpon>Main.edmx</DependentUpon>
-    </None>
-    <None Include="Models\Main.edmx.diagram">
-      <DependentUpon>Main.edmx</DependentUpon>
-    </None>
-    <None Include="Models\Main.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>Main.cs</LastGenOutput>
-      <DependentUpon>Main.edmx</DependentUpon>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ModelExtensions\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Data;
-using MTGO.Common.Models;
+using MTGO.Common.Entities;
+using MTGO.Common.Entities.CubeDraft;
+using MTGO.Common.Entities.CubeDrafting;
+using MTGO.Common.Enums;
 
 namespace MTGO.Web.Services
 {

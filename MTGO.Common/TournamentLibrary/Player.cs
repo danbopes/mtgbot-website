@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using MTGO.Common.Models;
+using MTGO.Common.Entities.CubeDrafting;
 
 namespace MTGO.Common.TournamentLibrary
 {

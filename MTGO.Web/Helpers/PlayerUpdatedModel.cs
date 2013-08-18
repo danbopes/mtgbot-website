@@ -1,6 +1,8 @@
 ﻿using System;
-using MTGO.Common.Models;
 using System.Linq;
+using MTGO.Common.Entities;
+using MTGO.Common.Entities.CubeDraft;
+using MTGO.Common.Entities.CubeDrafting;
 
 namespace MTGO.Web.Helpers
 {

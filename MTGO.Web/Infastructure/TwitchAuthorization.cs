@@ -12,7 +12,7 @@ using System.Text;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.Security;
-using MTGO.Common.Models;
+using MTGO.Common.Entities;
 using log4net;
 
 namespace MTGO.Web.Infastructure

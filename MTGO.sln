@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.Common", "MTGO.Common\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.Web", "MTGO.Web\MTGO.Web.csproj", "{4301C9A5-79F4-44A5-BC51-B788FB3B972A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.BuildSchema", "MTGO.BuildSchema\MTGO.BuildSchema.csproj", "{32D7DD7A-55AF-4B74-ACC5-47D8EF882B30}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{4301C9A5-79F4-44A5-BC51-B788FB3B972A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4301C9A5-79F4-44A5-BC51-B788FB3B972A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4301C9A5-79F4-44A5-BC51-B788FB3B972A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32D7DD7A-55AF-4B74-ACC5-47D8EF882B30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32D7DD7A-55AF-4B74-ACC5-47D8EF882B30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32D7DD7A-55AF-4B74-ACC5-47D8EF882B30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32D7DD7A-55AF-4B74-ACC5-47D8EF882B30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

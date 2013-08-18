@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using MTGO.Common.Models;
+using MTGO.Common.Entities;
 
 namespace MTGO.Web.TournamentLibrary
 {

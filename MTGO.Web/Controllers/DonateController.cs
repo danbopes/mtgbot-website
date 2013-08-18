@@ -6,7 +6,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
-using MTGO.Common.Models;
+using MTGO.Common.Entities;
 using MTGO.Web.Helpers;
 
 namespace MTGO.Web.Controllers

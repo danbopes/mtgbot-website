@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Mvc;
-using MTGO.Common.Models;
 using MTGO.Web.Infastructure;
 
 namespace MTGO.Web.Controllers

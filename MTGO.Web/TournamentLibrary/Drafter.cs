@@ -4,7 +4,9 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using MTGO.Common;
-using MTGO.Common.Models;
+using MTGO.Common.Entities;
+using MTGO.Common.Entities.CubeDraft;
+using MTGO.Common.Entities.CubeDrafting;
 using MTGO.Web.Hubs;
 using Microsoft.AspNet.SignalR;
 
