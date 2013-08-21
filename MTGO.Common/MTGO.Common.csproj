@@ -11,6 +11,8 @@
     <AssemblyName>MTGO.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -155,7 +157,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Mappings\VoteMap.cs" />
-    <Compile Include="MTGOCallbacks\PrivateChatMessageCallback.cs" />
     <Compile Include="MTGORating.cs" />
     <Compile Include="MTGOUser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -164,7 +165,6 @@
     <Compile Include="TournamentLibrary\IPlayer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.Config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +174,7 @@
     <Folder Include="ModelExtensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

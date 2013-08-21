@@ -25,8 +25,8 @@ namespace MTGO.Web.Helpers
                 throw new InvalidOperationException();
 
             Id = player.Id;
-            UserId = player.MtgoLink.UserId;
-            Username = player.MtgoLink.User.TwitchUsername;
+            UserId = player.MtgoLink.Id;
+            Username = player.MtgoLink.User.Username;
             Confirmed = player.Confirmed;
             DeckBuilt = player.DeckBuilt;
             DeckStatus = "none";
