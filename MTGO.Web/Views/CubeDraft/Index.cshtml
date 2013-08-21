@@ -1,5 +1,5 @@
-﻿@using MTGO.Common.Models;
-@model IEnumerable<MTGO.Common.Entities.CubeDrafting.CubeDraft>
+﻿@using MTGO.Database.Models.CubeDrafting
+@model IEnumerable<CubeDraft>
 
 @{
     ViewBag.Title = "Cube Draft";
@@ -36,7 +36,7 @@
 	                            <a href="@Url.Action("View", new { item.Id })">@Html.DisplayFor(modelItem => item.Name)</a>
 	                        </td>
 	                        <td>
-	                            <a href="@Url.Action("View", new { item.Id })">@Html.DisplayFor(modelItem => item.Broadcaster.Name)</a>
+	                            <a href="@Url.Action("View", new { item.Id })">@Html.DisplayFor(modelItem => item.Creator.Username)</a>
 	                        </td>
 	                        <td>
 	                            @{

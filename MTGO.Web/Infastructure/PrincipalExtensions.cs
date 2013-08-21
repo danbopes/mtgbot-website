@@ -11,16 +11,11 @@ namespace MTGO.Web.Infastructure
         {
             var userId = GetUserId(principal);
 
-            return userId != null && userId > 0;
+            return userId > 0;
         }
 
-        public static int? GetUserId(this IPrincipal principal)
+        public static int GetUserId(this IPrincipal principal)
         {
-            if (principal == null)
-            {
-                return null;
-            }
-
             var claimsPrincipal = principal as ClaimsPrincipal;
 
             if (claimsPrincipal != null)
@@ -32,7 +27,7 @@ namespace MTGO.Web.Infastructure
                                        .Select(idClaim => Convert.ToInt32(idClaim.Value))).FirstOrDefault();
             }
 
-            return null;
+            return 0;
         }
 
         public static bool HasClaim(this ClaimsPrincipal principal, string type)

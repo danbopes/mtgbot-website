@@ -1,28 +1,28 @@
 ﻿using System;
-using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using System.Xml;
-using MTGO.Common.Entities.CubeDrafting;
-using MTGO.Common.Enums;
+using MTGO.Database.Models.CubeDrafting;
 using MTGO.Services;
 using MTGO.Web.Filters;
 using MTGO.Web.Helpers;
 using MTGO.Web.Infastructure;
-using NHibernate;
-using NHibernate.Linq;
+using MTGO.Web.Models;
+using CubeDraftDraftModel = MTGO.Web.Helpers.CubeDraftDraftModel;
 
 namespace MTGO.Web.Controllers
 {
     public class CubeDraftController : Controller
     {
         private readonly CubeDraftService _cubeDraftService;
+        private readonly UserService _userService;
 
-        public CubeDraftController(CubeDraftService cubeDraftService)
+        public CubeDraftController(CubeDraftService cubeDraftService, UserService userService)
         {
             _cubeDraftService = cubeDraftService;
+            _userService = userService;
         }
 
         [TransactionFilter]
@@ -38,52 +38,52 @@ namespace MTGO.Web.Controllers
         }
 
         [TwitchAuthorize]
+        [TransactionFilter]
         public ActionResult Create()
         {
             var userId = User.GetUserId();
 
-            var user = db.Users.Find(userId);
+            var user = _userService.FindById(userId);
 
-            var broadcaster = db.Broadcasters.FirstOrDefault(b => b.Name == user.TwitchUsername);
-
-            if ( broadcaster == null )
+            if (!user.IsBroadcaster())
                 throw new Exception("Sorry, this feature is only for broadcasters on twitch.tv (With a valid mtgbot.tv client application).");
 
             var draft =
-                db.CubeDrafts.FirstOrDefault(
-                    c => c.Status == CubeDraftStatus.PreStart && c.BroadcasterId == broadcaster.Id);
-
-            //if ( db.CubeDrafts.Any(c => c.Status != CubeDraftStatus.Exception && c.Status != CubeDraftStatus.Completed) )
-            //    throw new Exception("Sorry, only one draft may be running at one time. This restriction may be lifted in the future.");
+                _cubeDraftService.GetAll()
+                                 .FirstOrDefault(
+                                     cubeDraft =>
+                                     cubeDraft.Status == CubeDraftStatus.PreStart && cubeDraft.Creator.Id == user.Id);
 
             return View(draft);
         }
 
         [TwitchAuthorize]
+        [TransactionFilter]
         public ActionResult View(int? id)
         {
-            if (id == null)
+            if (!id.HasValue)
                 return RedirectToAction("Index");
-
-            var cubeDraft = db.CubeDrafts
-                .Include("Broadcaster")
-                .Include("CubeDraftPlayers.MtgoLink")
-                .SingleOrDefault(d => d.Id == id);
-
-            if ( cubeDraft == null )
-                throw new Exception(String.Format("Unable to find CubeDraft with id='{0}'", id));
             
-            if (cubeDraft.Status == CubeDraftStatus.Drafting)
+            var userId = User.GetUserId();
+
+            var cubeDraft = _cubeDraftService.GetAll().Where(draft => draft.Id == id.Value).Select(draft => new CubeDraftViewModel()
+                {
+                    CubeDraftId = draft.Id,
+                    DraftName = draft.Name,
+                    BroadcasterName = draft.Creator.Username,
+                    DraftStatus = draft.Status,
+                    IsBroadcaster = (userId == draft.Creator.Id),
+                    IsDrafting = (draft.Status == CubeDraftStatus.Drafting)
+                }).SingleOrDefault();
+
+            if (cubeDraft == null)
+                throw new Exception(String.Format("Unable to find CubeDraft with id='{0}'", id));
+
+            if (cubeDraft.IsDrafting &&
+                _cubeDraftService.IsUserConfirmedCubeDraftPlayer(cubeDraft.CubeDraftId, userId))
             {
-                var player = cubeDraft.CubeDraftPlayers.FirstOrDefault(p => p.MtgoLink.UserId == User.GetUserId());
-
-                if (player != null && player.Confirmed)
-                    return RedirectToAction("Draft", new {Id = id});
+                    return RedirectToAction("Draft", new { Id = id });
             }
-
-            var user = db.Users.Find(User.GetUserId());
-
-            ViewBag.IsBroadcaster = user.TwitchUsername.ToLower() == cubeDraft.Broadcaster.Name.ToLower();
 
             return View(cubeDraft);
         }

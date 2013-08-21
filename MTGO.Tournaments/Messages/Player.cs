@@ -1,6 +1,6 @@
 ﻿using System;
-using MTGO.Common.Entities.CubeDrafting;
 using MTGO.Common.TournamentLibrary;
+using MTGO.Database.Models.CubeDrafting;
 
 namespace MTGO.Tournaments.Messages
 {

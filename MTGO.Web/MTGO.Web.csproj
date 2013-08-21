@@ -97,6 +97,9 @@
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\packages\RestSharp.104.1\lib\net4\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="SignalR">
       <HintPath>..\packages\SignalR.Server.0.5.84-rc\lib\net40\SignalR.dll</HintPath>
     </Reference>
@@ -200,7 +203,6 @@
     <Compile Include="Helpers\LogParser.cs" />
     <Compile Include="Helpers\Permutation.cs" />
     <Compile Include="Helpers\Pipe.cs" />
-    <Compile Include="Helpers\PlayerUpdatedModel.cs" />
     <Compile Include="Helpers\TimerPlus.cs" />
     <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Hubs\CubeHub.cs">
@@ -213,7 +215,11 @@
     <Compile Include="Infastructure\TwitchAuthorization.cs" />
     <Compile Include="Infastructure\TwitchAuthorizationAttribute.cs" />
     <Compile Include="Models\BugReportModel.cs" />
+    <Compile Include="Models\CardViewModel.cs" />
     <Compile Include="Models\ContactModel.cs" />
+    <Compile Include="Models\CubeDraftDraftModel.cs" />
+    <Compile Include="Models\CubeDraftViewModel.cs" />
+    <Compile Include="Models\PlayerUpdatedModel.cs" />
     <Compile Include="Models\TriviaModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DraftService.cs" />
@@ -2188,7 +2194,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\_themes\base\images\" />
-    <Folder Include="CubeDrafts\" />
     <Folder Include="Scripts\elfinder\filemanager\videos\" />
   </ItemGroup>
   <ItemGroup>
@@ -2275,9 +2280,17 @@
       <Project>{EDB95E6A-F870-451E-ABB8-805C6F350203}</Project>
       <Name>MTGO.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MTGO.Database\MTGO.Database.csproj">
+      <Project>{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}</Project>
+      <Name>MTGO.Database</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MTGO.Services\MTGO.Services.csproj">
       <Project>{6622D38F-0E06-449A-B3C2-7F179EB2FE4D}</Project>
       <Name>MTGO.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MTGO.Tournaments\MTGO.Tournaments.csproj">
+      <Project>{BE13128A-52B3-408E-A8F1-42C26AF0A1CD}</Project>
+      <Name>MTGO.Tournaments</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

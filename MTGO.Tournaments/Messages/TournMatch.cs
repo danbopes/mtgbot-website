@@ -1,14 +1,14 @@
 ﻿using System;
-using MTGO.Common.Entities.CubeDrafting;
 using MTGO.Common.TournamentLibrary;
+using MTGO.Database.Models.CubeDrafting;
 
 namespace MTGO.Tournaments.Messages
 {
     [Serializable]
     public class TournMatch : ITournMatch
     {
-        public ITournPlayer Player1 { get; private set; }
-        public ITournPlayer Player2 { get; private set; }
+        public ITournPlayer Player1 { get; set; }
+        public ITournPlayer Player2 { get; set; }
 
         public int Player1Wins = 0;
         public int Player2Wins = 0;

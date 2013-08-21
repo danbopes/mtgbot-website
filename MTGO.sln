@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.Tournaments", "MTGO.To
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.Database", "MTGO.Database\MTGO.Database.csproj", "{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.WebLoadTest", "MTGO.WebLoadTest\MTGO.WebLoadTest.csproj", "{55C9285A-0D2D-4192-A428-5D120D70C4B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55C9285A-0D2D-4192-A428-5D120D70C4B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55C9285A-0D2D-4192-A428-5D120D70C4B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55C9285A-0D2D-4192-A428-5D120D70C4B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55C9285A-0D2D-4192-A428-5D120D70C4B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

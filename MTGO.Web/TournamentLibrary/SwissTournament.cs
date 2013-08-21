@@ -4,6 +4,7 @@ using System.Linq;
 using MTGO.Common;
 using MTGO.Common.Helpers;
 using MTGO.Common.TournamentLibrary;
+using MTGO.Tournaments.Messages;
 
 namespace MTGO.Web.TournamentLibrary
 {

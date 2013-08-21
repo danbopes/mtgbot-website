@@ -11,8 +11,10 @@ using System.Security.Claims;
 using System.Text;
 using System.Web;
 using System.Web.Helpers;
+using System.Web.Mvc;
 using System.Web.Security;
-using MTGO.Common.Entities;
+using MTGO.Services;
+using RestSharp;
 using log4net;
 
 namespace MTGO.Web.Infastructure
@@ -23,7 +25,8 @@ namespace MTGO.Web.Infastructure
 
         public static bool TryAuth()
         {
-            HttpCookie authCookie = HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
+            var userService = DependencyResolver.Current.GetService<UserService>();
+            var authCookie = HttpContext.Current.Request.Cookies[FormsAuthentication.FormsCookieName];
 
             if (authCookie != null)
             {
@@ -31,27 +34,20 @@ namespace MTGO.Web.Infastructure
 
                 if (ticket != null)
                 {
-                    //Log.DebugFormat("Ticket: {0}", ticket.);
-                    //var identity = new UserIdentity()
-                    using (var db = new MainDbContext())
+                    var user = userService.FindById(Convert.ToInt32(ticket.Name));
+
+                    if (user != null)
                     {
-                        var user = db.Users.Find(Convert.ToInt32(ticket.Name));
+                        var claims = new List<Claim>
+                                {
+                                    new Claim(MtgbotClaimTypes.Identifier, user.Id.ToString(CultureInfo.InvariantCulture)),
+                                    new Claim(ClaimTypes.Name, user.Username)
+                                };
 
-                        if (user != null)
-                        {
-                            var claims = new List<Claim>
-                            {
-                                new Claim(MtgbotClaimTypes.Identifier, user.Id.ToString(CultureInfo.InvariantCulture)),
-                                new Claim(ClaimTypes.Name, user.TwitchUsername)
-                            };
+                        if (user.Admin) claims.Add(new Claim(MtgbotClaimTypes.Admin, "True"));
 
-                            if (user.Admin)
-                                claims.Add(new Claim(MtgbotClaimTypes.Admin, "True"));
-
-                            HttpContext.Current.User = new ClaimsPrincipal(new ClaimsIdentity(claims, Constants.MtgbotAuthType));
-
-                            return true;
-                        }
+                        HttpContext.Current.User = new ClaimsPrincipal(new ClaimsIdentity(claims, Constants.MtgbotAuthType));
+                        return true;
                     }
                 }
             }
@@ -62,6 +58,17 @@ namespace MTGO.Web.Infastructure
                 {
                     Log.Debug("Making request to twitch");
                     var cookie = HttpContext.Current.Request.Cookies["twitch_auth"].Value;
+
+                    var client = new RestClient();
+                    var request = new RestRequest("https://api.twitch.tv/kraken/oauth2/token", Method.POST);
+
+                    request.AddParameter("client_id", ConfigurationManager.AppSettings["TwitchClientKey"]);
+                    request.AddParameter("client_secret", ConfigurationManager.AppSettings["TwitchSecretKey"]);
+                    request.AddParameter("grant_type", "authorization_code");
+                    request.AddParameter("redirect_uri", ConfigurationManager.AppSettings["TwitchRedirect"]);
+                    request.AddParameter("code", cookie);
+
+                    var response = client.Execute<Model>(request);
 
                     string response;
                     using (var wb = new WebClient())
@@ -100,8 +107,8 @@ namespace MTGO.Web.Infastructure
                     using (var db = new MainDbContext())
                     {
                         var username = (string)json2.token.user_name;
-
-                        var user = db.Users.FirstOrDefault(c => c.TwitchUsername == username);
+                        var user = userService.FindByTwitterUsername(username);
+                        //var user = db.Users.FirstOrDefault(c => c.TwitchUsername == username);
 
                         if (user == null)
                         {
@@ -112,16 +119,16 @@ namespace MTGO.Web.Infastructure
 
                             try
                             {
-                                user = new User
-                                {
-                                    Admin = false,
-                                    Created = DateTime.UtcNow,
-                                    SignupIpAddress = ipAddress,
-                                    TwitchUsername = username
-                                };
+                                //user = new User
+                                //{
+                                //    Admin = false,
+                                //    Created = DateTime.UtcNow,
+                                //    SignupIpAddress = ipAddress,
+                                //    TwitchUsername = username
+                                //};
 
-                                db.Users.Add(user);
-                                db.SaveChanges();
+                                //db.Users.Add(user);
+                                //db.SaveChanges();
                             }
                             catch (DbEntityValidationException ex)
                             {

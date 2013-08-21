@@ -21,6 +21,7 @@ namespace MTGO.Web.Controllers
                 if (SendMail(model))
                     return View("Success");
             }
+
             return View();
         }
 

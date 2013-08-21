@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
-using MTGO.Common.Entities.CubeDrafting;
+using MTGO.Database.Models.CubeDrafting;
 
-namespace MTGO.Web.Helpers
+namespace MTGO.Web.Models
 {
     public class PlayerUpdatedModel
     {
@@ -23,7 +23,7 @@ namespace MTGO.Web.Helpers
                 throw new InvalidOperationException();
 
             Id = player.Id;
-            UserId = player.MtgoLink.Id;
+            UserId = player.MtgoLink.User.Id;
             Username = player.MtgoLink.User.Username;
             Confirmed = player.Confirmed;
             DeckBuilt = player.DeckBuilt;
@@ -32,13 +32,12 @@ namespace MTGO.Web.Helpers
 
             if (player.Confirmed)
             {
-                MtgoUsername = player.MtgoLink.User.Username;
-                MtgoId = player.MtgoLink.Id;
+                MtgoUsername = player.MtgoLink.Player.Username;
+                MtgoId = player.MtgoLink.Player.Id;
 
                 RequireCollateral = player.RequireCollateral;
 
-                var mtgoCount = draft.CubeDraftCards.Count(c => c.Location == player.MtgoLink.Id);
-
+                var mtgoCount = draft.CubeDraftCards.Count(c => c.Location == player.MtgoLink.Player.Id);
                 var pickCount = player.CubeDraftPicks.Count;
 
                 if (pickCount > 0)

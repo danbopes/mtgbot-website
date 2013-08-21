@@ -22,5 +22,10 @@ namespace MTGO.Database.Models
         public virtual IList<Ban> Bans { get; protected set; }
         public virtual IList<Draft> Drafts { get; protected set; }
         public virtual IList<MtgoLink> MtgoLinks { get; protected set; }
+
+        public bool IsBroadcaster()
+        {
+            return Broadcaster != null;
+        }
     }
 }

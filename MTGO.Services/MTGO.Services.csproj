@@ -50,11 +50,16 @@
     <Compile Include="Messages\MTGOUser.cs" />
     <Compile Include="Messages\QueueStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MTGO.Common\MTGO.Common.csproj">
       <Project>{EDB95E6A-F870-451E-ABB8-805C6F350203}</Project>
       <Name>MTGO.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MTGO.Database\MTGO.Database.csproj">
+      <Project>{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}</Project>
+      <Name>MTGO.Database</Name>
     </ProjectReference>
     <ProjectReference Include="..\MTGO.Tournaments\MTGO.Tournaments.csproj">
       <Project>{BE13128A-52B3-408E-A8F1-42C26AF0A1CD}</Project>

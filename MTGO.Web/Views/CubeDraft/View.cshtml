@@ -1,10 +1,9 @@
-﻿@using MTGO.Common.Models
-@using MTGO.Web.Infastructure
-@model MTGO.Common.Entities.CubeDrafting.CubeDraft
+﻿@using MTGO.Database.Models.CubeDrafting
+@model MTGO.Web.Models.CubeDraftViewModel
 
 @{
     ViewBag.Title = "Cube Draft";
-    ViewBag.Description = Model.Name;
+    ViewBag.Description = Model.DraftName;
 }
 
 <style type="text/css">
