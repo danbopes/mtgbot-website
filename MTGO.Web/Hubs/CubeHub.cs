@@ -8,36 +8,37 @@ using System.ServiceModel;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Caching;
+using Autofac;
 using MTGO.Common;
-using MTGO.Common.Entities;
-using MTGO.Common.Entities.CubeDraft;
 using MTGO.Common.Entities.CubeDrafting;
 using MTGO.Common.Entities.Mtgo;
 using MTGO.Common.Enums;
-using MTGO.Common.TournamentLibrary;
+using MTGO.Services;
 using MTGO.Web.Helpers;
 using MTGO.Web.Infastructure;
-using MTGO.Web.Services;
 using MTGO.Web.TournamentLibrary;
 using Microsoft.AspNet.SignalR;
 using log4net;
+using DraftService = MTGO.Web.Services.DraftService;
 
 namespace MTGO.Web.Hubs
 {
     public class CubeHub : Hub
     {
-        private MainDbContext _db = new MainDbContext();
+        private readonly ILifetimeScope _hubLifetimeScope;
+        private readonly CubeDraftService _cubeDraftService;
+
+        public CubeHub()
+        {
+            _hubLifetimeScope = _hubLifetimeScope.BeginLifetimeScope();
+            _cubeDraftService = _hubLifetimeScope.Resolve<CubeDraftService>();
+        }
 
         private static readonly ConcurrentDictionary<string, int> ConnectedClients = new ConcurrentDictionary<string, int>();
         private static readonly ConcurrentDictionary<int, ICubeDraftManager> DraftManagers = new ConcurrentDictionary<int, ICubeDraftManager>();
         private static readonly ConcurrentDictionary<int, SwissTournament> TournamentManagers = new ConcurrentDictionary<int, SwissTournament>();
         private static readonly ILog Log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private readonly DraftService _draftService;
-
-        public CubeHub()
-        {
-            _draftService = new DraftService(_db);
-        }
 
         private static IBotService BotService
         {

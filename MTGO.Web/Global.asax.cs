@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Web;
-using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using System.Web.SessionState;
 using MTGO.Web.App_Start;
 using MTGO.Web.Infastructure;
-using Microsoft.AspNet.SignalR;
 
 namespace MTGO.Web
 {
@@ -16,48 +13,21 @@ namespace MTGO.Web
 
     public class MvcApplication : HttpApplication
     {
-        public static RouteBase HubRoute;
-
         protected void Application_Start()
         {
-            var hubConfiguration = new HubConfiguration {EnableDetailedErrors = true};
-            HubRoute = RouteTable.Routes.MapHubs(hubConfiguration);
+            RouteTable.Routes.MapHubs();
             AreaRegistration.RegisterAllAreas();
 
-            //Database.SetInitializer(new DropCreateMySqlDatabaseIfModelChanges<MainDbContext>());
-            WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AuthConfig.RegisterAuth();
-        }
-
-        protected void Application_BeginRequest(object sender, EventArgs e)
-        {
-            if (IsSignalRRequest(Context))
-            {
-                // Turn readonly sessions on for SignalR
-                Context.SetSessionStateBehavior(SessionStateBehavior.ReadOnly);
-            }
-        }
-
-        private static bool IsSignalRRequest(HttpContext context)
-        {
-            var routeData = HubRoute.GetRouteData(new HttpContextWrapper(context));
-
-            // If the routeData isn't null then it's a SignalR request
-            return routeData != null;
+            AutofacConfig.Init();
         }
 
         protected void Application_AuthenticateRequest(object sender, EventArgs e)
         {
             TwitchAuthorization.TryAuth();
-        }
-
-        protected void Application_AuthorizeRequest(object sender, EventArgs e)
-        {
-            //if (!Context.User.IsAuthenticated())
-            //    TwitchAuthorization.RedirectToTwitch();
         }
     }
 }

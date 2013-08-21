@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using MTGO.Common.Entities;
-using MTGO.Common.Entities.CubeDraft;
 using MTGO.Common.Entities.CubeDrafting;
 
 namespace MTGO.Web.Helpers
@@ -34,12 +32,12 @@ namespace MTGO.Web.Helpers
 
             if (player.Confirmed)
             {
-                MtgoUsername = player.MtgoLink.MtgoUsername;
-                MtgoId = player.MtgoLink.MtgoId;
+                MtgoUsername = player.MtgoLink.User.Username;
+                MtgoId = player.MtgoLink.Id;
 
                 RequireCollateral = player.RequireCollateral;
 
-                var mtgoCount = draft.CubeDraftCards.Count(c => c.Location == player.MtgoLink.MtgoId);
+                var mtgoCount = draft.CubeDraftCards.Count(c => c.Location == player.MtgoLink.Id);
 
                 var pickCount = player.CubeDraftPicks.Count;
 

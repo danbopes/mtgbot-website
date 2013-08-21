@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MTGO.Common;
+using MTGO.Common.Helpers;
 using MTGO.Common.TournamentLibrary;
 
 namespace MTGO.Web.TournamentLibrary

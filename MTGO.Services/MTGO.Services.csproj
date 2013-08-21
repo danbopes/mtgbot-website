@@ -30,8 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NHibernate">
+      <HintPath>..\MTGO.Common\bin\Debug\NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -39,7 +43,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CubeDraftService.cs" />
+    <Compile Include="DraftService.cs" />
+    <Compile Include="IBotService.cs" />
+    <Compile Include="Messages\MTGORating.cs" />
+    <Compile Include="Messages\MTGOUser.cs" />
+    <Compile Include="Messages\QueueStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MTGO.Common\MTGO.Common.csproj">
+      <Project>{EDB95E6A-F870-451E-ABB8-805C6F350203}</Project>
+      <Name>MTGO.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MTGO.Tournaments\MTGO.Tournaments.csproj">
+      <Project>{BE13128A-52B3-408E-A8F1-42C26AF0A1CD}</Project>
+      <Name>MTGO.Tournaments</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

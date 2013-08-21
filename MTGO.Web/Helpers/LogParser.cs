@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MTGO.Common;
+using MTGO.Common.Helpers;
 
 namespace MTGO.Web.Helpers
 {

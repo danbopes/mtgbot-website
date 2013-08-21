@@ -5,8 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using MTGO.Common;
 using MTGO.Common.Entities;
-using MTGO.Common.Entities.CubeDraft;
 using MTGO.Common.Entities.CubeDrafting;
+using MTGO.Common.Helpers;
 using MTGO.Web.Hubs;
 using Microsoft.AspNet.SignalR;
 

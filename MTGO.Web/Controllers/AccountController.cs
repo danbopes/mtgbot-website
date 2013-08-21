@@ -7,9 +7,6 @@ namespace MTGO.Web.Controllers
 {
     public class AccountController : Controller
     {
-        //
-        // GET: /Account/
-
         public ActionResult Index()
         {
             return null;
@@ -18,8 +15,13 @@ namespace MTGO.Web.Controllers
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
-            var c = new HttpCookie("twitch_auth") {Expires = DateTime.Now.AddDays(-1)};
-            Response.Cookies.Add(c);
+
+            var cookie = new HttpCookie("twitch_auth")
+                {
+                    Expires = DateTime.Now.AddDays(-1)
+                };
+
+            Response.Cookies.Add(cookie);
             return RedirectToAction("Index", "Home");
         }
 

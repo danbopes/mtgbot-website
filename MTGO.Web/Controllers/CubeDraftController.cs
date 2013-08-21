@@ -1,26 +1,40 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using System.Xml;
-using MTGO.Common.Entities;
-using MTGO.Common.Entities.CubeDraft;
+using MTGO.Common.Entities.CubeDrafting;
 using MTGO.Common.Enums;
+using MTGO.Services;
+using MTGO.Web.Filters;
 using MTGO.Web.Helpers;
 using MTGO.Web.Infastructure;
+using NHibernate;
+using NHibernate.Linq;
 
 namespace MTGO.Web.Controllers
 {
     public class CubeDraftController : Controller
     {
-        //
-        // GET: /CubeDraft/
-        readonly MainDbContext db = new MainDbContext();
+        private readonly CubeDraftService _cubeDraftService;
 
+        public CubeDraftController(CubeDraftService cubeDraftService)
+        {
+            _cubeDraftService = cubeDraftService;
+        }
+
+        [TransactionFilter]
         public ActionResult Index()
         {
-            return View(db.CubeDrafts.Where(d => d.Status != CubeDraftStatus.Init).OrderByDescending(d => d.Id).Take(10).ToList());
+            var drafts = _cubeDraftService.GetAll()
+                    .Where(draft => draft.Status != CubeDraftStatus.Init)
+                    .OrderByDescending(draft => draft.Id)
+                    .Take(10)
+                    .ToList();
+
+            return View(drafts);
         }
 
         [TwitchAuthorize]

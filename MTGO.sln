@@ -16,6 +16,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{1EF3F0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.Services", "MTGO.Services\MTGO.Services.csproj", "{6622D38F-0E06-449A-B3C2-7F179EB2FE4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.Tournaments", "MTGO.Tournaments\MTGO.Tournaments.csproj", "{BE13128A-52B3-408E-A8F1-42C26AF0A1CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTGO.Database", "MTGO.Database\MTGO.Database.csproj", "{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,14 @@ Global
 		{6622D38F-0E06-449A-B3C2-7F179EB2FE4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6622D38F-0E06-449A-B3C2-7F179EB2FE4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6622D38F-0E06-449A-B3C2-7F179EB2FE4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE13128A-52B3-408E-A8F1-42C26AF0A1CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE13128A-52B3-408E-A8F1-42C26AF0A1CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE13128A-52B3-408E-A8F1-42C26AF0A1CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE13128A-52B3-408E-A8F1-42C26AF0A1CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F46CBB5-0147-4A58-B6E4-7B79B3BF054E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

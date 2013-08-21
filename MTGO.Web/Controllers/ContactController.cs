@@ -8,9 +8,6 @@ namespace MTGO.Web.Controllers
 {
     public class ContactController : Controller
     {
-        //
-        // GET: /Contact/
-
         public ActionResult Index()
         {
             return View();
@@ -21,7 +18,7 @@ namespace MTGO.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                if ( SendMail(model) )
+                if (SendMail(model))
                     return View("Success");
             }
             return View();
